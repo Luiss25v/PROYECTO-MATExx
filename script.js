@@ -1,6 +1,9 @@
 // ACTIVAR COLOREADO DE CÓDIGO
 document.addEventListener('DOMContentLoaded', (event) => {
-    hljs.highlightAll();
+    // Evita que un fallo de CDN rompa toda la app
+    if (window.hljs && typeof window.hljs.highlightAll === 'function') {
+        window.hljs.highlightAll();
+    }
 });
 
 // --- DICCIONARIO DE COLORES NEÓN VIBRANTES ---
@@ -19,6 +22,13 @@ const sectionColors = {
 
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
+    // Color por sección (siempre definido para evitar errores)
+    var newColor = sectionColors[tabName] || '#FFD700';
+
+    // Evita que los links con href="#" te manden al inicio
+    if (evt && evt.preventDefault && evt.currentTarget && evt.currentTarget.tagName === 'A') {
+        evt.preventDefault();
+    }
 
     // Ocultar contenidos
     tabcontent = document.getElementsByClassName("tab-content");
@@ -36,19 +46,23 @@ function openTab(evt, tabName) {
 
     // Mostrar pestaña actual
     var currentTab = document.getElementById(tabName);
-    if (currentTab) {
-        currentTab.style.display = "block";
-        
-        // --- CAMBIO DE COLOR DINÁMICO ---
-        var newColor = sectionColors[tabName] || '#FFD700';
-        document.documentElement.style.setProperty('--gold-primary', newColor);
+    if (!currentTab) {
+        console.warn('Tab no existe en el HTML:', tabName);
+        return;
     }
+    currentTab.style.display = "block";
+    document.documentElement.style.setProperty('--gold-primary', newColor);
 
     // Activar botón
-    if (evt) {
+    if (evt && evt.currentTarget) {
         evt.currentTarget.className += " active";
         evt.currentTarget.style.borderColor = newColor;
         evt.currentTarget.style.color = newColor;
+    }
+
+    // Re-render de fórmulas si hay MathJax
+    if (window.MathJax && window.MathJax.typeset) {
+        window.MathJax.typeset();
     }
 }
 
@@ -83,8 +97,8 @@ function calcCartesian() {
 ========================= */
 function parseCSV(raw) {
     if (!raw) return [];
-    return raw.split(/[,;
-]+/).map(s => s.trim()).filter(s => s.length > 0);
+    // Separar por coma, punto y coma o saltos de línea
+    return raw.split(/[,;\n]+/).map(s => s.trim()).filter(s => s.length > 0);
 }
 
 /**
@@ -107,8 +121,7 @@ function parseMapping(raw) {
     // Soportar formato (x,y)
     cleaned = cleaned.replace(/\(/g, '').replace(/\)/g, '');
 
-    const parts = cleaned.split(/[,;
-]+/).map(s => s.trim()).filter(Boolean);
+    const parts = cleaned.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
 
     // Intentar reconstruir pares si el usuario puso (x,y) sin separador claro:
     // Ej: "1,a,2,b" -> lo convertimos en ["1,a","2,b"]
