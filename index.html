@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Matemáticas Computacionales | EPN</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -14,34 +14,80 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/matlab.min.js"></script>
-<link href="style.css" rel="stylesheet"/>
+<link href="style.css?v=mc32" rel="stylesheet"/>
 </head>
 <body>
+<a class="skip-link" href="#mainContent">Saltar al contenido</a>
+<div aria-hidden="true" class="scroll-progress" id="scrollProgress"></div>
+<div aria-hidden="true" class="fx-overlay"></div>
+<canvas aria-hidden="true" id="particlesCanvas"></canvas>
+<div aria-hidden="true" class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar">
 <div class="sidebar-header" onclick="openTab(event, 'inicio')">
 <img alt="Logo MathBot" class="sidebar-logo" src="img/buho.png"/>
 <p style="font-size: 0.8rem; color: var(--gold-primary); letter-spacing: 2px; font-weight: bold; margin-top: 15px;">GAMER EDITION</p>
 </div>
+<div class="sidebar-scroll">
+<div class="sidebar-search">
+<i class="fas fa-search"></i>
+<input autocomplete="off" id="sidebarSearch" placeholder="Buscar sección..." type="text"/><button class="search-btn" id="sidebarSearchBtn" title="Buscar" type="button"><i class="fas fa-arrow-right"></i></button>
+<div aria-live="polite" class="search-results" id="sidebarSearchResults"></div>
+</div>
 <nav>
 <ul>
 <li><a class="tab-link active" href="#" onclick="openTab(event, 'inicio')"><i class="fas fa-robot"></i> Inicio</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'prod-cartesiano')"><i class="fas fa-shapes"></i> Producto Cartesiano</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'funciones')"><i class="fas fa-project-diagram"></i> Funciones</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'ejercicios')"><i class="fas fa-pencil-ruler"></i> Ejemplos / Hojas</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'clasificacion')"><i class="fas fa-check-double"></i> Clasificación</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'inversa')"><i class="fas fa-exchange-alt"></i> Función Inversa</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'compuesta')"><i class="fas fa-layer-group"></i> Función Compuesta</a></li>
-<li><a class="tab-link" href="#" onclick="openTab(event, 'discreta')"><i class="fas fa-chart-bar"></i> Función Discreta</a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'prod-cartesiano')"><i class="fas fa-shapes"></i> <span class="mission-badge">MISION 1</span> <span class="nav-text">Producto Cartesiano</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'funciones')"><i class="fas fa-project-diagram"></i> <span class="mission-badge">MISION 2</span> <span class="nav-text">Funciones</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'ejercicios')"><i class="fas fa-pencil-ruler"></i> <span class="mission-badge">MISION 3</span> <span class="nav-text">Ejemplos / Hojas</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'clasificacion')"><i class="fas fa-check-double"></i> <span class="mission-badge">MISION 4</span> <span class="nav-text">Clasificación</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'inversa')"><i class="fas fa-exchange-alt"></i> <span class="mission-badge">MISION 5</span> <span class="nav-text">Función Inversa</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'compuesta')"><i class="fas fa-layer-group"></i> <span class="mission-badge">MISION 6</span> <span class="nav-text">Función Compuesta</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'discreta')"><i class="fas fa-chart-bar"></i> <span class="mission-badge">MISION 7</span> <span class="nav-text">Función Discreta</span></a></li>
+<li><a class="tab-link" href="#" onclick="openTab(event, 'practica')"><i class="fas fa-bullseye"></i> <span class="mission-badge">MISION 8</span> <span class="nav-text">Modo Práctica</span></a></li>
 <li><a class="tab-link" href="#" onclick="openTab(event, 'video')"><i class="fas fa-play-circle"></i> Video Explicativo</a></li>
 <li><a class="tab-link" href="#" onclick="openTab(event, 'resenas')"><i class="fas fa-comments"></i> Reseñas</a></li>
 </ul>
 </nav>
+<div class="mission-panel" id="missionPanel">
+<div class="mission-head">
+<div class="mission-title">
+<i class="fas fa-flag-checkered"></i>
+<span>Modo Misión</span>
+</div>
+<button class="mission-reset" onclick="resetMissions()" title="Reiniciar progreso" type="button">
+<i class="fas fa-rotate-left"></i>
+</button>
+<button class="mission-close" id="missionClose" title="Cerrar panel" type="button"><i class="fas fa-xmark"></i></button>
+</div>
+<div class="mission-progress">
+<div class="mission-progress-bar"><span id="missionBarFill"></span></div>
+<div class="mission-progress-text"><span id="missionPct">0%</span> completado</div>
+</div>
+<ul class="mission-list" id="missionList"></ul>
+</div>
+</div>
 <div class="sidebar-footer">
-<p>Samuel Robayo | EPN 2026</p>
+<p>GRUPO 5 MC | EPN</p>
 </div>
 </aside>
-<main class="main-content">
+<main class="main-content" id="mainContent">
 <header class="top-header">
+<div class="section-pill" id="currentSection" title="Sección actual">Inicio</div>
+<button aria-label="Abrir menú" class="sidebar-toggle" id="sidebarToggle" title="Menú" type="button">
+<i class="fas fa-bars"></i>
+</button>
+<button class="panel-btn" id="panelBtn" title="Panel de jugador" type="button"><i class="fas fa-user-astronaut"></i></button>
+<div class="xp-badge" id="xpBadge" title="Progreso de juego">
+<div class="xp-top">LV <span id="levelValue">1</span> · XP <span id="xpValue">0</span></div>
+<div class="xp-bar"><span id="xpBar"></span></div>
+<div class="xp-row">
+<span class="streak" title="Racha diaria"><i class="fas fa-fire"></i> <span id="streakValue">1</span></span>
+<button class="hud-btn" id="trophyBtn" title="Logros" type="button"><i class="fas fa-trophy"></i></button>
+<button class="hud-btn" id="soundBtn" title="Sonido: off" type="button"><i class="fas fa-volume-mute"></i></button>
+<button class="hud-btn" id="themeBtn" title="Tema" type="button"><i class="fas fa-palette"></i></button>
+<button class="hud-btn" id="fsBtn" title="Pantalla completa" type="button"><i class="fas fa-expand"></i></button>
+</div>
+</div>
 <div class="logo-area">
 <img alt="Escudo EPN" src="img/logo-epn.png"/>
 <div class="university-info">
@@ -51,8 +97,8 @@
 </div>
 </div>
 </header>
-<div class="content-body">
-<div class="tab-content" id="inicio" style="display: block;">
+<div class="content-body-full">
+<div class="tab-content active" id="inicio" style="display: block;">
 <section class="welcome-section">
 <div class="bot-card">
 <div class="bot-text">
@@ -191,236 +237,758 @@ end</code></pre>
 <div class="set-oval"><h4>Codominio</h4></div>
 </div>
 </div>
+<div class="card">
+  <h1 class="urban-title">LABORATORIO DE FUNCIÓN f(x)</h1>
+  <div class="definition-text">
+    <p>Define una función, evalúala, genera una tabla y grafícala. Incluye el código MATLAB equivalente.</p>
+  </div>
+
+  <div class="fx-form">
+    <div>
+      <label class="mini-label">f(x)</label>
+      <input id="fxExpr" class="mini-input" placeholder="Ej: sin(x) + x^2 - 3" />
+      <div class="mini-hint">Usa: + - * / ^ ( )  y funciones: sin, cos, tan, exp, log, sqrt, abs.</div>
+    </div>
+
+    <div class="fx-grid">
+      <div>
+        <label class="mini-label">Dominio</label>
+        <div class="fx-inline">
+          <input id="fxMin" class="mini-input" type="number" step="0.5" value="-5"/>
+          <span class="muted">a</span>
+          <input id="fxMax" class="mini-input" type="number" step="0.5" value="5"/>
+        </div>
+      </div>
+      <div>
+        <label class="mini-label">Puntos</label>
+        <input id="fxN" class="mini-input" type="number" min="20" max="400" value="120"/>
+      </div>
+      <div>
+        <label class="mini-label">Evaluar en x</label>
+        <input id="fxX0" class="mini-input" type="number" step="0.5" value="2"/>
+      </div>
+    </div>
+
+    <div class="mini-actions">
+      <button id="fxPlotBtn" class="run-btn" type="button">Graficar</button>
+      <button id="fxTableBtn" class="btn" type="button">Tabla</button>
+      <button id="fxDerBtn" class="btn" type="button">Derivada (aprox)</button>
+      <button id="fxCopyMatlabBtn" class="btn" type="button">Copiar MATLAB</button>
+    </div>
+  </div>
+
+  <div class="fx-output grid-2">
+    <div class="card-inner">
+      <h3 class="section-mini-title">Gráfico</h3>
+      <canvas id="fxCanvas" width="640" height="360" class="fx-canvas"></canvas>
+      <div id="fxEvalBox" class="result-display" style="margin-top:14px;">Esperando función…</div>
+    </div>
+
+    <div class="card-inner">
+      <h3 class="section-mini-title">Tabla (muestra)</h3>
+      <div id="fxTableBox" class="table-box muted">Genera una tabla para ver valores.</div>
+      <h3 class="section-mini-title" style="margin-top:18px;">MATLAB</h3>
+      <pre id="fxMatlabCode" class="code-block" style="display:none;"></pre>
+    </div>
+  </div>
+</div>
+
+    <div class="card">
+      <h2 class="urban-title">RETO XP: evalúa f(x)</h2>
+      <div class="definition-text">
+        <p>Genera un reto basado en la función que escribas arriba y gana XP <b>solo</b> si respondes correctamente (si lo dejas vacío o está mal, no ganas nada).</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div id="fxQuizPrompt" class="prompt-box">Presiona <b>Nuevo reto</b> para generar una pregunta (se usa tu f(x) actual).</div>
+
+          <div class="fx-grid" style="margin-top:12px;">
+            <div>
+              <label class="mini-label">Tu respuesta (número)</label>
+              <input id="fxQuizAnswer" class="mini-input" placeholder="Ej: 2.718" />
+              <div class="mini-hint">Tip: redondea a 3 decimales. Se valida con tolerancia.</div>
+            </div>
+
+            <div class="fx-actions">
+              <button id="fxQuizNew" class="mini-btn">Nuevo reto</button>
+              <button id="fxQuizCheck" class="mini-btn">Validar</button>
+              <button id="fxQuizReveal" class="mini-btn">Ver solución</button>
+            </div>
+          </div>
+
+          <div id="fxQuizFeedback" class="muted" style="margin-top:10px;">—</div>
+        </div>
+
+        <div class="code-panel">
+          <div class="code-head">
+            <span class="muted">MATLAB generado</span>
+            <button id="fxQuizCopy" class="mini-btn">Copiar</button>
+          </div>
+          <pre id="fxQuizMatlab" class="matlab-pre code language-matlab giant-code">% Presiona &quot;Nuevo reto&quot; para generar el código MATLAB.</pre>
+        </div>
+      </div>
+    </div>
+
 </div>
 <div class="tab-content" id="ejercicios">
-<div class="topic-header"><h2>VALIDACIÓN VISUAL</h2><span class="badge">Slide 8</span></div>
+<div class="topic-header">
+  <h2>EJEMPLOS / HOJAS</h2>
+  <span class="badge">NIVEL 3</span>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h1 class="urban-title">BANCO DE EJEMPLOS</h1>
+    <div class="definition-text">
+      <p>Selecciona un tema y carga un ejemplo completo en su sección (se rellenan campos y se ejecuta el cálculo/grafico).</p>
+    </div>
+
+    <div class="mini-form">
+      <label class="mini-label">Tema</label>
+      <select id="exTopicSelect" class="mini-select"></select>
+      <button id="exLoadBtn" class="search-btn" type="button">Cargar en sección</button>
+    </div>
+
+    <div id="exExampleBox" class="example-box">
+      <div class="muted">Elige un tema para ver el ejemplo.</div>
+    </div>
+
+    <div class="mini-actions">
+      <button id="exRevealBtn" class="btn" type="button">Ver solución</button>
+      <button id="exCopyMatlabBtn" class="btn" type="button">Copiar MATLAB</button>
+    </div>
+
+    <pre id="exMatlabCode" class="code-block" style="display:none;"></pre>
+          <div style="height:14px;"></div>
+          <h3 class="urban-subtitle">Mini reto (XP)</h3>
+          <div id="exQuizPrompt" class="prompt-box">Selecciona un ejemplo y presiona <b>Reto</b>. Ganas XP solo si respondes bien.</div>
+
+          <div class="fx-grid" style="margin-top:12px;">
+            <div>
+              <label class="mini-label">Tu respuesta</label>
+              <input id="exQuizAnswer" class="mini-input" placeholder="Escribe aquí..." />
+              <div class="mini-hint">No se otorga XP si está vacío o es incorrecto.</div>
+            </div>
+
+            <div class="fx-actions">
+              <button id="exQuizNew" class="mini-btn">Reto</button>
+              <button id="exQuizCheck" class="mini-btn">Validar</button>
+              <button id="exQuizReveal" class="mini-btn">Ver solución</button>
+            </div>
+          </div>
+
+          <div id="exQuizFeedback" class="muted" style="margin-top:10px;">—</div>
+
+  </div>
+
+  <div class="card">
+    <h1 class="urban-title">GENERADOR DE HOJAS</h1>
+    <div class="definition-text">
+      <p>Genera una hoja imprimible con ejercicios. Puedes mostrar/ocultar la clave y descargar la hoja en JSON.</p>
+    </div>
+
+    <div class="sheet-form">
+      <div>
+        <label class="mini-label">Tema</label>
+        <select id="sheetTopic" class="mini-select"></select>
+      </div>
+      <div>
+        <label class="mini-label">Cantidad</label>
+        <input id="sheetCount" type="number" min="3" max="20" value="8" class="mini-input"/>
+      </div>
+      <div>
+        <label class="mini-label">Dificultad</label>
+        <select id="sheetDifficulty" class="mini-select">
+          <option value="1">Nivel 1 (rápido)</option>
+          <option value="2">Nivel 2</option>
+          <option value="3">Nivel 3</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mini-actions">
+      <button id="sheetGenBtn" class="run-btn" type="button">Generar hoja</button>
+      <button id="sheetToggleKeyBtn" class="btn" type="button">Mostrar clave</button>
+      <button id="sheetPrintBtn" class="btn" type="button">Imprimir</button>
+      <button id="sheetDownloadJsonBtn" class="btn" type="button">Descargar JSON</button>
+    </div>
+
+    <div id="sheetPreview" class="sheet-preview">
+      <div class="muted">Aún no hay hoja. Presiona <strong>Generar hoja</strong>.</div>
+    </div>
+  </div>
+</div>
+
 <div class="card">
-<h1 class="urban-title">ANÁLISIS DE ERRORES</h1>
-<div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap; background: rgba(255,0,0,0.1); border: 3px solid red; padding: 30px; border-radius: 20px;">
-<div style="flex: 1; min-width: 250px; text-align: center;">
-<img alt="Error Función" src="img/image_1.png" style="max-width: 100%; border-radius: 10px; box-shadow: 0 0 30px rgba(255,0,0,0.5); border: 2px solid red;"/>
+  <h1 class="urban-title">VALIDADOR RÁPIDO</h1>
+  <div class="definition-text">
+    <p>Resuelve el ejercicio actual de tu hoja y valida. Solo ganas XP si la respuesta es correcta (estilo videojuego).</p>
+  </div>
+
+  <div class="sheet-solver">
+    <div class="solver-left">
+      <div id="sheetCurrentPrompt" class="prompt-box">Sin ejercicio activo.</div>
+      <div class="mini-actions">
+        <button id="sheetPrevBtn" class="btn" type="button">Anterior</button>
+        <button id="sheetNextBtn" class="btn" type="button">Siguiente</button>
+        <button id="sheetHintBtn" class="btn" type="button">Pista</button>
+      </div>
+      <div id="sheetHintBox" class="hint-box" style="display:none;"></div>
+    </div>
+
+    <div class="solver-right">
+      <label class="mini-label">Tu respuesta</label>
+      <input id="sheetAnswer" class="mini-input" placeholder="Escribe tu respuesta..." />
+      <div class="mini-actions">
+        <button id="sheetCheckBtn" class="search-btn" type="button">Validar</button>
+        <button id="sheetShowSolutionBtn" class="btn" type="button">Ver solución</button>
+        <button id="sheetLoadSectionBtn" class="btn" type="button">Cargar en sección</button>
+      </div>
+      <div id="sheetFeedback" class="feedback-box"></div>
+      <div class="mini-actions">
+        <button id="sheetCopyMatlabBtn" class="btn" type="button">Copiar MATLAB</button>
+      </div>
+      <pre id="sheetMatlabCode" class="code-block" style="display:none;"></pre>
+    </div>
+  </div>
 </div>
-<div style="flex: 1.5;">
-<h2 style="color: red; font-size: 2rem;"><i class="fas fa-times-circle"></i> VIOLACIÓN DE UNICIDAD</h2>
-<p style="font-size: 1.3rem; margin-top: 15px;">El elemento <strong>2</strong> tiene dos salidas. ¡FATAL ERROR!</p>
 </div>
+<div class="tab-content" id="clasificacion" style="display:none;">
+<div class="topic-header">
+<h2>CLASIFICACIÓN DE FUNCIONES</h2>
+<span class="badge">NIVEL 4</span>
 </div>
-</div>
-</div>
-<div class="tab-content" id="clasificacion">
-<div class="topic-header"><h2>CLASIFICACIÓN DE FUNCIONES</h2><span class="badge">NIVEL 3</span></div>
 <div class="card">
-<h1 class="urban-title">INJECTIVA · SOBRAYECTIVA · BIYECTIVA</h1>
-<div class="definition-text">
-<p>
-                            Una función <strong>f: A → B</strong> puede clasificarse según cómo “cubre” el codominio y si repite salidas:
-                        </p>
-<div class="grid-3" style="margin-top: 30px;">
-<div class="type-card">
-<i class="fas fa-fingerprint fa-4x" style="color: var(--gold-primary);"></i>
-<h3>Injectiva</h3>
-<p style="color:#ccc;">No repite valores de salida: si x₁≠x₂ entonces f(x₁)≠f(x₂).</p>
-</div>
-<div class="type-card">
-<i class="fas fa-bullseye fa-4x" style="color: var(--gold-primary);"></i>
-<h3>Sobreyectiva</h3>
-<p style="color:#ccc;">Cubre todo el codominio: para cada y∈B existe x∈A con f(x)=y.</p>
-</div>
-<div class="type-card">
-<i class="fas fa-infinity fa-4x" style="color: var(--gold-primary);"></i>
-<h3>Biyectiva</h3>
-<p style="color:#ccc;">Es injectiva y sobreyectiva a la vez. Tiene inversa.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="card">
-<h1 class="urban-title">SIMULADOR (MAPEO)</h1>
-<div style="display:flex; gap:40px; flex-wrap:wrap;">
-<div style="flex:1; min-width: 340px;">
+<h1 class="urban-title">Analizador (Web) + Script (MATLAB)</h1>
 <div class="interactive-box">
-<h4><i class="fas fa-check-double"></i> Verificar clasificación</h4>
+<div class="simulator">
+<h4><i class="fas fa-cogs"></i> Simulador Web (JS)</h4>
 <div class="input-group">
 <input id="classDomain" placeholder="Dominio A (ej: 1,2,3)" type="text"/>
 <input id="classCodomain" placeholder="Codominio B (ej: a,b,c)" type="text"/>
-<input id="classMap" placeholder="Mapeo (ej: 1-&gt;a, 2-&gt;b, 3-&gt;c)" type="text"/>
+<input data-prefix="class" id="classMap" pair-builder"="" placeholder="Mapeo (ej: 1-&gt;
+                            &lt;div class=" type="text"/>
+<div class="pair-row">
+<input id="classPairX" placeholder="x" type="text"/>
+<span class="arrow">→</span>
+<input id="classPairY" placeholder="y" type="text"/>
+<button class="icon-btn" onclick="addPair('class', 'classMap')" title="Agregar par"><i class="fas fa-plus"></i></button>
+<button class="icon-btn" onclick="clearPairs('class', 'classMap')" title="Borrar pares"><i class="fas fa-trash"></i></button>
 </div>
-<button class="run-btn" onclick="classifyFunction()">ANALIZAR</button><div class="mini-actions"><button class="sub-btn" onclick="loadExample('clasificacion')">EJEMPLO</button><button class="sub-btn" onclick="clearSection('clasificacion')">LIMPIAR</button></div>
-<div class="result-display giant-code" id="classResult">Esperando entrada...</div>
+<div class="pair-hint">Tip: también puedes escribir “1-&gt;a, 2-&gt;b”. Si repites x, se reemplaza.</div>
+<div class="pairs-list" id="classPairsList"></div>
+</div>
+a, 2-&gt;b, 3-&gt;c)"&gt;
+                            </div>
+<button class="run-btn" onclick="classifyFunction()">ANALIZAR</button>
+<div class="mini-actions">
+<button class="sub-btn" onclick="document.getElementById('classDomain').value='1,2,3';document.getElementById('classCodomain').value='a,b,c';document.getElementById('classMap').value='1-&gt;a,2-&gt;b,3-&gt;c';classifyFunction();">EJEMPLO</button>
+<button class="sub-btn" onclick="clearSection('clasificacion')">LIMPIAR</button>
+</div>
+<div class="result-display" id="classResult">Esperando entrada...</div>
+</div>
+<div class="code-panel">
+<div class="code-head">
+<button class="matlab-toggle" onclick="toggleMatlab('classMatlabWrap', this)">Ver MATLAB</button>
+<button class="icon-btn" onclick="downloadCode(\'classMatlab\', \'clasificacion.m\')" title="Descargar .m"><i class="fas fa-download"></i></button>
+<button class="icon-btn" onclick="copyCode('classMatlab')" title="Copiar">
+<i class="fas fa-copy"></i>
+</button>
+</div>
+<pre class="matlab-pre" id="classMatlabWrap" style="display:none;"><code class="language-matlab giant-code" id="classMatlab"></code></pre>
 </div>
 </div>
-<div style="flex:1; min-width: 340px;">
-<div style="background:#1e1e1e; border:3px solid var(--gold-primary); border-radius:15px; overflow:hidden; height:100%;">
-<div class="matlab-head" style="background:#252526; color: var(--gold-primary); padding:15px; margin:0; font-weight:bold; border-bottom:1px solid #333; font-size:1.2rem;; display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>MATLAB · Clasificación</span><div class="matlab-actions"><button class="matlab-mini" onclick="toggleMatlab('classMatlabBody', this)">Ver MATLAB</button><button class="matlab-mini" onclick="copyCode('classMatlab')" title="Copiar código"><i class="fa fa-copy"></i></button></div></div><div class="matlab-body" id="classMatlabBody"><pre style="margin:0;"><code class="language-matlab giant-code" id="classMatlab" style="padding:25px; display:block; overflow-x:auto;">% Presiona "ANALIZAR" para generar el código MATLAB.</code></pre></div>
-
 </div>
 </div>
+<!-- ============================= -->
+<!-- SECCIÓN: INVERSA -->
+<!-- ============================= -->
+<div class="tab-content" id="inversa" style="display:none;">
+<div class="topic-header">
+<h2>FUNCIÓN INVERSA</h2>
+<span class="badge">NIVEL 5</span>
 </div>
-</div>
-</div>
-<div class="tab-content" id="inversa">
-<div class="topic-header"><h2>FUNCIÓN INVERSA</h2><span class="badge">NIVEL 4</span></div>
 <div class="card">
-<h1 class="urban-title">REGLA CLAVE</h1>
-<div class="definition-text">
-<p>
-                            Una función tiene inversa <strong>f⁻¹</strong> si y solo si es <strong>biyectiva</strong>.
-                            La inversa “invierte las flechas”: si <strong>f(x)=y</strong> entonces <strong>f⁻¹(y)=x</strong>.
-                        </p>
-<p class="math-highlight giant-math">
-                            f^{-1}: B → A
-                        </p>
-</div>
-</div>
-<div class="card">
-<h1 class="urban-title">GENERADOR DE INVERSA</h1>
-<div style="display:flex; gap:40px; flex-wrap:wrap;">
-<div style="flex:1; min-width: 340px;">
+<h1 class="urban-title">Calculadora de Inversa (si es biyectiva)</h1>
 <div class="interactive-box">
-<h4><i class="fas fa-exchange-alt"></i> Calcular inversa</h4>
+<div class="simulator">
+<h4><i class="fas fa-cogs"></i> Simulador Web (JS)</h4>
+<div class="input-group">
 <input id="invDomain" placeholder="Dominio A (ej: 1,2,3)" type="text"/>
 <input id="invCodomain" placeholder="Codominio B (ej: a,b,c)" type="text"/>
-<input id="invMap" placeholder="Mapeo (ej: 1-&gt;a, 2-&gt;b, 3-&gt;c)" type="text"/>
+<input data-prefix="inv" id="invMap" pair-builder"="" placeholder="Mapeo (ej: 1-&gt;
+                            &lt;div class=" type="text"/>
+<div class="pair-row">
+<input id="invPairX" placeholder="x" type="text"/>
+<span class="arrow">→</span>
+<input id="invPairY" placeholder="y" type="text"/>
+<button class="icon-btn" onclick="addPair('inv', 'invMap')" title="Agregar par"><i class="fas fa-plus"></i></button>
+<button class="icon-btn" onclick="clearPairs('inv', 'invMap')" title="Borrar pares"><i class="fas fa-trash"></i></button>
+</div>
+<div class="pair-hint">Tip: también puedes escribir “1-&gt;a, 2-&gt;b”. Si repites x, se reemplaza.</div>
+<div class="pairs-list" id="invPairsList"></div>
+</div>
+a,2-&gt;b,3-&gt;c)"&gt;
+                                <input id="invQuery" placeholder="Consulta y (ej: b)" type="text"/>
+</div>
+<button class="run-btn" onclick="invertFunction()">CALCULAR</button>
+<div class="mini-actions">
+<button class="sub-btn" onclick="document.getElementById('invDomain').value='1,2,3';document.getElementById('invCodomain').value='a,b,c';document.getElementById('invMap').value='1-&gt;a,2-&gt;b,3-&gt;c';document.getElementById('invQuery').value='b';invertFunction();">EJEMPLO</button>
+<button class="sub-btn" onclick="clearSection('inversa')">LIMPIAR</button>
+</div>
+<div class="result-display" id="invResult">Esperando entrada...</div>
+</div>
+<div class="code-panel">
+<div class="code-head">
+<button class="matlab-toggle" onclick="toggleMatlab('invMatlabWrap', this)">Ver MATLAB</button>
+<button class="icon-btn" onclick="downloadCode(\'invMatlab\', \'inversa.m\')" title="Descargar .m"><i class="fas fa-download"></i></button>
+<button class="icon-btn" onclick="copyCode('invMatlab')" title="Copiar">
+<i class="fas fa-copy"></i>
+</button>
+</div>
+<pre class="matlab-pre" id="invMatlabWrap" style="display:none;"><code class="language-matlab giant-code" id="invMatlab"></code></pre>
+</div>
+</div>
+</div>
+<!-- ============================= -->
+<!-- SECCIÓN: COMPUESTA -->
+<!-- ============================= -->
+<div class="tab-content" id="compuesta" style="display:none;">
+<div class="topic-header">
+<h2>FUNCIÓN COMPUESTA</h2>
+<span class="badge">NIVEL 6</span>
+</div>
+<div class="card">
+<h1 class="urban-title">g ∘ f (A→B→C)</h1>
+<div class="interactive-box">
+<div class="simulator">
+<h4><i class="fas fa-cogs"></i> Simulador Web (JS)</h4>
 <div class="input-group">
-<input id="invQuery" placeholder="Consultar f⁻¹(y) (ej: b)" type="text"/>
+<input id="compDomain" placeholder="A (ej: 1,2,3)" type="text"/>
+<input id="compMid" placeholder="B (ej: a,b,c)" type="text"/>
+<input id="compCodomain" placeholder="C (ej: X,Y,Z)" type="text"/>
+<input data-prefix="compF" id="compMapF" pair-builder"="" placeholder="f: A-&gt;
+                            &lt;div class=" type="text"/>
+<div class="pair-row">
+<input id="compFPairX" placeholder="x" type="text"/>
+<span class="arrow">→</span>
+<input id="compFPairY" placeholder="y" type="text"/>
+<button class="icon-btn" onclick="addPair('compF', 'compMapF')" title="Agregar par"><i class="fas fa-plus"></i></button>
+<button class="icon-btn" onclick="clearPairs('compF', 'compMapF')" title="Borrar pares"><i class="fas fa-trash"></i></button>
 </div>
-<button class="run-btn" onclick="invertFunction()">CALCULAR</button><div class="mini-actions"><button class="sub-btn" onclick="loadExample('inversa')">EJEMPLO</button><button class="sub-btn" onclick="clearSection('inversa')">LIMPIAR</button></div>
-<div class="result-display giant-code" id="invResult">Esperando entrada...</div>
+<div class="pair-hint">Tip: también puedes escribir “1-&gt;a, 2-&gt;b”. Si repites x, se reemplaza.</div>
+<div class="pairs-list" id="compFPairsList"></div>
+</div>
+B (ej: 1-&gt;a,2-&gt;b,3-&gt;c)"&gt;
+                                <input data-prefix="compG" id="compMapG" pair-builder"="" placeholder="g: B-&gt;
+                            &lt;div class=" type="text"/>
+<div class="pair-row">
+<input id="compGPairX" placeholder="x" type="text"/>
+<span class="arrow">→</span>
+<input id="compGPairY" placeholder="y" type="text"/>
+<button class="icon-btn" onclick="addPair('compG', 'compMapG')" title="Agregar par"><i class="fas fa-plus"></i></button>
+<button class="icon-btn" onclick="clearPairs('compG', 'compMapG')" title="Borrar pares"><i class="fas fa-trash"></i></button>
+</div>
+<div class="pair-hint">Tip: también puedes escribir “1-&gt;a, 2-&gt;b”. Si repites x, se reemplaza.</div>
+<div class="pairs-list" id="compGPairsList"></div>
+</div>
+C (ej: a-&gt;X,b-&gt;Y,c-&gt;Z)"&gt;
+                            </div>
+<button class="run-btn" onclick="composeFunctions()">COMPONER</button>
+<div class="mini-actions">
+<button class="sub-btn" onclick="document.getElementById('compDomain').value='1,2,3';document.getElementById('compMid').value='a,b,c';document.getElementById('compCodomain').value='X,Y,Z';document.getElementById('compMapF').value='1-&gt;a,2-&gt;b,3-&gt;c';document.getElementById('compMapG').value='a-&gt;X,b-&gt;Y,c-&gt;Z';composeFunctions();">EJEMPLO</button>
+<button class="sub-btn" onclick="clearSection('compuesta')">LIMPIAR</button>
+</div>
+<div class="result-display" id="compResult">Esperando entrada...</div>
+</div>
+<div class="code-panel">
+<div class="code-head">
+<button class="matlab-toggle" onclick="toggleMatlab('compMatlabWrap', this)">Ver MATLAB</button>
+<button class="icon-btn" onclick="downloadCode(\'compMatlab\', \'compuesta.m\')" title="Descargar .m"><i class="fas fa-download"></i></button>
+<button class="icon-btn" onclick="copyCode('compMatlab')" title="Copiar">
+<i class="fas fa-copy"></i>
+</button>
+</div>
+<pre class="matlab-pre" id="compMatlabWrap" style="display:none;"><code class="language-matlab giant-code" id="compMatlab"></code></pre>
 </div>
 </div>
-<div style="flex:1; min-width: 340px;">
-<div style="background:#1e1e1e; border:3px solid var(--gold-primary); border-radius:15px; overflow:hidden; height:100%;">
-<div class="matlab-head" style="background:#252526; color: var(--gold-primary); padding:15px; margin:0; font-weight:bold; border-bottom:1px solid #333; font-size:1.2rem;; display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>MATLAB · Inversa</span><div class="matlab-actions"><button class="matlab-mini" onclick="toggleMatlab('invMatlabBody', this)">Ver MATLAB</button><button class="matlab-mini" onclick="copyCode('invMatlab')" title="Copiar código"><i class="fa fa-copy"></i></button></div></div><div class="matlab-body" id="invMatlabBody"><pre style="margin:0;"><code class="language-matlab giant-code" id="invMatlab" style="padding:25px; display:block; overflow-x:auto;">% Presiona "CALCULAR" para generar el código MATLAB.</code></pre></div>
+<!-- ============================= -->
+<!-- SECCIÓN: DISCRETA -->
+<!-- ============================= -->
+<div class="tab-content" id="discreta" style="display:none;">
+<div class="topic-header">
+<h2>FUNCIÓN DISCRETA</h2>
+<span class="badge">NIVEL 7</span>
+</div>
+<div class="card">
+<h1 class="urban-title">Tabla + Gráfico tipo Stem</h1>
+<div class="interactive-box">
+<div class="simulator">
+<h4><i class="fas fa-cogs"></i> Simulador Web (JS)</h4>
+<div class="input-group">
+<input id="discX" placeholder="x (ej: 0,1,2,3)" type="text"/>
+<input id="discY" placeholder="f(x) (ej: 2,3,5,4)" type="text"/>
+</div>
+<button class="run-btn" onclick="plotDiscrete()">GRAFICAR</button>
+<div class="mini-actions">
+<button class="sub-btn" onclick="document.getElementById('discX').value='0,1,2,3,4';document.getElementById('discY').value='1,2,4,3,5';plotDiscrete();">EJEMPLO</button>
+<button class="sub-btn" onclick="clearSection('discreta')">LIMPIAR</button>
+</div>
+<div class="plot-controls">
+<label>Tipo:
+                                    <select id="discPlotType">
+<option value="stem">Stem</option>
+<option value="line">Línea</option>
+<option value="scatter">Puntos</option>
+</select>
+</label>
+<label class="chk"><input checked="" id="discGrid" type="checkbox"/> Grid</label>
+<label class="chk"><input id="discSortX" type="checkbox"/> Ordenar por x</label>
+</div>
+<canvas class="plot-canvas" height="320" id="discCanvas" width="640"></canvas>
+<div class="result-display" id="discResult">Esperando datos...</div>
+</div>
+<div class="code-panel">
+<div class="code-head">
+<button class="matlab-toggle" onclick="toggleMatlab('discMatlabWrap', this)">Ver MATLAB</button>
+<button class="icon-btn" onclick="downloadCode(\'discMatlab\', \'discreta.m\')" title="Descargar .m"><i class="fas fa-download"></i></button>
+<button class="icon-btn" onclick="copyCode('discMatlab')" title="Copiar">
+<i class="fas fa-copy"></i>
+</button>
+</div>
+<pre class="matlab-pre" id="discMatlabWrap" style="display:none;"><code class="language-matlab giant-code" id="discMatlab"></code></pre>
+</div>
+</div>
+</div>
+</div>
+<!-- ============================= -->
+<!-- SECCIÓN: VIDEO -->
+<!-- ============================= -->
+<div class="tab-content" id="practica" style="display:none;">
+<div class="topic-header">
+<h2>MODO PRÁCTICA</h2>
+<span class="badge">INTERACTIVO</span>
+</div>
+<div class="grid-2 practice-grid">
+<div class="card practice-card">
+<h1 class="urban-title">Generador de retos</h1>
+<p class="muted">Elige una sección, genera un reto y resuélvelo. Recibes XP por respuestas correctas y puedes cargar el reto directamente en la sección correspondiente.</p>
+<div class="form-row">
+<label class="label">Sección</label>
+<select class="select" id="practiceTopic">
+<option value="prod-cartesiano">Producto cartesiano</option>
+<option value="clasificacion">Clasificación</option>
+<option value="inversa">Función inversa</option>
+<option value="compuesta">Función compuesta</option>
+<option value="discreta">Función discreta</option>
+</select>
+</div>
+<div class="form-row">
+<label class="label">Dificultad</label>
+<select class="select" id="practiceLevel">
+<option value="1">Nivel 1 (rápido)</option>
+<option value="2">Nivel 2 (normal)</option>
+<option value="3">Nivel 3 (reto)</option>
+</select>
+</div>
+<div class="row">
+<button class="btn primary" id="practiceNew"><i class="fas fa-dice"></i> Nuevo reto</button>
+<button class="btn" id="practiceLoad"><i class="fas fa-upload"></i> Cargar en sección</button>
+<button class="btn danger" id="practiceReset"><i class="fas fa-trash"></i> Reiniciar</button>
+</div>
+<div class="callout" id="practiceHint">
+        Tip: presiona <b>Nuevo reto</b>, responde y luego usa <b>Cargar en sección</b> para ver la solución en el módulo real.
+      </div>
+</div>
+<div class="card practice-card">
+<h1 class="urban-title">Reto actual</h1>
+<div class="practice-panel">
+<div class="practice-prompt" id="practicePrompt">
+<div class="video-placeholder" style="min-height:180px;">
+<div class="ph-title">Aún no hay reto</div>
+<div class="ph-sub">Genera un reto para empezar.</div>
+</div>
+</div>
+<div class="practice-answer">
+<label class="label">Tu respuesta</label>
+<input id="practiceAnswer" placeholder="Escribe tu respuesta aquí..." type="text"/><div class="practice-choices" id="practiceChoices"></div>
+<div class="row">
+<button class="btn primary" id="practiceCheck"><i class="fas fa-check"></i> Evaluar</button><button class="btn" id="practiceHintBtn"><i class="fas fa-lightbulb"></i> Pista</button>
+<button class="btn" id="practiceReveal"><i class="fas fa-eye"></i> Ver solución</button>
+</div>
+<div class="practice-feedback" id="practiceFeedback"></div>
+</div>
+<div class="matlab-box">
+<div class="matlab-head">
+<div class="matlab-title"><i class="fas fa-code"></i> MATLAB generado</div>
+<div class="matlab-actions">
+<button class="btn mini" id="practiceCopy"><i class="fas fa-copy"></i> Copiar</button>
+<button class="btn mini" id="practiceDownload"><i class="fas fa-download"></i> Descargar .m</button>
+</div>
+</div>
+<pre><code class="matlab-code" id="practiceMatlab">% Genera un reto para ver el código MATLAB aquí.</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="card practice-card practice-history-card">
+<h1 class="urban-title">Historial</h1>
+<p class="muted">Se guardan tus últimos retos y resultados en este dispositivo.</p>
+<div class="practice-history" id="practiceHistory"></div>
+<div class="row">
+<button class="btn mini" id="practiceExportCSV"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+<button class="btn mini" id="practiceExportJSON"><i class="fas fa-file-code"></i> Exportar JSON</button>
+<button class="btn danger mini" id="practiceClearHistory"><i class="fas fa-trash"></i> Limpiar</button>
+</div>
+</div>
 
 </div>
-</div>
-</div>
-</div>
-</div>
-<div class="tab-content" id="compuesta">
-<div class="topic-header"><h2>FUNCIÓN COMPUESTA</h2><span class="badge">NIVEL 5</span></div>
-<div class="card">
-<h1 class="urban-title">CONCEPTO</h1>
-<div class="definition-text">
-<p>
-                            La composición encadena dos funciones: primero aplicas <strong>f</strong> y luego <strong>g</strong>.
-                            Si f: A→B y g: B→C, entonces la compuesta es:
-                        </p>
-<p class="math-highlight giant-math">
-                            (g \circ f)(x) = g(f(x))
-                        </p>
-<p style="margin-top: 15px;">
-                            En palabras gamer: <strong>input → f → resultado intermedio → g → output final</strong>.
-                        </p>
-</div>
+<div class="tab-content" id="video" style="display:none;">
+<div class="topic-header">
+<h2>VIDEO EXPLICATIVO</h2>
+<span class="badge">BONUS</span>
 </div>
 <div class="card">
-<h1 class="urban-title">SIMULADOR (g ∘ f)</h1>
-<div style="display:flex; gap:40px; flex-wrap:wrap;">
-<div style="flex:1; min-width: 340px;">
-<div class="interactive-box">
-<h4><i class="fas fa-layer-group"></i> Componer funciones</h4>
-<input id="compDomain" placeholder="Dominio A (ej: 1,2,3)" type="text"/>
-<input id="compMid" placeholder="Conjunto intermedio B (ej: a,b,c)" type="text"/>
-<input id="compCodomain" placeholder="Codominio C (ej: X,Y,Z)" type="text"/>
-<input id="compMapF" placeholder="f: A-&gt;B (ej: 1-&gt;a, 2-&gt;b, 3-&gt;c)" type="text"/>
-<input id="compMapG" placeholder="g: B-&gt;C (ej: a-&gt;X, b-&gt;Y, c-&gt;Z)" type="text"/>
-<button class="run-btn" onclick="composeFunctions()">COMPONER</button><div class="mini-actions"><button class="sub-btn" onclick="loadExample('compuesta')">EJEMPLO</button><button class="sub-btn" onclick="clearSection('compuesta')">LIMPIAR</button></div>
-<div class="result-display giant-code" id="compResult">Esperando entrada...</div>
+<h1 class="urban-title">Carga tu video</h1>
+<p class="muted">
+      Pega un enlace (YouTube / youtu.be / embed). Se carga un video por defecto. Puedes reemplazarlo pegando otro enlace y presionando Cargar.
+    </p>
+<div class="video-controls">
+<input id="videoInput" placeholder="https://www.youtube.com/watch?v=..." type="text"/>
+<div class="video-actions">
+<button class="btn" id="videoLoadBtn">Cargar</button>
+<button class="btn btn-secondary" id="videoClearBtn">Quitar</button>
 </div>
 </div>
-<div style="flex:1; min-width: 340px;">
-<div style="background:#1e1e1e; border:3px solid var(--gold-primary); border-radius:15px; overflow:hidden; height:100%;">
-<div class="matlab-head" style="background:#252526; color: var(--gold-primary); padding:15px; margin:0; font-weight:bold; border-bottom:1px solid #333; font-size:1.2rem;; display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>MATLAB · Composición</span><div class="matlab-actions"><button class="matlab-mini" onclick="toggleMatlab('compMatlabBody', this)">Ver MATLAB</button><button class="matlab-mini" onclick="copyCode('compMatlab')" title="Copiar código"><i class="fa fa-copy"></i></button></div></div><div class="matlab-body" id="compMatlabBody"><pre style="margin:0;"><code class="language-matlab giant-code" id="compMatlab" style="padding:25px; display:block; overflow-x:auto;">% Presiona "COMPONER" para generar el código MATLAB.</code></pre></div>
-
+<div class="video-wrap" id="videoPreviewWrap">
+<div class="video-placeholder" id="videoPlaceholder">
+<div class="ph-title">Sin video</div>
+<div class="ph-sub">Pega un enlace arriba y presiona <b>Cargar</b>.</div>
 </div>
-</div>
+<!-- iframe se inserta dinámicamente -->
 </div>
 </div>
 </div>
-<div class="tab-content" id="discreta">
-<div class="topic-header"><h2>FUNCIÓN DISCRETA</h2><span class="badge">NIVEL 6</span></div>
-<div class="card">
-<h1 class="urban-title">TABLA Y GRÁFICA (STEM)</h1>
-<div class="definition-text">
-<p>
-                            Una función discreta se define sobre entradas separadas (por ejemplo, enteros). 
-                            En MATLAB se suele graficar con <code>stem</code>.
-                        </p>
-</div>
+<!-- ============================= -->
+<!-- SECCIÓN: RESEÑAS -->
+<!-- ============================= -->
+<div class="tab-content" id="resenas" style="display:none;">
+<div class="topic-header">
+<h2>RESEÑAS</h2>
+<span class="badge">COMUNIDAD</span>
 </div>
 <div class="card">
-<h1 class="urban-title">SIMULADOR DISCRETO</h1>
-<div style="display:flex; gap:40px; flex-wrap:wrap;">
-<div style="flex:1; min-width: 340px;">
-<div class="interactive-box">
-<h4><i class="fas fa-chart-bar"></i> Graficar puntos</h4>
-<input id="discX" placeholder="Valores x (ej: 0,1,2,3,4)" type="text"/>
-<input id="discY" placeholder="Valores f(x) (ej: 0,1,4,9,16)" type="text"/>
-<button class="run-btn" onclick="plotDiscrete()">GENERAR</button><div class="mini-actions"><button class="sub-btn" onclick="loadExample('discreta')">EJEMPLO</button><button class="sub-btn" onclick="clearSection('discreta')">LIMPIAR</button></div>
-<div class="result-display giant-code" id="discResult">Esperando entrada...</div>
+<h1 class="urban-title">Deja tu reseña</h1>
+<div class="review-form">
+<input id="revName" placeholder="Nombre (opcional)" type="text"/>
+<div class="review-summary"><div class="avg" id="avgRating">—</div><div class="avg-sub">Promedio</div></div>
+<div aria-label="Calificación" class="star-picker" id="starPicker">
+<button class="star" data-v="1" type="button">★</button>
+<button class="star" data-v="2" type="button">★</button>
+<button class="star" data-v="3" type="button">★</button>
+<button class="star" data-v="4" type="button">★</button>
+<button class="star" data-v="5" type="button">★</button>
 </div>
-</div>
-<div style="flex:1; min-width: 340px;">
-<div class="plot-box">
-<canvas height="420" id="discCanvas" width="900"></canvas>
-</div>
-<div style="background:#1e1e1e; border:3px solid var(--gold-primary); border-radius:15px; overflow:hidden; margin-top:20px;">
-<div class="matlab-head" style="background:#252526; color: var(--gold-primary); padding:15px; margin:0; font-weight:bold; border-bottom:1px solid #333; font-size:1.2rem;; display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>MATLAB · Discreta</span><div class="matlab-actions"><button class="matlab-mini" onclick="toggleMatlab('discMatlabBody', this)">Ver MATLAB</button><button class="matlab-mini" onclick="copyCode('discMatlab')" title="Copiar código"><i class="fa fa-copy"></i></button></div></div><div class="matlab-body" id="discMatlabBody"><pre style="margin:0;"><code class="language-matlab giant-code" id="discMatlab" style="padding:25px; display:block; overflow-x:auto;">% Presiona "GENERAR" para generar el código MATLAB.</code></pre></div>
-
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="tab-content" id="video">
-<div class="topic-header"><h2>VIDEO EXPLICATIVO</h2><span class="badge">BONUS</span></div>
-<div class="card">
-<h1 class="urban-title">MODO TUTORIAL</h1>
-<div class="definition-text">
-<p>
-                            Video corto para repasar: producto cartesiano, función, clasificación, inversa y composición.
-                            Puedes cambiar el enlace por el video de tu clase/profesor.
-                        </p>
-</div>
-<div class="video-wrap">
-<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" frameborder="0" src="https://www.youtube.com/embed/0V9V8V8pJ2g" title="Video explicativo"></iframe>
-</div>
-<div style="margin-top:20px; color:#ccc;">
-<p><strong>Tip:</strong> si quieres usar tu propio video, cambia el enlace del <code>iframe</code> en <code>index.html</code>.</p>
-</div>
-</div>
-</div>
-<div class="tab-content" id="resenas">
-<div class="topic-header"><h2>RESEÑAS</h2><span class="badge">SOCIAL</span></div>
-<div class="card">
-<h1 class="urban-title">DEJA TU OPINIÓN</h1>
-<div style="display:flex; gap:40px; flex-wrap:wrap;">
-<div style="flex:1; min-width: 340px;">
-<div class="interactive-box">
-<h4><i class="fas fa-comments"></i> Nueva reseña</h4>
-<input id="revName" placeholder="Tu nombre (ej: Brayan)" type="text"/>
-<input id="revRating" max="5" min="1" placeholder="Calificación 1 a 5" type="number"/>
-<input id="revText" placeholder="Comentario (ej: Me ayudó a entender funciones)" type="text"/>
+<select id="revRating">
+<option value="5">★★★★★ (5)</option>
+<option value="4">★★★★☆ (4)</option>
+<option value="3">★★★☆☆ (3)</option>
+<option value="2">★★☆☆☆ (2)</option>
+<option value="1">★☆☆☆☆ (1)</option>
+</select>
+<textarea id="revText" placeholder="Escribe tu reseña..."></textarea>
+<div class="review-actions">
 <button class="run-btn" onclick="addReview()">PUBLICAR</button>
-<div class="result-display giant-code" id="revMsg">Las reseñas se guardan en este navegador.</div>
+<button class="sub-btn" onclick="clearReviews()">BORRAR TODO</button>
 </div>
+<div class="review-msg" id="revMsg"></div>
 </div>
-<div style="flex:1.2; min-width: 340px;">
-<div class="reviews-box">
-<h4 style="margin-bottom:15px;"><i class="fas fa-star"></i> Reseñas recientes</h4>
 <div class="reviews-list" id="reviewsList"></div>
-<button class="run-btn" onclick="clearReviews()" style="margin-top:15px;">BORRAR RESEÑAS</button>
-</div>
-</div>
-</div>
-</div>
 </div>
 </div>
 </main>
 <a class="whatsapp-btn" href="https://wa.me/593987662461" target="_blank" title="Chatear en WhatsApp">
 <i class="fab fa-whatsapp"></i>
 </a>
-<script src="script.js"></script>
+<button aria-label="Volver arriba" class="to-top" id="toTopBtn" title="Volver arriba">
+<i class="fas fa-chevron-up"></i>
+</button>
+<script src="script.js?v=mc32"></script>
+<div aria-atomic="true" aria-live="polite" class="toast" id="toast"></div>
+<div class="plot-tip" id="plotTip" style="display:none;"></div>
+<!-- Achievements Modal -->
+<div aria-hidden="true" class="modal" id="achModal">
+<div class="modal-backdrop" data-close="true"></div>
+<div aria-labelledby="achTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-head">
+<h3 id="achTitle"><i class="fas fa-trophy"></i> Logros</h3>
+<button aria-label="Cerrar" class="modal-close" data-close="true" type="button"><i class="fas fa-xmark"></i></button>
+</div>
+<div class="modal-body">
+<div class="ach-grid" id="achGrid"></div>
+</div>
+</div>
+</div>
+<!-- Achievement Popup -->
+<div aria-atomic="true" aria-live="polite" class="ach-popup" id="achPopup"></div>
+<div aria-hidden="true" class="modal" id="profileModal">
+<div class="modal-backdrop" data-close="profileModal"></div>
+<div aria-labelledby="profileTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-head">
+<div class="modal-title" id="profileTitle"><i class="fas fa-user-astronaut"></i> Panel de jugador</div>
+<button class="icon-btn" data-close="profileModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div class="grid-2">
+<div class="card mini">
+<h3><i class="fas fa-star"></i> Progreso</h3>
+<div class="kv"><span>Nivel</span><b id="profLevel">1</b></div>
+<div class="kv"><span>XP</span><b id="profXp">0</b></div>
+<div class="kv"><span>Racha</span><b id="profStreak">1</b></div>
+<div class="kv"><span>Secciones completas</span><b id="profDone">0</b></div>
+</div>
+<div class="card mini">
+<h3><i class="fas fa-keyboard"></i> Atajos</h3>
+<ul class="shortcuts">
+<li><code>/</code> Buscar</li>
+<li><code>Enter</code> Abrir primer resultado</li>
+<li><code>Esc</code> Cerrar / limpiar</li>
+<li><code>Ctrl</code>+<code>K</code> Búsqueda rápida</li>
+</ul>
+</div>
+</div>
+<div class="callout warn">
+<b>Reiniciar progreso</b>: borra XP, racha y completados (no elimina el código).
+      </div>
+<div class="row">
+<button class="btn danger" id="resetProgressBtn"><i class="fas fa-trash"></i> Reiniciar progreso</button>
+<button class="btn" data-close="profileModal">Cerrar</button>
+</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="modal" id="quickSearchModal">
+<div class="modal-backdrop" data-close="quickSearchModal"></div>
+<div aria-labelledby="qsTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-head">
+<div class="modal-title" id="qsTitle"><i class="fas fa-magnifying-glass"></i> Búsqueda rápida</div>
+<button class="icon-btn" data-close="quickSearchModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<input autocomplete="off" class="qs-input" id="qsInput" placeholder="Escribe para buscar secciones..." type="text"/>
+<div class="qs-results" id="qsResults"></div>
+</div>
+</div>
+</div>
+</body>
+</html>
+<div class="topic-header">
+<h2>RESEÑAS</h2>
+<span class="badge">COMUNIDAD</span>
+</div>
+<div class="card">
+<h1 class="urban-title">Deja tu reseña</h1>
+<div class="review-form">
+<input id="revName" placeholder="Nombre (opcional)" type="text"/>
+<div class="review-summary"><div class="avg" id="avgRating">—</div><div class="avg-sub">Promedio</div></div>
+<div aria-label="Calificación" class="star-picker" id="starPicker">
+<button class="star" data-v="1" type="button">★</button>
+<button class="star" data-v="2" type="button">★</button>
+<button class="star" data-v="3" type="button">★</button>
+<button class="star" data-v="4" type="button">★</button>
+<button class="star" data-v="5" type="button">★</button>
+</div>
+<select id="revRating">
+<option value="5">★★★★★ (5)</option>
+<option value="4">★★★★☆ (4)</option>
+<option value="3">★★★☆☆ (3)</option>
+<option value="2">★★☆☆☆ (2)</option>
+<option value="1">★☆☆☆☆ (1)</option>
+</select>
+<textarea id="revText" placeholder="Escribe tu reseña..."></textarea>
+<div class="review-actions">
+<button class="run-btn" onclick="addReview()">PUBLICAR</button>
+<button class="sub-btn" onclick="clearReviews()">BORRAR TODO</button>
+</div>
+<div class="review-msg" id="revMsg"></div>
+</div>
+<div class="reviews-list" id="reviewsList"></div>
+</div>
+</div>
+</main>
+<a class="whatsapp-btn" href="https://wa.me/593987662461" target="_blank" title="Chatear en WhatsApp">
+<i class="fab fa-whatsapp"></i>
+</a>
+<button aria-label="Volver arriba" class="to-top" id="toTopBtn" title="Volver arriba">
+<i class="fas fa-chevron-up"></i>
+</button>
+<script src="script.js?v=mc32"></script>
+<div aria-atomic="true" aria-live="polite" class="toast" id="toast"></div>
+<div class="plot-tip" id="plotTip" style="display:none;"></div>
+<!-- Achievements Modal -->
+<div aria-hidden="true" class="modal" id="achModal">
+<div class="modal-backdrop" data-close="true"></div>
+<div aria-labelledby="achTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-head">
+<h3 id="achTitle"><i class="fas fa-trophy"></i> Logros</h3>
+<button aria-label="Cerrar" class="modal-close" data-close="true" type="button"><i class="fas fa-xmark"></i></button>
+</div>
+<div class="modal-body">
+<div class="ach-grid" id="achGrid"></div>
+</div>
+</div>
+</div>
+<!-- Achievement Popup -->
+<div aria-atomic="true" aria-live="polite" class="ach-popup" id="achPopup"></div>
+<div aria-hidden="true" class="modal" id="profileModal">
+<div class="modal-backdrop" data-close="profileModal"></div>
+<div aria-labelledby="profileTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-head">
+<div class="modal-title" id="profileTitle"><i class="fas fa-user-astronaut"></i> Panel de jugador</div>
+<button class="icon-btn" data-close="profileModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div class="grid-2">
+<div class="card mini">
+<h3><i class="fas fa-star"></i> Progreso</h3>
+<div class="kv"><span>Nivel</span><b id="profLevel">1</b></div>
+<div class="kv"><span>XP</span><b id="profXp">0</b></div>
+<div class="kv"><span>Racha</span><b id="profStreak">1</b></div>
+<div class="kv"><span>Secciones completas</span><b id="profDone">0</b></div>
+</div>
+<div class="card mini">
+<h3><i class="fas fa-keyboard"></i> Atajos</h3>
+<ul class="shortcuts">
+<li><code>/</code> Buscar</li>
+<li><code>Enter</code> Abrir primer resultado</li>
+<li><code>Esc</code> Cerrar / limpiar</li>
+<li><code>Ctrl</code>+<code>K</code> Búsqueda rápida</li>
+</ul>
+</div>
+</div>
+<div class="callout warn">
+<b>Reiniciar progreso</b>: borra XP, racha y completados (no elimina el código).
+      </div>
+<div class="row">
+<button class="btn danger" id="resetProgressBtn"><i class="fas fa-trash"></i> Reiniciar progreso</button>
+<button class="btn" data-close="profileModal">Cerrar</button>
+</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="modal" id="quickSearchModal">
+<div class="modal-backdrop" data-close="quickSearchModal"></div>
+<div aria-labelledby="qsTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-head">
+<div class="modal-title" id="qsTitle"><i class="fas fa-magnifying-glass"></i> Búsqueda rápida</div>
+<button class="icon-btn" data-close="quickSearchModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<input autocomplete="off" class="qs-input" id="qsInput" placeholder="Escribe para buscar secciones..." type="text"/>
+<div class="qs-results" id="qsResults"></div>
+</div>
+</div>
+</div>
 </body>
 </html>
