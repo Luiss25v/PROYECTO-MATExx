@@ -1,435 +1,449 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Álgebra de Boole | Hardware Base | EPN</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600&amp;family=Orbitron:wght@500;700;900&amp;display=swap" rel="stylesheet"/>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/matlab.min.js"></script>
-<link href="style.css?v=mc34" rel="stylesheet"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+  <title>Álgebra de Boole | Hardware Base | EPN</title>
+
+  <!-- ✅ Fuentes: preconnect antes que el link, sin cambios -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet"/>
+
+  <!-- ✅ Font Awesome con defer para no bloquear render -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+
+  <!-- ✅ Highlight.js CSS (solo estilos, no bloquea JS) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css" rel="stylesheet"/>
+
+  <!-- ✅ MathJax: solo async, sin polyfill.io -->
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- ✅ Highlight.js con defer para no bloquear el render -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/matlab.min.js"></script>
+
+  <!-- ✅ ELIMINADO: polyfill.io (causa lentitud y era inseguro) -->
+
+  <link href="style.css?v=mc34" rel="stylesheet"/>
 </head>
 <body>
-<a class="skip-link" href="#mainContent">Saltar al contenido</a>
-<div aria-hidden="true" class="scroll-progress" id="scrollProgress"></div>
-<div aria-hidden="true" class="fx-overlay"></div>
-<canvas aria-hidden="true" id="particlesCanvas"></canvas>
-<div aria-hidden="true" class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <a class="skip-link" href="#mainContent">Saltar al contenido</a>
+  <div aria-hidden="true" class="scroll-progress" id="scrollProgress"></div>
+  <div aria-hidden="true" class="fx-overlay"></div>
+  <canvas aria-hidden="true" id="particlesCanvas"></canvas>
+  <div aria-hidden="true" class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-<!-- ========== SIDEBAR ========== -->
-<aside class="sidebar">
-  <div class="sidebar-header" onclick="openTab(event, 'inicio')">
-    <img alt="Logo MathBot" class="sidebar-logo" src="img/buho.png"/>
-    <p style="font-size: 0.8rem; color: var(--gold-primary); letter-spacing: 2px; font-weight: bold; margin-top: 15px;">GAMER EDITION</p>
-  </div>
-  <div class="sidebar-scroll">
-    <div class="sidebar-search">
-      <i class="fas fa-search"></i>
-      <input autocomplete="off" id="sidebarSearch" placeholder="Buscar sección..." type="text"/>
-      <button class="search-btn" id="sidebarSearchBtn" title="Buscar" type="button"><i class="fas fa-arrow-right"></i></button>
-      <div aria-live="polite" class="search-results" id="sidebarSearchResults"></div>
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar">
+    <div class="sidebar-header" onclick="openTab(event, 'inicio')">
+      <img alt="Logo MathBot" class="sidebar-logo" src="img/buho.png"/>
+      <p style="font-size: 0.8rem; color: var(--gold-primary); letter-spacing: 2px; font-weight: bold; margin-top: 15px;">GAMER EDITION</p>
     </div>
-    <nav>
-      <ul>
-        <li><a class="tab-link active" href="#" onclick="openTab(event, 'inicio')"><i class="fas fa-robot"></i> Inicio</a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'variables')"><i class="fas fa-toggle-on"></i> <span class="mission-badge">MISION 1</span> <span class="nav-text">Variables Booleanas</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'funciones-booleanas')"><i class="fas fa-table"></i> <span class="mission-badge">MISION 2</span> <span class="nav-text">Funciones Booleanas</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'simplificacion')"><i class="fas fa-compress-arrows-alt"></i> <span class="mission-badge">MISION 3</span> <span class="nav-text">Simplificación</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'circuitos')"><i class="fas fa-microchip"></i> <span class="mission-badge">MISION 4</span> <span class="nav-text">Circuitos Digitales</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'procesadores')"><i class="fas fa-cpu"></i> <span class="mission-badge">MISION 5</span> <span class="nav-text">Procesadores y ALU</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'optimizacion')"><i class="fas fa-code"></i> <span class="mission-badge">MISION 6</span> <span class="nav-text">Optimización de Código</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'practica')"><i class="fas fa-bullseye"></i> <span class="mission-badge">MISION 7</span> <span class="nav-text">Modo Práctica</span></a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'video')"><i class="fas fa-play-circle"></i> Video Explicativo</a></li>
-        <li><a class="tab-link" href="#" onclick="openTab(event, 'resenas')"><i class="fas fa-comments"></i> Reseñas</a></li>
-      </ul>
-    </nav>
-    <div class="mission-panel" id="missionPanel">
-      <div class="mission-head">
-        <div class="mission-title"><i class="fas fa-flag-checkered"></i><span>Modo Misión</span></div>
-        <button class="mission-reset" onclick="resetMissions()" title="Reiniciar progreso" type="button"><i class="fas fa-rotate-left"></i></button>
-        <button class="mission-close" id="missionClose" title="Cerrar panel" type="button"><i class="fas fa-xmark"></i></button>
+    <div class="sidebar-scroll">
+      <div class="sidebar-search">
+        <i class="fas fa-search"></i>
+        <input autocomplete="off" id="sidebarSearch" placeholder="Buscar sección..." type="text"/>
+        <button class="search-btn" id="sidebarSearchBtn" title="Buscar" type="button"><i class="fas fa-arrow-right"></i></button>
+        <div aria-live="polite" class="search-results" id="sidebarSearchResults"></div>
       </div>
-      <div class="mission-progress">
-        <div class="mission-progress-bar"><span id="missionBarFill"></span></div>
-        <div class="mission-progress-text"><span id="missionPct">0%</span> completado</div>
-      </div>
-      <ul class="mission-list" id="missionList"></ul>
-    </div>
-  </div>
-  <div class="sidebar-footer"><p>GRUPO 5 MC | EPN</p></div>
-</aside>
-
-<!-- ========== CONTENIDO PRINCIPAL ========== -->
-<main class="main-content" id="mainContent">
-  <header class="top-header">
-    <div class="section-pill" id="currentSection" title="Sección actual">Inicio</div>
-    <button aria-label="Abrir menú" class="sidebar-toggle" id="sidebarToggle" title="Menú" type="button"><i class="fas fa-bars"></i></button>
-    <button class="panel-btn" id="panelBtn" title="Panel de jugador" type="button"><i class="fas fa-user-astronaut"></i></button>
-    <div class="xp-badge" id="xpBadge" title="Progreso de juego">
-      <div class="xp-top">LV <span id="levelValue">1</span> · XP <span id="xpValue">0</span></div>
-      <div class="xp-bar"><span id="xpBar"></span></div>
-      <div class="xp-row">
-        <span class="streak" title="Racha diaria"><i class="fas fa-fire"></i> <span id="streakValue">1</span></span>
-        <button class="hud-btn" id="trophyBtn" title="Logros" type="button"><i class="fas fa-trophy"></i></button>
-        <button class="hud-btn" id="soundBtn" title="Sonido: off" type="button"><i class="fas fa-volume-mute"></i></button>
-        <button class="hud-btn" id="themeBtn" title="Tema" type="button"><i class="fas fa-palette"></i></button>
-        <button class="hud-btn" id="fsBtn" title="Pantalla completa" type="button"><i class="fas fa-expand"></i></button>
-      </div>
-    </div>
-    <div class="logo-area">
-      <img alt="Escudo EPN" src="img/logo-epn.png"/>
-      <div class="university-info">
-        <h1>ESCUELA POLITÉCNICA NACIONAL</h1>
-        <h2>FACULTAD DE INGENIERÍA DE SISTEMAS</h2>
-        <p class="motto">"La técnica al servicio de la patria"</p>
-      </div>
-    </div>
-  </header>
-
-  <div class="content-body-full">
-
-    <!-- ==================== INICIO ==================== -->
-    <div class="tab-content active" id="inicio" style="display: block;">
-      <section class="welcome-section">
-        <div class="bot-card">
-          <div class="bot-text">
-            <h3 class="mega-title">SISTEMA BOOLEANO INICIADO</h3>
-            <div class="separator"></div>
-            <p><strong>Bienvenido, Jugador.</strong> Soy <strong>MathBot</strong>.</p>
-            <p>El Álgebra de Boole es el lenguaje oculto de cada chip, cada procesador y cada línea de código que optimizas. Prepárate para dominar sus leyes y llevarlas al silicio.</p>
-            <p>Protocolo de enseñanza activado. Interfaz Gamer de alto rendimiento cargada.</p>
-            <button class="cta-button" onclick="openTab(event, 'variables')">INICIAR MISIÓN</button>
-          </div>
-          <div class="bot-image-container">
-            <img alt="MathBot" class="floating-bot" src="img/bot.png"/>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- ==================== MISIÓN 1: VARIABLES BOOLEANAS ==================== -->
-    <div class="tab-content" id="variables">
-      <div class="topic-header"><h2>VARIABLES BOOLEANAS</h2><span class="badge">MISIÓN 1</span></div>
-      <div class="card">
-        <h1 class="urban-title">1. DEFINICIÓN</h1>
-        <div class="definition-text">
-          <p>Una variable booleana solo puede tomar dos valores: <strong>0 (falso, apagado)</strong> y <strong>1 (verdadero, encendido)</strong>. Es el átomo de la electrónica digital.</p>
-          <p class="math-highlight">A ∈ {0, 1} &nbsp;&nbsp; B ∈ {0, 1} &nbsp;&nbsp; ...</p>
-        </div>
-      </div>
-      <div class="card">
-        <h1 class="urban-title">2. COMPUERTAS BÁSICAS (TRANSISTORES)</h1>
-        <p>Cada compuerta es una función construida con transistores. La combinación de millones de ellas da vida a procesadores y memorias.</p>
-        <div class="tech-grid">
-          <div><strong>NOT (¬A)</strong><br>Inversor. Si A=0 → 1</div>
-          <div><strong>AND (A·B)</strong><br>Producto lógico. Solo 1 si ambas entradas son 1.</div>
-          <div><strong>OR (A+B)</strong><br>Suma lógica. 1 si al menos una entrada es 1.</div>
-          <div><strong>XOR (A⊕B)</strong><br>Suma exclusiva. 1 si son diferentes.</div>
-        </div>
-      </div>
-      <div class="card">
-        <h1 class="urban-title">3. TABLA DE VERDAD INTERACTIVA</h1>
-        <div class="interactive-box">
-          <p>Construye la tabla para cualquier expresión simple (AND, OR, NOT, XOR).</p>
-          <input id="varExpr" placeholder="Ej: A and B or not C" class="mini-input"/>
-          <button class="run-btn" onclick="generateTruthTable()">GENERAR TABLA</button>
-          <div id="truthTableOutput" class="result-display" style="margin-top:15px;">Esperando expresión...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================== MISIÓN 2: FUNCIONES BOOLEANAS ==================== -->
-    <div class="tab-content" id="funciones-booleanas">
-      <div class="topic-header"><h2>FUNCIONES BOOLEANAS</h2><span class="badge">MISIÓN 2</span></div>
-      <div class="card">
-        <h1 class="urban-title">1. DEFINICIÓN</h1>
-        <p>Una función booleana asigna valores 0/1 a cada combinación de sus variables de entrada.</p>
-        <p class="math-highlight">f(A,B,C) = Σ(m₁, m₂, m₅, m₇)</p>
-      </div>
-      <div class="card">
-        <h1 class="urban-title">2. FORMAS CANÓNICAS</h1>
-        <p><strong>Minterms:</strong> producto de variables que da 1 en una sola fila.<br>
-        <strong>Maxterms:</strong> suma que da 0 en una sola fila.</p>
-        <div id="canonicalDemo" class="result-display">Cargando ejemplo…</div>
-      </div>
-    </div>
-
-    <!-- ==================== MISIÓN 3: SIMPLIFICACIÓN ==================== -->
-    <div class="tab-content" id="simplificacion">
-      <div class="topic-header"><h2>SIMPLIFICACIÓN</h2><span class="badge">MISIÓN 3</span></div>
-      <div class="card">
-        <h1 class="urban-title">1. ÁLGEBRA DE BOOLE (LEYES)</h1>
-        <ul class="law-list">
-          <li><strong>Idempotencia:</strong> A + A = A, A·A = A</li>
-          <li><strong>Complemento:</strong> A + ¬A = 1, A·¬A = 0</li>
-          <li><strong>De Morgan:</strong> ¬(A·B) = ¬A + ¬B, ¬(A+B) = ¬A·¬B</li>
-          <li><strong>Distributiva:</strong> A·(B+C) = A·B + A·C</li>
+      <nav>
+        <ul>
+          <li><a class="tab-link active" href="#" onclick="openTab(event, 'inicio')"><i class="fas fa-robot"></i> Inicio</a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'variables')"><i class="fas fa-toggle-on"></i> <span class="mission-badge">MISION 1</span> <span class="nav-text">Variables Booleanas</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'funciones-booleanas')"><i class="fas fa-table"></i> <span class="mission-badge">MISION 2</span> <span class="nav-text">Funciones Booleanas</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'simplificacion')"><i class="fas fa-compress-arrows-alt"></i> <span class="mission-badge">MISION 3</span> <span class="nav-text">Simplificación</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'circuitos')"><i class="fas fa-microchip"></i> <span class="mission-badge">MISION 4</span> <span class="nav-text">Circuitos Digitales</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'procesadores')"><i class="fas fa-cpu"></i> <span class="mission-badge">MISION 5</span> <span class="nav-text">Procesadores y ALU</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'optimizacion')"><i class="fas fa-code"></i> <span class="mission-badge">MISION 6</span> <span class="nav-text">Optimización de Código</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'practica')"><i class="fas fa-bullseye"></i> <span class="mission-badge">MISION 7</span> <span class="nav-text">Modo Práctica</span></a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'video')"><i class="fas fa-play-circle"></i> Video Explicativo</a></li>
+          <li><a class="tab-link" href="#" onclick="openTab(event, 'resenas')"><i class="fas fa-comments"></i> Reseñas</a></li>
         </ul>
-      </div>
-      <div class="card">
-        <h1 class="urban-title">2. MAPAS DE KARNAUGH</h1>
-        <p>Simplificación visual de funciones de 2, 3 y 4 variables.</p>
-        <div class="kmap-container" id="kmapContainer">
-          <p>Selecciona una función para ver su mapa K.</p>
+      </nav>
+      <div class="mission-panel" id="missionPanel">
+        <div class="mission-head">
+          <div class="mission-title"><i class="fas fa-flag-checkered"></i><span>Modo Misión</span></div>
+          <button class="mission-reset" onclick="resetMissions()" title="Reiniciar progreso" type="button"><i class="fas fa-rotate-left"></i></button>
+          <button class="mission-close" id="missionClose" title="Cerrar panel" type="button"><i class="fas fa-xmark"></i></button>
         </div>
-        <button class="run-btn" onclick="simplifyWithKMap()">SIMPLIFICAR</button>
-        <div id="simplifiedResult" class="result-display"></div>
-      </div>
-    </div>
-
-    <!-- ==================== MISIÓN 4: CIRCUITOS DIGITALES ==================== -->
-    <div class="tab-content" id="circuitos">
-      <div class="topic-header"><h2>CIRCUITOS DIGITALES</h2><span class="badge">MISIÓN 4</span></div>
-      <div class="card">
-        <h1 class="urban-title">DE LA EXPRESIÓN AL SILICIO</h1>
-        <p>Toda función booleana puede implementarse con compuertas lógicas reales (NAND, NOR, etc.). De hecho, cualquier circuito digital se reduce a combinaciones de NANDs.</p>
-        <div class="circuit-sim" id="circuitSim">
-          <p>Dibuja aquí un circuito simplificado (ej: f = A·B + ¬C).</p>
+        <div class="mission-progress">
+          <div class="mission-progress-bar"><span id="missionBarFill"></span></div>
+          <div class="mission-progress-text"><span id="missionPct">0%</span> completado</div>
         </div>
-        <button class="run-btn" onclick="drawCircuit()">VISUALIZAR CIRCUITO</button>
+        <ul class="mission-list" id="missionList"></ul>
       </div>
     </div>
+    <div class="sidebar-footer"><p>GRUPO 5 MC | EPN</p></div>
+  </aside>
 
-    <!-- ==================== MISIÓN 5: PROCESADORES Y ALU ==================== -->
-    <div class="tab-content" id="procesadores">
-      <div class="topic-header"><h2>PROCESADORES Y ALU</h2><span class="badge">MISIÓN 5</span></div>
-      <div class="card">
-        <h1 class="urban-title">CÓMO PIENSA UN PROCESADOR</h1>
-        <p>La Unidad Aritmético‑Lógica (ALU) está hecha completamente de funciones booleanas. Un sumador completo (full adder) usa XOR y AND para sumar bits.</p>
-        <div class="alu-demo" id="aluDemo">
-          <p>Sumador de 4 bits: A + B = S</p>
-          <input id="aluA" placeholder="A (4 bits)" class="mini-input"/>
-          <input id="aluB" placeholder="B (4 bits)" class="mini-input"/>
-          <button class="run-btn" onclick="simulateALU()">SUMAR (BOOLE)</button>
-          <div id="aluResult" class="result-display"></div>
+  <!-- ========== CONTENIDO PRINCIPAL ========== -->
+  <main class="main-content" id="mainContent">
+    <header class="top-header">
+      <div class="section-pill" id="currentSection" title="Sección actual">Inicio</div>
+      <button aria-label="Abrir menú" class="sidebar-toggle" id="sidebarToggle" title="Menú" type="button"><i class="fas fa-bars"></i></button>
+      <button class="panel-btn" id="panelBtn" title="Panel de jugador" type="button"><i class="fas fa-user-astronaut"></i></button>
+      <div class="xp-badge" id="xpBadge" title="Progreso de juego">
+        <div class="xp-top">LV <span id="levelValue">1</span> · XP <span id="xpValue">0</span></div>
+        <div class="xp-bar"><span id="xpBar"></span></div>
+        <div class="xp-row">
+          <span class="streak" title="Racha diaria"><i class="fas fa-fire"></i> <span id="streakValue">1</span></span>
+          <button class="hud-btn" id="trophyBtn" title="Logros" type="button"><i class="fas fa-trophy"></i></button>
+          <button class="hud-btn" id="soundBtn" title="Sonido: off" type="button"><i class="fas fa-volume-mute"></i></button>
+          <button class="hud-btn" id="themeBtn" title="Tema" type="button"><i class="fas fa-palette"></i></button>
+          <button class="hud-btn" id="fsBtn" title="Pantalla completa" type="button"><i class="fas fa-expand"></i></button>
         </div>
       </div>
-    </div>
-
-    <!-- ==================== MISIÓN 6: OPTIMIZACIÓN DE CÓDIGO ==================== -->
-    <div class="tab-content" id="optimizacion">
-      <div class="topic-header"><h2>OPTIMIZACIÓN DE CÓDIGO</h2><span class="badge">MISIÓN 6</span></div>
-      <div class="card">
-        <h1 class="urban-title">EXPRESIONES LÓGICAS EFICIENTES</h1>
-        <p>En programación, simplificar condiciones booleanas reduce instrucciones, mejora el rendimiento y evita bugs. Ejemplo: <code>if (A && B) || (A && C)</code> → <code>if (A && (B || C))</code></p>
-        <div class="code-optimizer">
-          <textarea id="rawCondition" placeholder="Escribe una condición compleja..."></textarea>
-          <button class="run-btn" onclick="optimizeCondition()">OPTIMIZAR</button>
-          <div id="optimizedOutput" class="result-display"></div>
+      <div class="logo-area">
+        <img alt="Escudo EPN" src="img/logo-epn.png"/>
+        <div class="university-info">
+          <h1>ESCUELA POLITÉCNICA NACIONAL</h1>
+          <h2>FACULTAD DE INGENIERÍA DE SISTEMAS</h2>
+          <p class="motto">"La técnica al servicio de la patria"</p>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- ==================== MODO PRÁCTICA ==================== -->
-    <div class="tab-content" id="practica">
-      <div class="topic-header"><h2>MODO PRÁCTICA</h2><span class="badge">MISIÓN 7</span></div>
-      <div class="grid-2 practice-grid">
-        <div class="card practice-card">
-          <h1 class="urban-title">Generador de retos</h1>
-          <p class="muted">Elige una sección, genera un reto y resuélvelo. Recibes XP por respuestas correctas.</p>
-          <div class="form-row">
-            <label class="label">Sección</label>
-            <select class="select" id="practiceTopic">
-              <option value="variables">Variables Booleanas</option>
-              <option value="funciones-booleanas">Funciones Booleanas</option>
-              <option value="simplificacion">Simplificación</option>
-              <option value="circuitos">Circuitos Digitales</option>
-              <option value="procesadores">Procesadores</option>
-              <option value="optimizacion">Optimización</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label class="label">Dificultad</label>
-            <select class="select" id="practiceLevel">
-              <option value="1">Nivel 1 (rápido)</option>
-              <option value="2">Nivel 2 (normal)</option>
-              <option value="3">Nivel 3 (reto)</option>
-            </select>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="practiceNew"><i class="fas fa-dice"></i> Nuevo reto</button>
-            <button class="btn" id="practiceLoad"><i class="fas fa-upload"></i> Cargar en sección</button>
-            <button class="btn danger" id="practiceReset"><i class="fas fa-trash"></i> Reiniciar</button>
-          </div>
-          <div class="callout" id="practiceHint">Tip: presiona <b>Nuevo reto</b>, responde y luego usa <b>Cargar en sección</b> para ver la solución en el módulo real.</div>
-        </div>
-        <div class="card practice-card">
-          <h1 class="urban-title">Reto actual</h1>
-          <div class="practice-panel">
-            <div class="practice-prompt" id="practicePrompt">
-              <div class="video-placeholder" style="min-height:180px;"><div class="ph-title">Aún no hay reto</div><div class="ph-sub">Genera un reto para empezar.</div></div>
+    <div class="content-body-full">
+
+      <!-- ==================== INICIO ==================== -->
+      <div class="tab-content active" id="inicio" style="display: block;">
+        <section class="welcome-section">
+          <div class="bot-card">
+            <div class="bot-text">
+              <h3 class="mega-title">SISTEMA BOOLEANO INICIADO</h3>
+              <div class="separator"></div>
+              <p><strong>Bienvenido, Jugador.</strong> Soy <strong>MathBot</strong>.</p>
+              <p>El Álgebra de Boole es el lenguaje oculto de cada chip, cada procesador y cada línea de código que optimizas. Prepárate para dominar sus leyes y llevarlas al silicio.</p>
+              <p>Protocolo de enseñanza activado. Interfaz Gamer de alto rendimiento cargada.</p>
+              <button class="cta-button" onclick="openTab(event, 'variables')">INICIAR MISIÓN</button>
             </div>
-            <div class="practice-answer">
-              <label class="label">Tu respuesta</label>
-              <input id="practiceAnswer" placeholder="Escribe tu respuesta aquí..." type="text"/>
-              <div class="practice-choices" id="practiceChoices"></div>
-              <div class="row">
-                <button class="btn primary" id="practiceCheck"><i class="fas fa-check"></i> Evaluar</button>
-                <button class="btn" id="practiceHintBtn"><i class="fas fa-lightbulb"></i> Pista</button>
-                <button class="btn" id="practiceReveal"><i class="fas fa-eye"></i> Ver solución</button>
-              </div>
-              <div class="practice-feedback" id="practiceFeedback"></div>
-            </div>
-            <div class="matlab-box">
-              <div class="matlab-head">
-                <div class="matlab-title"><i class="fas fa-code"></i> MATLAB / Python generado</div>
-                <div class="matlab-actions">
-                  <button class="btn mini" id="practiceCopy"><i class="fas fa-copy"></i> Copiar</button>
-                  <button class="btn mini" id="practiceDownload"><i class="fas fa-download"></i> Descargar .m</button>
-                </div>
-              </div>
-              <pre><code class="matlab-code" id="practiceMatlab">% Genera un reto para ver el código.</code></pre>
+            <div class="bot-image-container">
+              <img alt="MathBot" class="floating-bot" src="img/bot.png"/>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-      <div class="card practice-card practice-history-card">
-        <h1 class="urban-title">Historial</h1>
-        <p class="muted">Se guardan tus últimos retos y resultados en este dispositivo.</p>
-        <div class="practice-history" id="practiceHistory"></div>
-        <div class="row">
-          <button class="btn mini" id="practiceExportCSV"><i class="fas fa-file-csv"></i> Exportar CSV</button>
-          <button class="btn mini" id="practiceExportJSON"><i class="fas fa-file-code"></i> Exportar JSON</button>
-          <button class="btn danger mini" id="practiceClearHistory"><i class="fas fa-trash"></i> Limpiar</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- ==================== VIDEO EXPLICATIVO ==================== -->
-    <div class="tab-content" id="video">
-      <div class="topic-header"><h2>VIDEO EXPLICATIVO</h2><span class="badge">BONUS</span></div>
-      <div class="card">
-        <h1 class="urban-title">Carga tu video</h1>
-        <p class="muted">Pega un enlace (YouTube / youtu.be / embed). Se carga un video por defecto sobre Álgebra de Boole.</p>
-        <div class="video-controls">
-          <input id="videoInput" placeholder="https://www.youtube.com/watch?v=..." type="text"/>
-          <div class="video-actions">
-            <button class="btn" id="videoLoadBtn">Cargar</button>
-            <button class="btn btn-secondary" id="videoClearBtn">Quitar</button>
+      <!-- ==================== MISIÓN 1: VARIABLES BOOLEANAS ==================== -->
+      <div class="tab-content" id="variables">
+        <div class="topic-header"><h2>VARIABLES BOOLEANAS</h2><span class="badge">MISIÓN 1</span></div>
+        <div class="card">
+          <h1 class="urban-title">1. DEFINICIÓN</h1>
+          <div class="definition-text">
+            <p>Una variable booleana solo puede tomar dos valores: <strong>0 (falso, apagado)</strong> y <strong>1 (verdadero, encendido)</strong>. Es el átomo de la electrónica digital.</p>
+            <p class="math-highlight">A ∈ {0, 1} &nbsp;&nbsp; B ∈ {0, 1} &nbsp;&nbsp; ...</p>
           </div>
         </div>
-        <div class="video-wrap" id="videoPreviewWrap">
-          <div class="video-placeholder" id="videoPlaceholder">
-            <div class="ph-title">Video sobre Álgebra de Boole y hardware</div>
-            <div class="ph-sub">Pega un enlace arriba y presiona <b>Cargar</b>.</div>
+        <div class="card">
+          <h1 class="urban-title">2. COMPUERTAS BÁSICAS (TRANSISTORES)</h1>
+          <p>Cada compuerta es una función construida con transistores. La combinación de millones de ellas da vida a procesadores y memorias.</p>
+          <div class="tech-grid">
+            <div><strong>NOT (¬A)</strong><br>Inversor. Si A=0 → 1</div>
+            <div><strong>AND (A·B)</strong><br>Producto lógico. Solo 1 si ambas entradas son 1.</div>
+            <div><strong>OR (A+B)</strong><br>Suma lógica. 1 si al menos una entrada es 1.</div>
+            <div><strong>XOR (A⊕B)</strong><br>Suma exclusiva. 1 si son diferentes.</div>
+          </div>
+        </div>
+        <div class="card">
+          <h1 class="urban-title">3. TABLA DE VERDAD INTERACTIVA</h1>
+          <div class="interactive-box">
+            <p>Construye la tabla para cualquier expresión simple (AND, OR, NOT, XOR).</p>
+            <input id="varExpr" placeholder="Ej: A and B or not C" class="mini-input"/>
+            <button class="run-btn" onclick="generateTruthTable()">GENERAR TABLA</button>
+            <div id="truthTableOutput" class="result-display" style="margin-top:15px;">Esperando expresión...</div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ==================== RESEÑAS ==================== -->
-    <div class="tab-content" id="resenas">
-      <div class="topic-header"><h2>RESEÑAS</h2><span class="badge">COMUNIDAD</span></div>
-      <div class="card">
-        <h1 class="urban-title">Deja tu reseña</h1>
-        <div class="review-form">
-          <input id="revName" placeholder="Nombre (opcional)" type="text"/>
-          <div class="review-summary"><div class="avg" id="avgRating">—</div><div class="avg-sub">Promedio</div></div>
-          <div aria-label="Calificación" class="star-picker" id="starPicker">
-            <button class="star" data-v="1" type="button">★</button>
-            <button class="star" data-v="2" type="button">★</button>
-            <button class="star" data-v="3" type="button">★</button>
-            <button class="star" data-v="4" type="button">★</button>
-            <button class="star" data-v="5" type="button">★</button>
-          </div>
-          <select id="revRating">
-            <option value="5">★★★★★ (5)</option>
-            <option value="4">★★★★☆ (4)</option>
-            <option value="3">★★★☆☆ (3)</option>
-            <option value="2">★★☆☆☆ (2)</option>
-            <option value="1">★☆☆☆☆ (1)</option>
-          </select>
-          <textarea id="revText" placeholder="Escribe tu reseña..."></textarea>
-          <div class="review-actions">
-            <button class="run-btn" onclick="addReview()">PUBLICAR</button>
-            <button class="sub-btn" onclick="clearReviews()">BORRAR TODO</button>
-          </div>
-          <div class="review-msg" id="revMsg"></div>
+      <!-- ==================== MISIÓN 2: FUNCIONES BOOLEANAS ==================== -->
+      <div class="tab-content" id="funciones-booleanas">
+        <div class="topic-header"><h2>FUNCIONES BOOLEANAS</h2><span class="badge">MISIÓN 2</span></div>
+        <div class="card">
+          <h1 class="urban-title">1. DEFINICIÓN</h1>
+          <p>Una función booleana asigna valores 0/1 a cada combinación de sus variables de entrada.</p>
+          <p class="math-highlight">f(A,B,C) = Σ(m₁, m₂, m₅, m₇)</p>
         </div>
-        <div class="reviews-list" id="reviewsList"></div>
+        <div class="card">
+          <h1 class="urban-title">2. FORMAS CANÓNICAS</h1>
+          <p><strong>Minterms:</strong> producto de variables que da 1 en una sola fila.<br>
+          <strong>Maxterms:</strong> suma que da 0 en una sola fila.</p>
+          <div id="canonicalDemo" class="result-display">Cargando ejemplo…</div>
+        </div>
       </div>
-    </div>
 
-  </div><!-- /content-body-full -->
-</main>
-
-<!-- BOTÓN WHATSAPP -->
-<a class="whatsapp-btn" href="https://wa.me/593987662461" target="_blank" title="Chatear en WhatsApp"><i class="fab fa-whatsapp"></i></a>
-<button aria-label="Volver arriba" class="to-top" id="toTopBtn" title="Volver arriba"><i class="fas fa-chevron-up"></i></button>
-
-<script src="script.js?v=mc34"></script>
-<div aria-atomic="true" aria-live="polite" class="toast" id="toast"></div>
-<div class="plot-tip" id="plotTip" style="display:none;"></div>
-
-<!-- Achievements Modal -->
-<div aria-hidden="true" class="modal" id="achModal">
-  <div class="modal-backdrop" data-close="true"></div>
-  <div aria-labelledby="achTitle" aria-modal="true" class="modal-card" role="dialog">
-    <div class="modal-head">
-      <h3 id="achTitle"><i class="fas fa-trophy"></i> Logros</h3>
-      <button aria-label="Cerrar" class="modal-close" data-close="true" type="button"><i class="fas fa-xmark"></i></button>
-    </div>
-    <div class="modal-body"><div class="ach-grid" id="achGrid"></div></div>
-  </div>
-</div>
-<div aria-atomic="true" aria-live="polite" class="ach-popup" id="achPopup"></div>
-
-<!-- Profile Modal -->
-<div aria-hidden="true" class="modal" id="profileModal">
-  <div class="modal-backdrop" data-close="profileModal"></div>
-  <div aria-labelledby="profileTitle" aria-modal="true" class="modal-card" role="dialog">
-    <div class="modal-head">
-      <div class="modal-title" id="profileTitle"><i class="fas fa-user-astronaut"></i> Panel de jugador</div>
-      <button class="icon-btn" data-close="profileModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="grid-2">
-        <div class="card mini">
-          <h3><i class="fas fa-star"></i> Progreso</h3>
-          <div class="kv"><span>Nivel</span><b id="profLevel">1</b></div>
-          <div class="kv"><span>XP</span><b id="profXp">0</b></div>
-          <div class="kv"><span>Racha</span><b id="profStreak">1</b></div>
-          <div class="kv"><span>Secciones completas</span><b id="profDone">0</b></div>
-        </div>
-        <div class="card mini">
-          <h3><i class="fas fa-keyboard"></i> Atajos</h3>
-          <ul class="shortcuts">
-            <li><code>/</code> Buscar</li>
-            <li><code>Enter</code> Abrir primer resultado</li>
-            <li><code>Esc</code> Cerrar / limpiar</li>
-            <li><code>Ctrl</code>+<code>K</code> Búsqueda rápida</li>
+      <!-- ==================== MISIÓN 3: SIMPLIFICACIÓN ==================== -->
+      <div class="tab-content" id="simplificacion">
+        <div class="topic-header"><h2>SIMPLIFICACIÓN</h2><span class="badge">MISIÓN 3</span></div>
+        <div class="card">
+          <h1 class="urban-title">1. ÁLGEBRA DE BOOLE (LEYES)</h1>
+          <ul class="law-list">
+            <li><strong>Idempotencia:</strong> A + A = A, A·A = A</li>
+            <li><strong>Complemento:</strong> A + ¬A = 1, A·¬A = 0</li>
+            <li><strong>De Morgan:</strong> ¬(A·B) = ¬A + ¬B, ¬(A+B) = ¬A·¬B</li>
+            <li><strong>Distributiva:</strong> A·(B+C) = A·B + A·C</li>
           </ul>
         </div>
+        <div class="card">
+          <h1 class="urban-title">2. MAPAS DE KARNAUGH</h1>
+          <p>Simplificación visual de funciones de 2, 3 y 4 variables.</p>
+          <div class="kmap-container" id="kmapContainer">
+            <p>Selecciona una función para ver su mapa K.</p>
+          </div>
+          <button class="run-btn" onclick="simplifyWithKMap()">SIMPLIFICAR</button>
+          <div id="simplifiedResult" class="result-display"></div>
+        </div>
       </div>
-      <div class="callout warn"><b>Reiniciar progreso</b>: borra XP, racha y completados (no elimina el código).</div>
-      <div class="row">
-        <button class="btn danger" id="resetProgressBtn"><i class="fas fa-trash"></i> Reiniciar progreso</button>
-        <button class="btn" data-close="profileModal">Cerrar</button>
+
+      <!-- ==================== MISIÓN 4: CIRCUITOS DIGITALES ==================== -->
+      <div class="tab-content" id="circuitos">
+        <div class="topic-header"><h2>CIRCUITOS DIGITALES</h2><span class="badge">MISIÓN 4</span></div>
+        <div class="card">
+          <h1 class="urban-title">DE LA EXPRESIÓN AL SILICIO</h1>
+          <p>Toda función booleana puede implementarse con compuertas lógicas reales (NAND, NOR, etc.). De hecho, cualquier circuito digital se reduce a combinaciones de NANDs.</p>
+          <div class="circuit-sim" id="circuitSim">
+            <p>Dibuja aquí un circuito simplificado (ej: f = A·B + ¬C).</p>
+          </div>
+          <button class="run-btn" onclick="drawCircuit()">VISUALIZAR CIRCUITO</button>
+        </div>
+      </div>
+
+      <!-- ==================== MISIÓN 5: PROCESADORES Y ALU ==================== -->
+      <div class="tab-content" id="procesadores">
+        <div class="topic-header"><h2>PROCESADORES Y ALU</h2><span class="badge">MISIÓN 5</span></div>
+        <div class="card">
+          <h1 class="urban-title">CÓMO PIENSA UN PROCESADOR</h1>
+          <p>La Unidad Aritmético‑Lógica (ALU) está hecha completamente de funciones booleanas. Un sumador completo (full adder) usa XOR y AND para sumar bits.</p>
+          <div class="alu-demo" id="aluDemo">
+            <p>Sumador de 4 bits: A + B = S</p>
+            <input id="aluA" placeholder="A (4 bits)" class="mini-input"/>
+            <input id="aluB" placeholder="B (4 bits)" class="mini-input"/>
+            <button class="run-btn" onclick="simulateALU()">SUMAR (BOOLE)</button>
+            <div id="aluResult" class="result-display"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MISIÓN 6: OPTIMIZACIÓN DE CÓDIGO ==================== -->
+      <div class="tab-content" id="optimizacion">
+        <div class="topic-header"><h2>OPTIMIZACIÓN DE CÓDIGO</h2><span class="badge">MISIÓN 6</span></div>
+        <div class="card">
+          <h1 class="urban-title">EXPRESIONES LÓGICAS EFICIENTES</h1>
+          <p>En programación, simplificar condiciones booleanas reduce instrucciones, mejora el rendimiento y evita bugs. Ejemplo: <code>if (A && B) || (A && C)</code> → <code>if (A && (B || C))</code></p>
+          <div class="code-optimizer">
+            <textarea id="rawCondition" placeholder="Escribe una condición compleja..."></textarea>
+            <button class="run-btn" onclick="optimizeCondition()">OPTIMIZAR</button>
+            <div id="optimizedOutput" class="result-display"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MODO PRÁCTICA ==================== -->
+      <div class="tab-content" id="practica">
+        <div class="topic-header"><h2>MODO PRÁCTICA</h2><span class="badge">MISIÓN 7</span></div>
+        <div class="grid-2 practice-grid">
+          <div class="card practice-card">
+            <h1 class="urban-title">Generador de retos</h1>
+            <p class="muted">Elige una sección, genera un reto y resuélvelo. Recibes XP por respuestas correctas.</p>
+            <div class="form-row">
+              <label class="label">Sección</label>
+              <select class="select" id="practiceTopic">
+                <option value="variables">Variables Booleanas</option>
+                <option value="funciones-booleanas">Funciones Booleanas</option>
+                <option value="simplificacion">Simplificación</option>
+                <option value="circuitos">Circuitos Digitales</option>
+                <option value="procesadores">Procesadores</option>
+                <option value="optimizacion">Optimización</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="label">Dificultad</label>
+              <select class="select" id="practiceLevel">
+                <option value="1">Nivel 1 (rápido)</option>
+                <option value="2">Nivel 2 (normal)</option>
+                <option value="3">Nivel 3 (reto)</option>
+              </select>
+            </div>
+            <div class="row">
+              <button class="btn primary" id="practiceNew"><i class="fas fa-dice"></i> Nuevo reto</button>
+              <button class="btn" id="practiceLoad"><i class="fas fa-upload"></i> Cargar en sección</button>
+              <button class="btn danger" id="practiceReset"><i class="fas fa-trash"></i> Reiniciar</button>
+            </div>
+            <div class="callout" id="practiceHint">Tip: presiona <b>Nuevo reto</b>, responde y luego usa <b>Cargar en sección</b> para ver la solución en el módulo real.</div>
+          </div>
+          <div class="card practice-card">
+            <h1 class="urban-title">Reto actual</h1>
+            <div class="practice-panel">
+              <div class="practice-prompt" id="practicePrompt">
+                <div class="video-placeholder" style="min-height:180px;"><div class="ph-title">Aún no hay reto</div><div class="ph-sub">Genera un reto para empezar.</div></div>
+              </div>
+              <div class="practice-answer">
+                <label class="label">Tu respuesta</label>
+                <input id="practiceAnswer" placeholder="Escribe tu respuesta aquí..." type="text"/>
+                <div class="practice-choices" id="practiceChoices"></div>
+                <div class="row">
+                  <button class="btn primary" id="practiceCheck"><i class="fas fa-check"></i> Evaluar</button>
+                  <button class="btn" id="practiceHintBtn"><i class="fas fa-lightbulb"></i> Pista</button>
+                  <button class="btn" id="practiceReveal"><i class="fas fa-eye"></i> Ver solución</button>
+                </div>
+                <div class="practice-feedback" id="practiceFeedback"></div>
+              </div>
+              <div class="matlab-box">
+                <div class="matlab-head">
+                  <div class="matlab-title"><i class="fas fa-code"></i> MATLAB / Python generado</div>
+                  <div class="matlab-actions">
+                    <button class="btn mini" id="practiceCopy"><i class="fas fa-copy"></i> Copiar</button>
+                    <button class="btn mini" id="practiceDownload"><i class="fas fa-download"></i> Descargar .m</button>
+                  </div>
+                </div>
+                <pre><code class="matlab-code" id="practiceMatlab">% Genera un reto para ver el código.</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card practice-card practice-history-card">
+          <h1 class="urban-title">Historial</h1>
+          <p class="muted">Se guardan tus últimos retos y resultados en este dispositivo.</p>
+          <div class="practice-history" id="practiceHistory"></div>
+          <div class="row">
+            <button class="btn mini" id="practiceExportCSV"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+            <button class="btn mini" id="practiceExportJSON"><i class="fas fa-file-code"></i> Exportar JSON</button>
+            <button class="btn danger mini" id="practiceClearHistory"><i class="fas fa-trash"></i> Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIDEO EXPLICATIVO ==================== -->
+      <div class="tab-content" id="video">
+        <div class="topic-header"><h2>VIDEO EXPLICATIVO</h2><span class="badge">BONUS</span></div>
+        <div class="card">
+          <h1 class="urban-title">Carga tu video</h1>
+          <p class="muted">Pega un enlace (YouTube / youtu.be / embed). Se carga un video por defecto sobre Álgebra de Boole.</p>
+          <div class="video-controls">
+            <input id="videoInput" placeholder="https://www.youtube.com/watch?v=..." type="text"/>
+            <div class="video-actions">
+              <button class="btn" id="videoLoadBtn">Cargar</button>
+              <button class="btn btn-secondary" id="videoClearBtn">Quitar</button>
+            </div>
+          </div>
+          <div class="video-wrap" id="videoPreviewWrap">
+            <div class="video-placeholder" id="videoPlaceholder">
+              <div class="ph-title">Video sobre Álgebra de Boole y hardware</div>
+              <div class="ph-sub">Pega un enlace arriba y presiona <b>Cargar</b>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== RESEÑAS ==================== -->
+      <div class="tab-content" id="resenas">
+        <div class="topic-header"><h2>RESEÑAS</h2><span class="badge">COMUNIDAD</span></div>
+        <div class="card">
+          <h1 class="urban-title">Deja tu reseña</h1>
+          <div class="review-form">
+            <input id="revName" placeholder="Nombre (opcional)" type="text"/>
+            <div class="review-summary"><div class="avg" id="avgRating">—</div><div class="avg-sub">Promedio</div></div>
+            <div aria-label="Calificación" class="star-picker" id="starPicker">
+              <button class="star" data-v="1" type="button">★</button>
+              <button class="star" data-v="2" type="button">★</button>
+              <button class="star" data-v="3" type="button">★</button>
+              <button class="star" data-v="4" type="button">★</button>
+              <button class="star" data-v="5" type="button">★</button>
+            </div>
+            <select id="revRating">
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★☆ (4)</option>
+              <option value="3">★★★☆☆ (3)</option>
+              <option value="2">★★☆☆☆ (2)</option>
+              <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+            <textarea id="revText" placeholder="Escribe tu reseña..."></textarea>
+            <div class="review-actions">
+              <button class="run-btn" onclick="addReview()">PUBLICAR</button>
+              <button class="sub-btn" onclick="clearReviews()">BORRAR TODO</button>
+            </div>
+            <div class="review-msg" id="revMsg"></div>
+          </div>
+          <div class="reviews-list" id="reviewsList"></div>
+        </div>
+      </div>
+
+    </div><!-- /content-body-full -->
+  </main>
+
+  <!-- BOTÓN WHATSAPP -->
+  <a class="whatsapp-btn" href="https://wa.me/593987662461" target="_blank" title="Chatear en WhatsApp"><i class="fab fa-whatsapp"></i></a>
+  <button aria-label="Volver arriba" class="to-top" id="toTopBtn" title="Volver arriba"><i class="fas fa-chevron-up"></i></button>
+
+  <!-- ✅ Modales ANTES del script para que JS los encuentre en el DOM -->
+  <div aria-atomic="true" aria-live="polite" class="toast" id="toast"></div>
+  <div class="plot-tip" id="plotTip" style="display:none;"></div>
+
+  <!-- Achievements Modal -->
+  <div aria-hidden="true" class="modal" id="achModal">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div aria-labelledby="achTitle" aria-modal="true" class="modal-card" role="dialog">
+      <div class="modal-head">
+        <h3 id="achTitle"><i class="fas fa-trophy"></i> Logros</h3>
+        <button aria-label="Cerrar" class="modal-close" data-close="true" type="button"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body"><div class="ach-grid" id="achGrid"></div></div>
+    </div>
+  </div>
+  <div aria-atomic="true" aria-live="polite" class="ach-popup" id="achPopup"></div>
+
+  <!-- Profile Modal -->
+  <div aria-hidden="true" class="modal" id="profileModal">
+    <div class="modal-backdrop" data-close="profileModal"></div>
+    <div aria-labelledby="profileTitle" aria-modal="true" class="modal-card" role="dialog">
+      <div class="modal-head">
+        <div class="modal-title" id="profileTitle"><i class="fas fa-user-astronaut"></i> Panel de jugador</div>
+        <button class="icon-btn" data-close="profileModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-2">
+          <div class="card mini">
+            <h3><i class="fas fa-star"></i> Progreso</h3>
+            <div class="kv"><span>Nivel</span><b id="profLevel">1</b></div>
+            <div class="kv"><span>XP</span><b id="profXp">0</b></div>
+            <div class="kv"><span>Racha</span><b id="profStreak">1</b></div>
+            <div class="kv"><span>Secciones completas</span><b id="profDone">0</b></div>
+          </div>
+          <div class="card mini">
+            <h3><i class="fas fa-keyboard"></i> Atajos</h3>
+            <ul class="shortcuts">
+              <li><code>/</code> Buscar</li>
+              <li><code>Enter</code> Abrir primer resultado</li>
+              <li><code>Esc</code> Cerrar / limpiar</li>
+              <li><code>Ctrl</code>+<code>K</code> Búsqueda rápida</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout warn"><b>Reiniciar progreso</b>: borra XP, racha y completados (no elimina el código).</div>
+        <div class="row">
+          <button class="btn danger" id="resetProgressBtn"><i class="fas fa-trash"></i> Reiniciar progreso</button>
+          <button class="btn" data-close="profileModal">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Quick Search Modal -->
-<div aria-hidden="true" class="modal" id="quickSearchModal">
-  <div class="modal-backdrop" data-close="quickSearchModal"></div>
-  <div aria-labelledby="qsTitle" aria-modal="true" class="modal-card" role="dialog">
-    <div class="modal-head">
-      <div class="modal-title" id="qsTitle"><i class="fas fa-magnifying-glass"></i> Búsqueda rápida</div>
-      <button class="icon-btn" data-close="quickSearchModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <input autocomplete="off" class="qs-input" id="qsInput" placeholder="Escribe para buscar secciones..." type="text"/>
-      <div class="qs-results" id="qsResults"></div>
+  <!-- Quick Search Modal -->
+  <div aria-hidden="true" class="modal" id="quickSearchModal">
+    <div class="modal-backdrop" data-close="quickSearchModal"></div>
+    <div aria-labelledby="qsTitle" aria-modal="true" class="modal-card" role="dialog">
+      <div class="modal-head">
+        <div class="modal-title" id="qsTitle"><i class="fas fa-magnifying-glass"></i> Búsqueda rápida</div>
+        <button class="icon-btn" data-close="quickSearchModal" title="Cerrar" type="button"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input autocomplete="off" class="qs-input" id="qsInput" placeholder="Escribe para buscar secciones..." type="text"/>
+        <div class="qs-results" id="qsResults"></div>
+      </div>
     </div>
   </div>
-</div>
 
+  <!-- ✅ Script AL FINAL, después de todos los elementos del DOM -->
+  <script src="script.js?v=mc34"></script>
 </body>
 </html>
