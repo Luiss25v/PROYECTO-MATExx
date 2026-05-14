@@ -1,696 +1,929 @@
-// ========== UTILIDADES GENERALES ==========
-function escapeHtml(str) {
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-function showToast(msg, type = "info", ms = 2600) {
-    const el = document.getElementById("toast");
-    if (!el) return;
-    el.className = "toast toast-" + type;
-    el.textContent = msg;
-    el.style.display = "block";
-    el.style.opacity = "1";
-    clearTimeout(el.__t);
-    el.__t = setTimeout(() => { el.style.opacity = "0"; setTimeout(() => { el.style.display = "none"; }, 250); }, ms);
-}
-function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+// ============================================================
+// BOOLEANQUEST - LÓGICA COMPLETA DEL VIDEOJUEGO EDUCATIVO
+// Álgebra de Boole, Circuitos, Procesadores y Optimización
+// ============================================================
 
-// ========== SISTEMA DE PESTAÑAS ==========
-const sectionColors = {
-    inicio: '#FFD700',
-    variables: '#00FF00',
-    'funciones-booleanas': '#00FFFF',
-    simplificacion: '#BC13FE',
-    circuitos: '#FF00FF',
-    procesadores: '#ff8400',
-    optimizacion: '#00FF9C',
-    practica: '#00FFC8',
-    video: '#ff8400',
-    resenas: '#00FF9C'
-};
+(function() {
+    'use strict';
 
-const TAB_TITLES = {
-    inicio: "Inicio",
-    variables: "Variables Booleanas",
-    "funciones-booleanas": "Funciones Booleanas",
-    simplificacion: "Simplificación",
-    circuitos: "Circuitos Digitales",
-    procesadores: "Procesadores y ALU",
-    optimizacion: "Optimización de Código",
-    practica: "Modo Práctica",
-    video: "Video Explicativo",
-    resenas: "Reseñas"
-};
+    // -------------------------- CONSTANTES --------------------------
+    const STORAGE_KEY = 'booleanquest_save_v1';
+    const XP_PER_LESSON = 50;
+    const XP_PER_QUIZ = 50;
+    const XP_PER_CHALLENGE = { 1: 30, 2: 50, 3: 75 };
+    const COINS_PER_QUIZ = 20;
+    const COINS_PER_CHALLENGE = { 1: 15, 2: 25, 3: 40 };
+    const MAX_LEVEL = 50;
+    
+    // Datos de lecciones (temas)
+    const LESSONS = [
+        { id: 'tema1', name: 'Fundamentos', icon: '📖', mapPos: 0 },
+        { id: 'tema2', name: 'Variables Booleanas', icon: '🔢', mapPos: 1 },
+        { id: 'tema3', name: 'Compuertas Lógicas', icon: '🚪', mapPos: 2 },
+        { id: 'tema4', name: 'Tablas de Verdad', icon: '📊', mapPos: 3 },
+        { id: 'tema5', name: 'Simplificación', icon: '✂️', mapPos: 4 },
+        { id: 'tema6', name: 'Hardware & Circuitos', icon: '💻', mapPos: 5 },
+        { id: 'tema7', name: 'Procesadores', icon: '🧠', mapPos: 6 },
+        { id: 'tema8', name: 'Optimización de Código', icon: '⚡', mapPos: 7 }
+    ];
 
-function openTab(evt, tabName) {
-    if (evt && evt.preventDefault) evt.preventDefault();
-    const newColor = sectionColors[tabName] || '#FFD700';
+    // Preguntas de quiz por tema
+    const QUIZ_QUESTIONS = {
+        tema1: [
+            { q: "¿Quién desarrolló el Álgebra de Boole?", options: ["George Boole", "Alan Turing", "Claude Shannon", "John von Neumann"], answer: 0 },
+            { q: "¿Cuántos valores maneja el Álgebra de Boole?", options: ["10", "2", "8", "Infinitos"], answer: 1 },
+            { q: "¿Qué valor representa 'verdadero' en lógica binaria?", options: ["0", "1", "2", "-1"], answer: 1 },
+            { q: "El Álgebra de Boole es fundamental para...", options: ["Solo matemáticas", "Hardware digital", "Solo software", "Redes sociales"], answer: 1 },
+            { q: "¿En qué año George Boole publicó su obra principal?", options: ["1900", "1854", "1945", "1800"], answer: 1 }
+        ],
+        tema2: [
+            { q: "¿Qué valores puede tomar una variable booleana?", options: ["0 y 1", "0 a 9", "A y B", "True y False (solo texto)"], answer: 0 },
+            { q: "En la función F = A + B, ¿cuándo F=0?", options: ["A=1, B=1", "A=0, B=0", "A=0, B=1", "Nunca"], answer: 1 },
+            { q: "¿Cómo se representa la negación de A?", options: ["A + A", "Ā o A'", "A · 1", "A + 0"], answer: 1 },
+            { q: "Una función booleana describe...", options: ["Un programa", "Un circuito digital", "Una base de datos", "Un sistema operativo"], answer: 1 },
+            { q: "Si tienes 3 variables booleanas, ¿cuántas combinaciones posibles hay?", options: ["6", "8", "9", "3"], answer: 1 }
+        ],
+        tema3: [
+            { q: "¿Qué compuerta tiene salida 1 solo si todas las entradas son 1?", options: ["OR", "AND", "XOR", "NOT"], answer: 1 },
+            { q: "La compuerta NOT...", options: ["Suma", "Invierte", "Multiplica", "Duplica"], answer: 1 },
+            { q: "¿Qué compuerta es considerada universal (junto con NOR)?", options: ["AND", "OR", "NAND", "XOR"], answer: 2 },
+            { q: "La salida de XOR es 1 cuando...", options: ["Entradas iguales", "Entradas diferentes", "Una entrada es 1", "Siempre"], answer: 1 },
+            { q: "¿Cuál es el símbolo de la operación AND?", options: ["+", "·", "⊕", "¬"], answer: 1 }
+        ],
+        tema4: [
+            { q: "Una tabla de verdad muestra...", options: ["Solo entradas", "Solo salidas", "Todas las combinaciones", "El circuito físico"], answer: 2 },
+            { q: "Para 2 variables, ¿cuántas filas tiene la tabla de verdad?", options: ["2", "4", "8", "16"], answer: 1 },
+            { q: "En una tabla de verdad, ¿qué significa F=1?", options: ["Falso", "Verdadero", "Indefinido", "Error"], answer: 1 },
+            { q: "¿Qué herramienta se usa para simplificar visualmente?", options: ["Diagrama de flujo", "Mapa de Karnaugh", "Editor de texto", "Calculadora"], answer: 1 },
+            { q: "La tabla de verdad ayuda a...", options: ["Diseñar circuitos", "Escribir novelas", "Cocinar", "Navegar"], answer: 0 }
+        ],
+        tema5: [
+            { q: "Simplificar una función booleana sirve para...", options: ["Hacerla más compleja", "Reducir compuertas", "Aumentar costos", "No sirve"], answer: 1 },
+            { q: "¿Cuál es una ley de Morgan?", options: ["(A·B)' = A' + B'", "A + 0 = A", "A · 1 = A", "A + A' = 1"], answer: 0 },
+            { q: "A + A · B se simplifica a...", options: ["A + B", "A", "B", "A · B"], answer: 1 },
+            { q: "¿Qué método es algorítmico para simplificar?", options: ["K-Map", "Quine-McCluskey", "Dibujar", "Probar"], answer: 1 },
+            { q: "Simplificar reduce...", options: ["Transistores", "Líneas de código", "Ambas", "Ninguna"], answer: 2 }
+        ],
+        tema6: [
+            { q: "Una compuerta AND se implementa con transistores en...", options: ["Paralelo", "Serie", "Mixto", "Ninguno"], answer: 1 },
+            { q: "¿Qué lenguaje describe circuitos digitales?", options: ["Python", "HTML", "Verilog / VHDL", "CSS"], answer: 2 },
+            { q: "Un sumador básico usa compuertas...", options: ["AND y OR", "XOR y AND", "NOT y OR", "Solo NAND"], answer: 1 },
+            { q: "¿Cuál es la unidad mínima de hardware lógico?", options: ["CPU", "Transistor", "Compuerta lógica", "Registro"], answer: 2 },
+            { q: "El Álgebra de Boole es la base de...", options: ["Circuitos integrados", "Motores", "Bombillas", "Pilas"], answer: 0 }
+        ],
+        tema7: [
+            { q: "La ALU de un procesador está construida con...", options: ["Solo software", "Compuertas lógicas", "Memoria RAM", "Baterías"], answer: 1 },
+            { q: "¿Qué componente ejecuta operaciones booleanas?", options: ["Disco duro", "ALU", "Pantalla", "Teclado"], answer: 1 },
+            { q: "Los registros de la CPU se basan en...", options: ["Flip-flops (biestables)", "Condensadores", "Resistencias", "LEDs"], answer: 0 },
+            { q: "Un procesador moderno tiene...", options: ["Cientos de transistores", "Millones de transistores", "Miles de millones", "Solo cables"], answer: 2 },
+            { q: "La simplificación booleana en CPUs reduce...", options: ["Consumo energético", "Calor", "Espacio en chip", "Todo lo anterior"], answer: 3 }
+        ],
+        tema8: [
+            { q: "Un compilador optimiza código usando...", options: ["Álgebra booleana", "Solo elimina comentarios", "Cambia nombres", "No optimiza"], answer: 0 },
+            { q: "La evaluación de cortocircuito (&&) evita...", options: ["Ejecutar código innecesario", "Ahorrar memoria", "Escribir más líneas", "Nada"], answer: 0 },
+            { q: "¿Qué operación es más rápida en CPU?", options: ["División", "AND bit a bit", "Raíz cuadrada", "Logaritmo"], answer: 1 },
+            { q: "Simplificar if(x > 0 && x > 5) resulta en...", options: ["if(x > 0)", "if(x > 5)", "if(x == 0)", "No se puede"], answer: 1 },
+            { q: "Las optimizaciones booleanas mejoran...", options: ["Rendimiento", "Legibilidad", "Mantenimiento", "Todas"], answer: 3 }
+        ]
+    };
 
-    document.querySelectorAll(".tab-content").forEach(tc => {
-        tc.style.display = "none";
-        tc.classList.remove("active");
-    });
-
-    document.querySelectorAll(".tab-link").forEach(link => {
-        link.classList.remove("active");
-        link.style.borderColor = "transparent";
-        link.style.color = "#e0e0e0";
-    });
-
-    const currentTab = document.getElementById(tabName);
-    if (currentTab) {
-        currentTab.style.display = "block";
-        requestAnimationFrame(() => currentTab.classList.add("active"));
-        document.documentElement.style.setProperty('--gold-primary', newColor);
-    }
-
-    if (evt && evt.currentTarget) {
-        evt.currentTarget.classList.add("active");
-        evt.currentTarget.style.borderColor = newColor;
-        evt.currentTarget.style.color = newColor;
-    }
-
-    const scroller = document.querySelector(".main-content");
-    if (scroller) scroller.scrollTo({ top: 0, behavior: "smooth" });
-
-    const pill = document.getElementById("currentSection");
-    if (pill) pill.textContent = TAB_TITLES[tabName] || tabName;
-
-    try { localStorage.setItem("mc_last_tab", tabName); } catch (e) {}
-
-    // Cerrar drawer si está abierto
-    document.body.classList.remove("sidebar-open");
-
-    // Actualizar mini-misiones
-    try { updateMiniMission(tabName); } catch (e) {}
-}
-
-// ========== BINDING DE LINKS ==========
-function bindTabLinksHard() {
-    document.querySelectorAll(".sidebar a.tab-link").forEach(a => {
-        let tab = a.getAttribute("data-tab");
-        if (!tab) {
-            const oc = a.getAttribute("onclick") || "";
-            const m = oc.match(/openTab\(\s*event\s*,\s*'([^']+)'\s*\)/);
-            if (m) tab = m[1];
+    // Desafíos (estructura de datos)
+    const CHALLENGES = {
+        1: {
+            id: 1,
+            title: "Identifica la Compuerta",
+            description: "Observa la tabla de verdad y selecciona la compuerta correcta.",
+            generate: function() {
+                const gates = [
+                    { name: 'AND', table: '00→0, 01→0, 10→0, 11→1' },
+                    { name: 'OR', table: '00→0, 01→1, 10→1, 11→1' },
+                    { name: 'XOR', table: '00→0, 01→1, 10→1, 11→0' },
+                    { name: 'NAND', table: '00→1, 01→1, 10→1, 11→0' },
+                    { name: 'NOR', table: '00→1, 01→0, 10→0, 11→0' }
+                ];
+                const selected = gates[Math.floor(Math.random() * gates.length)];
+                return {
+                    question: `Tabla: ${selected.table}`,
+                    answer: selected.name,
+                    inputType: 'select',
+                    options: gates.map(g => g.name)
+                };
+            }
+        },
+        2: {
+            id: 2,
+            title: "Simplifica la Expresión",
+            description: "Simplifica la siguiente expresión booleana al máximo.",
+            generate: function() {
+                const pairs = [
+                    { expr: "A + A·B", answer: "A" },
+                    { expr: "A·(A + B)", answer: "A" },
+                    { expr: "(A + B)·(A + B')", answer: "A" },
+                    { expr: "A·B + A·B'", answer: "A" },
+                    { expr: "A + A'·B", answer: "A + B" }
+                ];
+                const selected = pairs[Math.floor(Math.random() * pairs.length)];
+                return {
+                    question: `Simplifica: ${selected.expr}`,
+                    answer: selected.answer,
+                    inputType: 'text'
+                };
+            }
+        },
+        3: {
+            id: 3,
+            title: "Diseña el Circuito",
+            description: "Elige la expresión booleana que corresponde a este circuito: (A AND B) OR (NOT A AND C).",
+            generate: function() {
+                return {
+                    question: "Circuito: (A AND B) OR (NOT A AND C). ¿Expresión equivalente?",
+                    answer: "A·B + A'·C",
+                    inputType: 'select',
+                    options: ["A·B + A'·C", "A + B·C", "A·B·C", "A'·B' + C"]
+                };
+            }
         }
-        if (tab) a.setAttribute("data-tab", tab);
+    };
 
-        a.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const t = a.getAttribute("data-tab");
-            if (t && typeof openTab === "function") openTab(e, t);
-        }, { capture: true });
-    });
-}
+    // Definición de logros
+    const ACHIEVEMENTS = [
+        { id: 'first_lesson', name: 'Primer Paso', desc: 'Completa tu primera lección.', icon: '👶', condition: (s) => s.completedLessons.length >= 1 },
+        { id: 'half_lessons', name: 'Mitad del Camino', desc: 'Completa 4 lecciones.', icon: '🚶', condition: (s) => s.completedLessons.length >= 4 },
+        { id: 'all_lessons', name: 'Maestro Booleano', desc: 'Completa todas las lecciones.', icon: '🧙', condition: (s) => s.completedLessons.length >= 8 },
+        { id: 'first_quiz', name: 'Primer Quiz', desc: 'Aprueba tu primer quiz.', icon: '📝', condition: (s) => s.quizzesPassed >= 1 },
+        { id: 'quiz_master', name: 'Quiz Master', desc: 'Aprueba 5 quizzes.', icon: '🏅', condition: (s) => s.quizzesPassed >= 5 },
+        { id: 'challenge1', name: 'Retador', desc: 'Completa 1 desafío.', icon: '⚔️', condition: (s) => s.challengesCompleted >= 1 },
+        { id: 'challenge_all', name: 'Leyenda de Desafíos', desc: 'Completa los 3 desafíos.', icon: '🛡️', condition: (s) => s.challengesCompleted >= 3 },
+        { id: 'level5', name: 'Nivel 5', desc: 'Alcanza el nivel 5.', icon: '⬆️', condition: (s) => s.level >= 5 },
+        { id: 'level10', name: 'Nivel 10', desc: 'Alcanza el nivel 10.', icon: '🔟', condition: (s) => s.level >= 10 },
+        { id: 'coins100', name: 'Ahorrador', desc: 'Acumula 100 monedas.', icon: '🪙', condition: (s) => s.coins >= 100 },
+        { id: 'streak3', name: 'Constante', desc: 'Logra una racha de 3 días.', icon: '🔥', condition: (s) => s.streak >= 3 },
+        { id: 'simplifier', name: 'Simplificador', desc: 'Usa el simplificador interactivo.', icon: '✂️', condition: (s) => s.usedSimplifier }
+    ];
 
-// ========== SIDEBAR SEARCH ==========
-function initSidebarSearch() {
-    const input = document.getElementById("sidebarSearch");
-    const results = document.getElementById("sidebarSearchResults");
-    if (!input) return;
+    // -------------------------- ESTADO DEL JUEGO --------------------------
+    const defaultState = {
+        xp: 0,
+        level: 1,
+        coins: 0,
+        streak: 0,
+        lastLoginDate: null,
+        completedLessons: [],       // IDs de lecciones completadas
+        quizzesPassed: 0,
+        challengesCompleted: 0,
+        completedChallenges: [],    // IDs de desafíos completados
+        achievements: [],           // IDs de logros desbloqueados
+        inventory: ['default'],     // Avatares comprados
+        activeAvatar: 'default',
+        usedSimplifier: false,
+        totalStudyTime: 0,          // minutos
+        notifications: []
+    };
 
-    const links = Array.from(document.querySelectorAll(".sidebar .tab-link"));
-    links.forEach(a => {
-        const txt = (a.querySelector(".nav-text") || a).textContent.trim();
-        if (!a.dataset.label) a.dataset.label = txt;
-    });
+    let gameState = JSON.parse(JSON.stringify(defaultState));
 
-    const norm = s => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // -------------------------- UTILIDADES --------------------------
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 
-    const apply = () => {
-        const q = norm(input.value.trim());
-        links.forEach(a => {
-            const label = a.dataset.label;
-            const match = !q || norm(label).includes(q);
-            const li = a.closest("li") || a.parentElement;
-            if (li) li.style.display = match ? "" : "none";
-            const target = a.querySelector(".nav-text") || a;
-            if (target) target.innerHTML = q ? label.replace(new RegExp(`(${q})`, "gi"), '<span class="nav-hit">$1</span>') : label;
+    function formatTime(minutes) {
+        if (minutes < 60) return `${minutes}min`;
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return `${h}h ${m > 0 ? m + 'm' : ''}`;
+    }
+
+    // -------------------------- PERSISTENCIA --------------------------
+    function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Fusionar con default para asegurar nuevas propiedades
+                gameState = { ...defaultState, ...parsed };
+                // Asegurar arrays y objetos anidados
+                gameState.completedLessons = gameState.completedLessons || [];
+                gameState.completedChallenges = gameState.completedChallenges || [];
+                gameState.achievements = gameState.achievements || [];
+                gameState.inventory = gameState.inventory || ['default'];
+                gameState.notifications = gameState.notifications || [];
+            } catch (e) {
+                console.warn('Error al cargar partida, reiniciando.');
+                gameState = JSON.parse(JSON.stringify(defaultState));
+            }
+        }
+    }
+
+    // -------------------------- UI HELPERS --------------------------
+    function updateAllUI() {
+        // Header
+        document.getElementById('xp-current').textContent = gameState.xp;
+        document.getElementById('level-number').textContent = gameState.level;
+        document.getElementById('coins-amount').textContent = gameState.coins;
+        document.getElementById('streak-count').textContent = gameState.streak;
+        // Barra de progreso global
+        const totalLessons = LESSONS.length;
+        const completedCount = gameState.completedLessons.length;
+        const progressPercent = totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
+        document.getElementById('global-progress-fill').style.width = `${progressPercent}%`;
+        document.getElementById('global-progress-text').textContent = `${Math.round(progressPercent)}% completado`;
+        // Sidebar checks
+        LESSONS.forEach(lesson => {
+            const checkEl = document.getElementById(`check-${lesson.id}`);
+            if (checkEl) {
+                if (gameState.completedLessons.includes(lesson.id)) {
+                    checkEl.classList.add('completed');
+                } else {
+                    checkEl.classList.remove('completed');
+                }
+            }
         });
-        results.innerHTML = q ? links.filter(a => norm(a.dataset.label).includes(q)).slice(0, 7).map(a =>
-            `<button class="search-result" data-tab="${a.dataset.tab}">${a.dataset.label}</button>`
-        ).join("") : "";
-        results.classList.toggle("show", !!q);
-    };
-
-    input.addEventListener("input", apply);
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            const first = results.querySelector(".search-result");
-            if (first) first.click();
-        }
-        if (e.key === "Escape") { input.value = ""; apply(); }
-    });
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "/" && document.activeElement !== input) { e.preventDefault(); input.focus(); }
-    });
-    apply();
-}
-
-// ========== MODALES ==========
-function openModal(id) {
-    const m = document.getElementById(id);
-    if (!m) return;
-    m.classList.add("open", "show");
-    m.setAttribute("aria-hidden", "false");
-}
-function closeModal(id) {
-    const m = document.getElementById(id);
-    if (!m) return;
-    m.classList.remove("open", "show");
-    m.setAttribute("aria-hidden", "true");
-}
-function initGlobalModalClose() {
-    document.addEventListener("click", (e) => {
-        const el = e.target.closest("[data-close]");
-        if (!el) return;
-        e.preventDefault();
-        const target = el.getAttribute("data-close").trim();
-        if (target && target !== "true") closeModal(target);
-        else {
-            const parent = el.closest(".modal");
-            if (parent && parent.id) closeModal(parent.id);
-        }
-    });
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            const shown = Array.from(document.querySelectorAll(".modal.open, .modal.show"));
-            if (shown.length) closeModal(shown[shown.length - 1].id);
-        }
-    });
-}
-
-// ========== XP, NIVEL, LOGROS ==========
-function loadXp() { return parseInt(localStorage.getItem("mc_xp") || "0", 10); }
-function saveXp(v) {
-    localStorage.setItem("mc_xp", String(v));
-    document.getElementById("xpValue") && (document.getElementById("xpValue").textContent = v);
-    updateLevelHud(v);
-}
-function updateLevelHud(xp) {
-    const levelSize = 500;
-    const level = Math.floor(xp / levelSize) + 1;
-    const pct = Math.round((xp % levelSize) / levelSize * 100);
-    document.getElementById("levelValue") && (document.getElementById("levelValue").textContent = level);
-    const bar = document.getElementById("xpBar");
-    if (bar) bar.style.width = pct + "%";
-}
-
-const ACHIEVEMENTS = [
-    { id: "xp_300", xp: 300, title: "Aprendiz Lógico", desc: "Alcanza 300 XP" },
-    { id: "xp_700", xp: 700, title: "Explorador de Hardware", desc: "Alcanza 700 XP" },
-    { id: "xp_1200", xp: 1200, title: "Maestro del Silicio", desc: "Alcanza 1200 XP" }
-];
-function loadAch() { try { return JSON.parse(localStorage.getItem("mc_ach") || "{}"); } catch (e) { return {}; } }
-function saveAch(st) { localStorage.setItem("mc_ach", JSON.stringify(st || {})); }
-
-function awardXp(amount, reason, key) {
-    amount = Number(amount);
-    if (!amount || amount <= 0) return false;
-    if (key) {
-        const keys = JSON.parse(localStorage.getItem("mc_xp_keys") || "{}");
-        if (keys[key]) { showToast(`✔ ${reason} · 0 XP (ya obtenido)`, "info"); return false; }
-        keys[key] = Date.now();
-        localStorage.setItem("mc_xp_keys", JSON.stringify(keys));
+        // Desafíos pendientes
+        const pendingChallenges = 3 - gameState.completedChallenges.length;
+        document.getElementById('desafios-pendientes').textContent = pendingChallenges > 0 ? pendingChallenges : '✓';
+        // Logros desbloqueados
+        document.getElementById('logros-desbloqueados').textContent = `${gameState.achievements.length}/12`;
+        // Avatar en sidebar
+        updateAvatarDisplay();
+        // Racha y nivel en sidebar
+        document.getElementById('sidebar-username').textContent = gameState.activeAvatar === 'default' ? 'Aprendiz Digital' : 'Ingeniero Booleano';
+        document.getElementById('sidebar-rank').textContent = getRankName(gameState.level);
+        // Dashboard stats
+        document.getElementById('stat-lecciones').textContent = `${gameState.completedLessons.length}/${totalLessons}`;
+        document.getElementById('stat-quizzes').textContent = gameState.quizzesPassed;
+        document.getElementById('stat-desafios').textContent = gameState.challengesCompleted;
+        document.getElementById('stat-tiempo').textContent = formatTime(gameState.totalStudyTime);
+        // Mapa de conocimiento
+        renderMapNodes();
+        // Misión diaria
+        updateDailyMission();
+        // Logros
+        renderAchievements();
     }
-    const newXp = loadXp() + amount;
-    saveXp(newXp);
-    showToast(`+${amount} XP · ${reason}`);
-    checkAchievements(newXp);
-    updateStreak();
-    return true;
-}
 
-function checkAchievements(xp) {
-    const st = loadAch();
-    let changed = false;
-    ACHIEVEMENTS.forEach(a => {
-        if (!st[a.id] && xp >= a.xp) { st[a.id] = true; changed = true; showAchievementPopup(a.title, a.desc); }
-    });
-    if (changed) saveAch(st);
-}
-
-function showAchievementPopup(title, desc) {
-    const box = document.getElementById("achPopup");
-    if (!box) return;
-    const el = document.createElement("div");
-    el.className = "ach-pop";
-    el.innerHTML = `<div class="row"><span class="badge"><i class="fas fa-trophy"></i> Logro</span><div><div class="name">${title}</div><div class="desc">${desc}</div></div></div>`;
-    box.appendChild(el);
-    setTimeout(() => el.remove(), 3200);
-}
-
-// ========== RACHA DIARIA ==========
-function todayStr() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
-function ydayStr() { const d = new Date(); d.setDate(d.getDate()-1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
-function loadStreak() { try { return JSON.parse(localStorage.getItem("mc_streak") || "{}"); } catch (e) { return {}; } }
-function updateStreak() {
-    const st = loadStreak();
-    const today = todayStr();
-    if (!st.last) { st.last = today; st.count = 1; }
-    else if (st.last === today) { /* nada */ }
-    else if (st.last === ydayStr()) { st.last = today; st.count = (st.count || 0) + 1; }
-    else { st.last = today; st.count = 1; }
-    localStorage.setItem("mc_streak", JSON.stringify(st));
-    document.getElementById("streakValue") && (document.getElementById("streakValue").textContent = st.count);
-}
-
-// ========== MODO MISIÓN ==========
-const MISSIONS = [
-    { id: "variables", label: "Variables Booleanas" },
-    { id: "funciones-booleanas", label: "Funciones Booleanas" },
-    { id: "simplificacion", label: "Simplificación" },
-    { id: "circuitos", label: "Circuitos Digitales" },
-    { id: "procesadores", label: "Procesadores y ALU" },
-    { id: "optimizacion", label: "Optimización de Código" },
-    { id: "practica", label: "Modo Práctica" }
-];
-function loadMissions() { try { return JSON.parse(localStorage.getItem("mc_missions") || "{}"); } catch (e) { return {}; } }
-function saveMissions(st) { localStorage.setItem("mc_missions", JSON.stringify(st || {})); }
-function setMissionDone(id, done = true) {
-    const st = loadMissions();
-    st[id] = !!done;
-    saveMissions(st);
-    renderMissions();
-    updateMiniMission(id);
-}
-function resetMissions() {
-    localStorage.removeItem("mc_missions");
-    renderMissions();
-    MISSIONS.forEach(m => updateMiniMission(m.id));
-}
-function renderMissions() {
-    const list = document.getElementById("missionList");
-    const fill = document.getElementById("missionBarFill");
-    const pctEl = document.getElementById("missionPct");
-    if (!list) return;
-    const st = loadMissions();
-    const done = MISSIONS.filter(m => st[m.id]).length;
-    const pct = Math.round((done / MISSIONS.length) * 100);
-    list.innerHTML = MISSIONS.map((m, i) => `
-        <li class="mission-item ${st[m.id] ? "done" : ""}">
-            <div class="left"><i class="fas ${st[m.id] ? "fa-circle-check" : "fa-circle"}"></i>
-            <span class="label">${m.label}</span><span class="mission-lv">LV ${i+1}</span></div>
-            <span class="state">${st[m.id] ? "Completada" : "Pendiente"}</span>
-            <button type="button" onclick="setMissionDone('${m.id}', ${!st[m.id]})">${st[m.id] ? "Desmarcar" : "Completar"}</button>
-        </li>`).join("");
-    fill && (fill.style.width = pct + "%");
-    pctEl && (pctEl.textContent = pct + "%");
-}
-
-function ensureMiniMissions() {
-    const st = loadMissions();
-    MISSIONS.forEach(m => {
-        const tab = document.getElementById(m.id);
-        if (!tab || tab.querySelector(".mission-mini")) return;
-        const bar = document.createElement("div");
-        bar.className = "mission-mini";
-        bar.dataset.mission = m.id;
-        bar.innerHTML = `<div class="mini-left"><i class="fas fa-bullseye"></i><div class="mini-title">Misión: ${m.label}</div></div>
-            <button type="button" class="mini-btn ${st[m.id] ? "done" : ""}">${st[m.id] ? "Completada ✓" : "Marcar completada"}</button>`;
-        bar.querySelector("button").addEventListener("click", () => setMissionDone(m.id, !st[m.id]));
-        tab.insertBefore(bar, tab.firstChild);
-    });
-}
-function updateMiniMission(id) {
-    const tab = document.getElementById(id);
-    if (!tab) return;
-    const mini = tab.querySelector(".mission-mini");
-    if (!mini) return;
-    const btn = mini.querySelector("button");
-    if (!btn) return;
-    const done = !!loadMissions()[id];
-    btn.classList.toggle("done", done);
-    btn.textContent = done ? "Completada ✓" : "Marcar completada";
-}
-
-// ========== HUD (SONIDO, TEMA, FS) ==========
-function initHud() {
-    // Sonido
-    const soundBtn = document.getElementById("soundBtn");
-    const soundOn = () => localStorage.getItem("mc_sound") === "on";
-    const setSound = (on) => {
-        localStorage.setItem("mc_sound", on ? "on" : "off");
-        soundBtn.innerHTML = on ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
-    };
-    setSound(soundOn());
-    soundBtn?.addEventListener("click", () => setSound(!soundOn()));
-
-    // Tema
-    const themeBtn = document.getElementById("themeBtn");
-    const theme = () => localStorage.getItem("mc_theme") || "gold";
-    document.documentElement.setAttribute("data-theme", theme());
-    themeBtn?.addEventListener("click", () => {
-        const next = theme() === "gold" ? "cyber" : "gold";
-        localStorage.setItem("mc_theme", next);
-        document.documentElement.setAttribute("data-theme", next);
-        showToast("Tema: " + (next === "cyber" ? "Cyber" : "Dorado"));
-    });
-
-    // Fullscreen
-    document.getElementById("fsBtn")?.addEventListener("click", () => {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else document.exitFullscreen();
-    });
-
-    // Sidebar drawer
-    document.getElementById("sidebarToggle")?.addEventListener("click", () => document.body.classList.toggle("sidebar-open"));
-    document.getElementById("sidebarBackdrop")?.addEventListener("click", () => document.body.classList.remove("sidebar-open"));
-}
-
-// ========== MISIONES INTERACTIVAS ==========
-
-// Misión 1: Tabla de verdad
-function generateTruthTable() {
-    const input = document.getElementById("varExpr").value.trim().toUpperCase();
-    const out = document.getElementById("truthTableOutput");
-    if (!out) return;
-    const vars = [...new Set(input.match(/[A-Z]/g) || [])].sort();
-    if (vars.length < 1 || vars.length > 4) { out.textContent = "Usa de 1 a 4 variables (A, B, C, D)."; return; }
-    const expr = input.replace(/AND/gi, "&&").replace(/OR/gi, "||").replace(/NOT\s*/gi, "!").replace(/XOR/gi, "^");
-    let html = `<table class="mini-table"><thead><tr>${vars.map(v => `<th>${v}</th>`).join("")}<th>Resultado</th></tr></thead><tbody>`;
-    for (let i = 0; i < (1 << vars.length); i++) {
-        const vals = {};
-        vars.forEach((v, j) => vals[v] = (i >> (vars.length - 1 - j)) & 1);
-        try {
-            const fn = new Function(...vars, `return (${expr}) ? 1 : 0;`);
-            const result = fn(...vars.map(v => vals[v]));
-            html += `<tr>${vars.map(v => `<td>${vals[v]}</td>`).join("")}<td><strong>${result}</strong></td></tr>`;
-        } catch (e) {
-            html += `<tr><td colspan="${vars.length+1}">Error en expresión</td></tr>`; break;
-        }
+    function getRankName(level) {
+        if (level >= 20) return 'Arquitecto Digital';
+        if (level >= 15) return 'Maestro del Silicio';
+        if (level >= 10) return 'Ingeniero Lógico';
+        if (level >= 5) return 'Técnico Binario';
+        return 'Novato Binario';
     }
-    html += "</tbody></table>";
-    out.innerHTML = html;
-    awardXp(40, "Tabla de verdad", `truth|${input}`);
-}
 
-// Misión 3: Simplificación (ejemplo fijo)
-function simplifyWithKMap() {
-    const out = document.getElementById("simplifiedResult");
-    const kmapDiv = document.getElementById("kmapContainer");
-    if (!out) return;
-    kmapDiv.innerHTML = `Mapa K (3 vars) para Σm(1,2,5,7):<br><pre>   BC
-A  00 01 11 10
-0   0  1  0  1
-1   0  0  1  1</pre>`;
-    out.textContent = `Expresión simplificada: A·C + B·¬C`;
-    awardXp(60, "Simplificación", "kmap_demo");
-}
-
-// Misión 4: Dibujar circuito
-function drawCircuit() {
-    const div = document.getElementById("circuitSim");
-    if (!div) return;
-    div.innerHTML = `<div style="text-align:center; font-family:monospace;">
-        <p>Circuito para <strong>A·B + ¬A·B</strong></p>
-        <pre>  A ──┬──[AND]──┐
-     │         ├──[OR]── Salida
-  B ──┼──[AND]──┘
-     └──[NOT]──┘</pre>
-        <p>Implementado con 2 AND, 1 OR y 1 NOT.</p></div>`;
-    awardXp(50, "Circuito", "circuit_demo");
-}
-
-// Misión 5: Simular ALU (sumador 4 bits)
-function simulateALU() {
-    const a = document.getElementById("aluA").value.trim();
-    const b = document.getElementById("aluB").value.trim();
-    const out = document.getElementById("aluResult");
-    if (!out) return;
-    const toBits = s => s.padStart(4, "0").split("").map(Number).reverse();
-    const bitsA = toBits(a);
-    const bitsB = toBits(b);
-    let carry = 0;
-    let result = "";
-    let steps = "";
-    for (let i = 0; i < 4; i++) {
-        const sum = bitsA[i] ^ bitsB[i] ^ carry;
-        const newCarry = (bitsA[i] & bitsB[i]) | (bitsA[i] & carry) | (bitsB[i] & carry);
-        steps += `Bit ${i}: ${bitsA[i]}+${bitsB[i]}+Cin${carry} = Sum ${sum}, Cout ${newCarry}\n`;
-        result = sum + result;
-        carry = newCarry;
+    function updateAvatarDisplay() {
+        const avatars = { default: '🧑‍💻', avatar1: '👨‍🔧', avatar2: '🤖', avatar3: '🧙' };
+        document.getElementById('avatar-display').textContent = avatars[gameState.activeAvatar] || '🧑‍💻';
     }
-    result = carry + result;
-    const decimal = parseInt(result, 2);
-    out.innerHTML = `<pre>${steps}\nResultado: ${result} (decimal ${decimal})</pre>`;
-    awardXp(70, "ALU", `alu|${a}|${b}`);
-}
 
-// Misión 6: Optimizar condición
-function optimizeCondition() {
-    const raw = document.getElementById("rawCondition").value.trim();
-    const out = document.getElementById("optimizedOutput");
-    if (!out) return;
-    let optimized = raw
-        .replace(/\(([A-Za-z]+)\s*\|\|\s*\1\)/g, "$1")
-        .replace(/\(([A-Za-z]+)\s*&&\s*\1\)/g, "$1")
-        .replace(/\(([A-Za-z]+)\s*&&\s*([A-Za-z]+)\)\s*\|\|\s*\(\1\s*&&\s*([A-Za-z]+)\)/g, "$1 && ($2 || $3)");
-    if (optimized === raw) optimized = "No se encontró simplificación obvia.";
-    out.textContent = optimized;
-    awardXp(50, "Optimización", `optim|${raw}`);
-}
+    function renderMapNodes() {
+        const container = document.getElementById('map-nodes-container');
+        if (!container) return;
+        container.innerHTML = '';
+        LESSONS.forEach(lesson => {
+            const node = document.createElement('div');
+            node.className = 'map-node';
+            if (gameState.completedLessons.includes(lesson.id)) node.classList.add('completed');
+            if (getCurrentActiveLesson() === lesson.id) node.classList.add('active-node');
+            node.innerHTML = `<span class="node-icon">${lesson.icon}</span><span class="node-label">${lesson.name}</span>`;
+            node.addEventListener('click', () => navigateTo(lesson.id));
+            container.appendChild(node);
+        });
+    }
 
-// ========== MODO PRÁCTICA ==========
-let PRACTICE_STATE = null;
+    function getCurrentActiveLesson() {
+        const idx = gameState.completedLessons.length;
+        return idx < LESSONS.length ? LESSONS[idx].id : null;
+    }
 
-function practiceHint() {
-    if (!PRACTICE_STATE) return "";
-    const hints = {
-        variables: "Evalúa cada combinación de variables (0 y 1).",
-        "funciones-booleanas": "Usa minterms para obtener la forma canónica.",
-        simplificacion: "Aplica leyes como A·¬A = 0 y A+AB = A.",
-        circuitos: "Traduce la expresión a compuertas AND, OR, NOT.",
-        procesadores: "Suma bit a bit con acarreo (XOR + AND).",
-        optimizacion: "Factoriza: (A·B)+(A·C) = A·(B+C)."
-    };
-    return hints[PRACTICE_STATE.topic] || "";
-}
-
-function makePractice(topic, level) {
-    const vars = ["A", "B", "C", "D"].slice(0, level + 1);
-    const randBool = () => (Math.random() > 0.5 ? 1 : 0);
-    if (topic === "variables") {
-        const expr = `${vars[0]} AND ${vars[1] || "B"}`;
-        const table = [];
-        for (let i = 0; i < (1 << vars.length); i++) {
-            const vals = vars.map((_, j) => (i >> (vars.length - 1 - j)) & 1);
-            const result = vals[0] & vals[1];
-            table.push({ inputs: vals, output: result });
-        }
-        const qVals = table[randInt(0, table.length - 1)];
-        const prompt = `Para la expresión ${expr} con variables ${vars.join(",")}, ¿cuál es la salida para ${vars.map((v, i) => v + "=" + qVals.inputs[i]).join(", ")}? (0 o 1)`;
-        return { topic, level, prompt, type: "scalar", expected: String(qVals.output), payload: { expr, vars, table, qVals } };
-    }
-    if (topic === "funciones-booleanas") {
-        const minterms = Array.from({ length: 2 }, () => randInt(0, (1 << vars.length) - 1));
-        const prompt = `Función f(${vars.join(",")}) = Σm(${minterms.join(", ")}). ¿Cuál es la forma canónica como suma de productos?`;
-        const sop = minterms.map(m => vars.map((v, j) => (m >> (vars.length - 1 - j)) & 1 ? v : `¬${v}`).join("·")).join(" + ");
-        return { topic, level, prompt, type: "text", expected: sop, payload: { vars, minterms } };
-    }
-    if (topic === "simplificacion") {
-        const a = randBool(), b = randBool(), c = randBool();
-        const expr = `(A·B)+(A·¬B)`;
-        const simplified = "A";
-        const prompt = `Simplifica: ${expr}. (Usa solo letras, ej: A)`;
-        return { topic, level, prompt, type: "text", expected: simplified, payload: { vars: ["A", "B"] } };
-    }
-    if (topic === "circuitos") {
-        const prompt = `¿Cuántas compuertas NAND se necesitan para implementar A·B + ¬A·B? (responde un número)`;
-        return { topic, level, prompt, type: "scalar", expected: "4", payload: {} };
-    }
-    if (topic === "procesadores") {
-        const a = randInt(0, 7), b = randInt(0, 7);
-        const prompt = `Suma en binario: ${a.toString(2).padStart(4,"0")} + ${b.toString(2).padStart(4,"0")}. ¿Resultado en decimal?`;
-        return { topic, level, prompt, type: "scalar", expected: String(a + b), payload: { a, b } };
-    }
-    if (topic === "optimizacion") {
-        const prompt = `Optimiza: if (x && y) || (x && z) → if (x && ( ??? )). Completa el ???`;
-        return { topic, level, prompt, type: "text", expected: "y||z", payload: {} };
-    }
-    return makePractice("variables", 1);
-}
-
-function renderPractice() {
-    const promptBox = document.getElementById("practicePrompt");
-    const feedback = document.getElementById("practiceFeedback");
-    const ans = document.getElementById("practiceAnswer");
-    const codeEl = document.getElementById("practiceMatlab");
-    if (!promptBox) return;
-    if (!PRACTICE_STATE) {
-        promptBox.innerHTML = '<div class="video-placeholder"><div class="ph-title">Aún no hay reto</div><div class="ph-sub">Genera un reto para empezar.</div></div>';
-        codeEl.textContent = "% Genera un reto para ver el código.";
-        if (feedback) feedback.innerHTML = "";
-        if (ans) ans.value = "";
-        return;
-    }
-    promptBox.innerHTML = `<pre class="practice-pre">${PRACTICE_STATE.prompt}</pre>`;
-    if (feedback) feedback.innerHTML = "";
-    if (ans) ans.value = "";
-    codeEl.textContent = `% Reto de ${PRACTICE_STATE.topic}`;
-    ans.focus();
-}
-
-function checkPractice() {
-    const feedback = document.getElementById("practiceFeedback");
-    const ansRaw = (document.getElementById("practiceAnswer")?.value || "").trim();
-    if (!PRACTICE_STATE || !ansRaw) { if (feedback) feedback.textContent = "Escribe una respuesta."; return; }
-    const norm = s => s.toLowerCase().replace(/\s+/g, "");
-    const ok = norm(ansRaw) === norm(String(PRACTICE_STATE.expected));
-    if (feedback) {
-        feedback.classList.remove("ok", "bad");
-        if (ok) {
-            feedback.classList.add("ok");
-            const gained = 60;
-            const key = `prac|${PRACTICE_STATE.topic}|${PRACTICE_STATE.level}|${PRACTICE_STATE.prompt}`;
-            const awarded = awardXp(gained, "Práctica", key);
-            feedback.innerHTML = awarded ? `✅ Correcto. +${gained} XP` : "✅ Correcto. (ya completado)";
+    function updateDailyMission() {
+        const missionDesc = document.getElementById('mission-description');
+        const missionStatus = document.getElementById('mission-status');
+        const missionBar = document.getElementById('mission-bar');
+        if (!missionDesc || !missionStatus || !missionBar) return;
+        const completedToday = gameState.completedLessons.length; // Simplificación: misión = completar 1 lección
+        missionDesc.textContent = "Completa una lección para ganar XP extra.";
+        if (completedToday > 0) {
+            missionStatus.textContent = "1/1 completado";
+            missionBar.style.width = '100%';
         } else {
-            feedback.classList.add("bad");
-            feedback.innerHTML = `❌ Incorrecto. Pista: ${practiceHint()}`;
+            missionStatus.textContent = "0/1 completado";
+            missionBar.style.width = '0%';
         }
     }
-}
 
-function revealPractice() {
-    const feedback = document.getElementById("practiceFeedback");
-    if (!PRACTICE_STATE || !feedback) return;
-    feedback.textContent = `Solución: ${PRACTICE_STATE.expected}`;
-}
-
-function initPracticeMode() {
-    document.getElementById("practiceNew")?.addEventListener("click", () => {
-        const topic = document.getElementById("practiceTopic").value;
-        const level = parseInt(document.getElementById("practiceLevel").value);
-        PRACTICE_STATE = makePractice(topic, level);
-        renderPractice();
-    });
-    document.getElementById("practiceCheck")?.addEventListener("click", checkPractice);
-    document.getElementById("practiceReveal")?.addEventListener("click", revealPractice);
-    document.getElementById("practiceReset")?.addEventListener("click", () => { PRACTICE_STATE = null; renderPractice(); });
-    document.getElementById("practiceAnswer")?.addEventListener("keydown", (e) => { if (e.key === "Enter") checkPractice(); });
-    renderPractice();
-}
-
-// ========== VIDEO Y RESEÑAS ==========
-function initVideoSection() {
-    const DEFAULT = "https://youtu.be/9juarsU2hQo";
-    const input = document.getElementById("videoInput");
-    const load = () => {
-        const url = (input.value || DEFAULT).trim();
-        const embed = url.includes("embed") ? url : url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
-        const wrap = document.getElementById("videoPreviewWrap");
-        const ph = document.getElementById("videoPlaceholder");
-        wrap.querySelectorAll("iframe").forEach(f => f.remove());
-        const iframe = document.createElement("iframe");
-        iframe.className = "video-iframe";
-        iframe.src = embed;
-        iframe.allowFullscreen = true;
-        wrap.appendChild(iframe);
-        if (ph) ph.style.display = "none";
-    };
-    document.getElementById("videoLoadBtn")?.addEventListener("click", load);
-    document.getElementById("videoClearBtn")?.addEventListener("click", () => {
-        input.value = "";
-        document.getElementById("videoPreviewWrap").querySelectorAll("iframe").forEach(f => f.remove());
-        document.getElementById("videoPlaceholder").style.display = "flex";
-    });
-    input.value = DEFAULT;
-    load();
-}
-
-function renderReviews() {
-    const list = document.getElementById("reviewsList");
-    const arr = JSON.parse(localStorage.getItem("mc_reviews") || "[]");
-    list.innerHTML = arr.length ? arr.map(r =>
-        `<div class="review-card"><div class="review-name">${r.name || "Anónimo"}</div>
-        <div class="review-stars">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div>
-        <div>${escapeHtml(r.text)}</div></div>`
-    ).join("") : "No hay reseñas aún.";
-}
-function addReview() {
-    const name = document.getElementById("revName").value.trim();
-    const text = document.getElementById("revText").value.trim();
-    const rating = parseInt(document.getElementById("revRating").value);
-    if (!text) return;
-    const arr = JSON.parse(localStorage.getItem("mc_reviews") || "[]");
-    arr.push({ name, rating, text, date: new Date().toLocaleString() });
-    localStorage.setItem("mc_reviews", JSON.stringify(arr));
-    document.getElementById("revText").value = "";
-    renderReviews();
-    showToast("Reseña publicada");
-}
-function clearReviews() {
-    localStorage.removeItem("mc_reviews");
-    renderReviews();
-}
-
-// ========== PARTÍCULAS ==========
-(function initParticles() {
-    const canvas = document.getElementById("particlesCanvas");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    let w, h;
-    const particles = [];
-    const count = 60;
-    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
-    for (let i = 0; i < count; i++) particles.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, r: Math.random() * 2 + 1 });
-    function draw() {
-        ctx.clearRect(0, 0, w, h);
-        particles.forEach(p => {
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
-            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(255,215,0,0.2)";
-            ctx.fill();
+    function renderAchievements() {
+        const grid = document.getElementById('achievements-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        ACHIEVEMENTS.forEach(ach => {
+            const unlocked = gameState.achievements.includes(ach.id);
+            const div = document.createElement('div');
+            div.className = `achievement-card ${unlocked ? 'unlocked' : 'locked'}`;
+            div.innerHTML = `
+                <span class="achievement-icon">${unlocked ? ach.icon : '🔒'}</span>
+                <span class="achievement-name">${ach.name}</span>
+                <span class="achievement-desc">${ach.desc}</span>
+            `;
+            grid.appendChild(div);
         });
-        requestAnimationFrame(draw);
     }
-    resize();
-    window.addEventListener("resize", resize);
-    draw();
-})();
 
-// ========== INICIALIZACIÓN GLOBAL ==========
-document.addEventListener("DOMContentLoaded", () => {
-    // Cargar última pestaña o inicio
-    const lastTab = localStorage.getItem("mc_last_tab") || "inicio";
-    if (document.getElementById(lastTab)) openTab(null, lastTab);
-    else openTab(null, "inicio");
+    // -------------------------- NAVEGACIÓN --------------------------
+    function navigateTo(sectionId) {
+        // Ocultar todas las secciones
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        // Activar sección
+        const target = document.getElementById(`section-${sectionId}`);
+        if (target) target.classList.add('active');
+        // Actualizar breadcrumb
+        const lesson = LESSONS.find(l => l.id === sectionId);
+        document.getElementById('breadcrumb-text').textContent = lesson ? lesson.name : sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+        // Actualizar sidebar activo
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+        if (activeNav) activeNav.classList.add('active');
+        // Cerrar sidebar en móvil
+        closeSidebar();
+    }
 
-    bindTabLinksHard();
-    initSidebarSearch();
-    initGlobalModalClose();
-    initHud();
-    initPracticeMode();
-    initVideoSection();
-    renderReviews();
-    renderMissions();
-    ensureMiniMissions();
-    updateStreak();
-    saveXp(loadXp());         // refrescar XP en HUD
-    updateLevelHud(loadXp());
-    renderAchievements();
+    function openSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.remove('hidden');
+    }
 
-    // XP badge click -> perfil
-    document.getElementById("xpBadge")?.addEventListener("click", () => openModal("profileModal"));
-    document.getElementById("trophyBtn")?.addEventListener("click", () => { renderAchievements(); openModal("achModal"); });
-    document.getElementById("resetProgressBtn")?.addEventListener("click", () => {
-        if (confirm("¿Reiniciar todo el progreso?")) {
-            ["mc_xp","mc_level","mc_done","mc_streak","mc_ach","mc_xp_keys","mc_missions","mc_reviews"].forEach(k => localStorage.removeItem(k));
-            location.reload();
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.add('hidden');
+    }
+
+    // -------------------------- SISTEMA DE XP Y NIVEL --------------------------
+    function addXP(amount) {
+        gameState.xp += amount;
+        checkLevelUp();
+        saveState();
+        updateAllUI();
+    }
+
+    function addCoins(amount) {
+        gameState.coins += amount;
+        saveState();
+        updateAllUI();
+    }
+
+    function checkLevelUp() {
+        const xpForNextLevel = gameState.level * 100;
+        while (gameState.xp >= xpForNextLevel && gameState.level < MAX_LEVEL) {
+            gameState.xp -= xpForNextLevel;
+            gameState.level++;
+            showToast(`¡Subiste al nivel ${gameState.level}! 🎉`, 'success');
+            if (gameState.level % 5 === 0) {
+                addCoins(25);
+                showToast('¡Bonus por nivel: +25 monedas!', 'info');
+            }
         }
-    });
+    }
 
-    // Scroll progress y botón subir
-    window.addEventListener("scroll", () => {
-        const scrolled = document.documentElement.scrollTop / (document.documentElement.scrollHeight - window.innerHeight) * 100;
-        document.getElementById("scrollProgress").style.width = scrolled + "%";
-        document.getElementById("toTopBtn").style.display = window.scrollY > 400 ? "flex" : "none";
-    });
-    document.getElementById("toTopBtn")?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-});
+    function completeLesson(lessonId) {
+        if (!gameState.completedLessons.includes(lessonId)) {
+            gameState.completedLessons.push(lessonId);
+            addXP(XP_PER_LESSON);
+            addCoins(15);
+            gameState.totalStudyTime += 5; // 5 min estimados
+            showToast(`¡Lección completada! +${XP_PER_LESSON} XP`, 'success');
+            saveState();
+            updateAllUI();
+            checkAchievements();
+            // Verificar misión diaria
+            updateDailyMission();
+        }
+    }
+
+    function completeQuiz(lessonId) {
+        if (!gameState.completedLessons.includes(lessonId)) {
+            completeLesson(lessonId); // Completar lección automáticamente al pasar quiz
+        }
+        gameState.quizzesPassed++;
+        addXP(XP_PER_QUIZ);
+        addCoins(COINS_PER_QUIZ);
+        saveState();
+        updateAllUI();
+        checkAchievements();
+    }
+
+    function completeChallenge(challengeId) {
+        if (!gameState.completedChallenges.includes(challengeId)) {
+            gameState.completedChallenges.push(challengeId);
+            gameState.challengesCompleted++;
+            const xp = XP_PER_CHALLENGE[challengeId] || 30;
+            const coins = COINS_PER_CHALLENGE[challengeId] || 15;
+            addXP(xp);
+            addCoins(coins);
+            showToast(`¡Desafío completado! +${xp} XP`, 'success');
+            saveState();
+            updateAllUI();
+            checkAchievements();
+        }
+    }
+
+    // -------------------------- LOGROS --------------------------
+    function checkAchievements() {
+        ACHIEVEMENTS.forEach(ach => {
+            if (!gameState.achievements.includes(ach.id) && ach.condition(gameState)) {
+                gameState.achievements.push(ach.id);
+                showToast(`🏆 Logro desbloqueado: ${ach.name}`, 'success');
+                addNotification(`Logro: ${ach.name} - ${ach.desc}`);
+                // Pequeña recompensa
+                addXP(20);
+                addCoins(10);
+            }
+        });
+        saveState();
+        updateAllUI();
+    }
+
+    // -------------------------- NOTIFICACIONES --------------------------
+    function addNotification(message) {
+        gameState.notifications.unshift({ id: generateId(), message, read: false, timestamp: Date.now() });
+        if (gameState.notifications.length > 20) gameState.notifications.pop();
+        updateNotificationBadge();
+        saveState();
+    }
+
+    function updateNotificationBadge() {
+        const unread = gameState.notifications.filter(n => !n.read).length;
+        const badge = document.getElementById('notification-badge');
+        if (badge) {
+            badge.textContent = unread;
+            badge.classList.toggle('hidden', unread === 0);
+        }
+    }
+
+    function openNotificationsModal() {
+        const list = document.getElementById('notifications-list');
+        if (!list) return;
+        list.innerHTML = '';
+        if (gameState.notifications.length === 0) {
+            list.innerHTML = '<p class="no-notifications">No hay notificaciones nuevas.</p>';
+        } else {
+            gameState.notifications.forEach(n => {
+                n.read = true;
+                const div = document.createElement('div');
+                div.className = 'notification-item';
+                div.style.padding = '0.5rem 0';
+                div.style.borderBottom = '1px solid var(--border-color)';
+                div.textContent = n.message;
+                list.appendChild(div);
+            });
+        }
+        updateNotificationBadge();
+        saveState();
+        document.getElementById('modal-notifications').classList.remove('hidden');
+    }
+
+    // -------------------------- TOAST --------------------------
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // -------------------------- MODALES GENÉRICOS --------------------------
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // -------------------------- SISTEMA DE QUIZ --------------------------
+    let quizData = null;
+    let currentQuizLesson = null;
+
+    function startQuiz(lessonId) {
+        const questions = QUIZ_QUESTIONS[lessonId];
+        if (!questions) return;
+        currentQuizLesson = lessonId;
+        quizData = {
+            questions: [...questions],
+            currentIndex: 0,
+            score: 0,
+            timer: 60,
+            timerInterval: null,
+            answered: false
+        };
+        document.getElementById('quiz-title').textContent = `Quiz: ${LESSONS.find(l=>l.id===lessonId)?.name || lessonId}`;
+        showQuizQuestion();
+        openModal('modal-quiz');
+        startTimer();
+    }
+
+    function showQuizQuestion() {
+        if (!quizData || quizData.currentIndex >= quizData.questions.length) {
+            finishQuiz();
+            return;
+        }
+        const q = quizData.questions[quizData.currentIndex];
+        document.getElementById('quiz-question-text').textContent = q.q;
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.textContent = opt;
+            btn.addEventListener('click', () => selectQuizOption(idx, btn));
+            optionsContainer.appendChild(btn);
+        });
+        document.getElementById('quiz-result').classList.add('hidden');
+        document.getElementById('btn-next-question').classList.add('hidden');
+        document.getElementById('btn-finish-quiz').classList.add('hidden');
+        quizData.answered = false;
+        updateQuizProgress();
+    }
+
+    function selectQuizOption(selectedIndex, btnElement) {
+        if (quizData.answered) return;
+        quizData.answered = true;
+        const q = quizData.questions[quizData.currentIndex];
+        const correct = selectedIndex === q.answer;
+        if (correct) quizData.score++;
+        // Marcar visualmente
+        const allOptions = document.querySelectorAll('#quiz-options .quiz-option');
+        allOptions.forEach((opt, idx) => {
+            opt.classList.add(idx === q.answer ? 'correct' : (idx === selectedIndex ? 'incorrect' : ''));
+            opt.disabled = true;
+        });
+        document.getElementById('quiz-result').classList.remove('hidden');
+        document.getElementById('quiz-result').textContent = correct ? '✅ ¡Correcto!' : '❌ Incorrecto';
+        if (quizData.currentIndex < quizData.questions.length - 1) {
+            document.getElementById('btn-next-question').classList.remove('hidden');
+        } else {
+            document.getElementById('btn-finish-quiz').classList.remove('hidden');
+        }
+    }
+
+    function nextQuestion() {
+        if (!quizData) return;
+        quizData.currentIndex++;
+        showQuizQuestion();
+    }
+
+    function finishQuiz() {
+        clearInterval(quizData.timerInterval);
+        const total = quizData.questions.length;
+        const score = quizData.score;
+        const passed = score >= Math.ceil(total * 0.6); // 60% para aprobar
+        document.getElementById('quiz-question-text').textContent = passed ? '🎉 ¡Quiz Aprobado!' : '😞 Inténtalo de nuevo';
+        document.getElementById('quiz-options').innerHTML = '';
+        document.getElementById('quiz-result').classList.remove('hidden');
+        document.getElementById('quiz-result').textContent = `Puntuación: ${score}/${total}`;
+        document.getElementById('btn-next-question').classList.add('hidden');
+        document.getElementById('btn-finish-quiz').classList.add('hidden');
+        if (passed) {
+            completeQuiz(currentQuizLesson);
+            showRewardModal(`Quiz Completado`, '🧪', XP_PER_QUIZ, COINS_PER_QUIZ);
+        }
+        setTimeout(() => closeModal('modal-quiz'), 2000);
+    }
+
+    function startTimer() {
+        if (quizData.timerInterval) clearInterval(quizData.timerInterval);
+        quizData.timer = 60;
+        document.getElementById('timer-seconds').textContent = quizData.timer;
+        quizData.timerInterval = setInterval(() => {
+            quizData.timer--;
+            document.getElementById('timer-seconds').textContent = quizData.timer;
+            if (quizData.timer <= 0) {
+                clearInterval(quizData.timerInterval);
+                if (!quizData.answered) {
+                    // Forzar respuesta incorrecta
+                    quizData.answered = true;
+                    document.getElementById('quiz-result').classList.remove('hidden');
+                    document.getElementById('quiz-result').textContent = '⏰ Tiempo agotado';
+                    document.getElementById('btn-finish-quiz').classList.remove('hidden');
+                }
+            }
+        }, 1000);
+    }
+
+    function updateQuizProgress() {
+        if (!quizData) return;
+        const progress = ((quizData.currentIndex + 1) / quizData.questions.length) * 100;
+        document.getElementById('quiz-progress-fill').style.width = `${progress}%`;
+        document.getElementById('quiz-progress-text').textContent = `Pregunta ${quizData.currentIndex + 1}/${quizData.questions.length}`;
+    }
+
+    // -------------------------- RECOMPENSA MODAL --------------------------
+    function showRewardModal(title, icon, xp, coins) {
+        document.getElementById('reward-title').textContent = title;
+        document.getElementById('reward-icon').textContent = icon;
+        document.getElementById('reward-message').textContent = `Has ganado:`;
+        document.getElementById('reward-xp').textContent = `+${xp} XP  +${coins} 🪙`;
+        openModal('modal-reward');
+    }
+
+    // -------------------------- SIMULADORES --------------------------
+    // Tabla de verdad
+    function updateTruthTable() {
+        const select = document.getElementById('truth-function-select');
+        if (!select) return;
+        const func = select.value;
+        const tbody = document.getElementById('truth-table-body');
+        const colCHeader = document.getElementById('col-c-header');
+        if (!tbody) return;
+        let combinations = [];
+        if (func === 'complex') {
+            colCHeader.classList.remove('hidden');
+            for (let a = 0; a <= 1; a++)
+                for (let b = 0; b <= 1; b++)
+                    for (let c = 0; c <= 1; c++)
+                        combinations.push([a, b, c]);
+        } else {
+            colCHeader.classList.add('hidden');
+            for (let a = 0; a <= 1; a++)
+                for (let b = 0; b <= 1; b++)
+                    combinations.push([a, b]);
+        }
+        tbody.innerHTML = '';
+        combinations.forEach(vals => {
+            const tr = document.createElement('tr');
+            vals.forEach(v => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); });
+            if (func === 'complex') {
+                const c = vals[2];
+                const result = (vals[0] && vals[1]) || (!vals[0] && c) ? 1 : 0;
+                const td = document.createElement('td'); td.textContent = result; tr.appendChild(td);
+            } else {
+                let result;
+                switch (func) {
+                    case 'and': result = vals[0] && vals[1] ? 1 : 0; break;
+                    case 'or': result = vals[0] || vals[1] ? 1 : 0; break;
+                    case 'xor': result = vals[0] ^ vals[1] ? 1 : 0; break;
+                    case 'nand': result = !(vals[0] && vals[1]) ? 1 : 0; break;
+                    default: result = 0;
+                }
+                const td = document.createElement('td'); td.textContent = result; tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Simplificador interactivo
+    function setupSimplifier() {
+        const btn = document.getElementById('btn-simplify-step');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            const stepsDiv = document.getElementById('simplify-steps');
+            stepsDiv.innerHTML = `
+                <p>1. Expresión original: <strong>F = A·B + A·B̄</strong></p>
+                <p>2. Factor común A: <strong>F = A·(B + B̄)</strong></p>
+                <p>3. Teorema: B + B̄ = 1 → <strong>F = A·1</strong></p>
+                <p>4. Resultado: <strong>F = A</strong> ✅</p>
+            `;
+            document.getElementById('simplify-result').textContent = 'F = A';
+            if (!gameState.usedSimplifier) {
+                gameState.usedSimplifier = true;
+                saveState();
+                checkAchievements();
+            }
+        });
+    }
+
+    // Simulador de circuito
+    function setupCircuitSimulator() {
+        const switchA = document.getElementById('switch-a');
+        const switchB = document.getElementById('switch-b');
+        const gateSelect = document.getElementById('gate-select');
+        if (!switchA || !switchB || !gateSelect) return;
+
+        function updateCircuit() {
+            const a = switchA.getAttribute('data-state') === '1' ? 1 : 0;
+            const b = switchB.getAttribute('data-state') === '1' ? 1 : 0;
+            const gate = gateSelect.value;
+            let out = 0;
+            switch (gate) {
+                case 'and': out = a && b ? 1 : 0; break;
+                case 'or': out = a || b ? 1 : 0; break;
+                case 'xor': out = a ^ b ? 1 : 0; break;
+                case 'nand': out = !(a && b) ? 1 : 0; break;
+                case 'nor': out = !(a || b) ? 1 : 0; break;
+            }
+            document.getElementById('wire-a').textContent = `A=${a}`;
+            document.getElementById('wire-b').textContent = `B=${b}`;
+            document.getElementById('wire-out').textContent = `F=${out}`;
+            document.getElementById('gate-display').textContent = gate.toUpperCase();
+            // Clases low/high
+            ['wire-a', 'wire-b', 'wire-out'].forEach(id => {
+                const el = document.getElementById(id);
+                const val = parseInt(el.textContent.split('=')[1]);
+                el.classList.toggle('low', val === 0);
+                el.classList.toggle('high', val === 1);
+            });
+            switchA.textContent = a ? 'ON' : 'OFF';
+            switchB.textContent = b ? 'ON' : 'OFF';
+        }
+
+        switchA.addEventListener('click', () => {
+            const newState = switchA.getAttribute('data-state') === '1' ? '0' : '1';
+            switchA.setAttribute('data-state', newState);
+            updateCircuit();
+        });
+        switchB.addEventListener('click', () => {
+            const newState = switchB.getAttribute('data-state') === '1' ? '0' : '1';
+            switchB.setAttribute('data-state', newState);
+            updateCircuit();
+        });
+        gateSelect.addEventListener('change', updateCircuit);
+        updateCircuit();
+    }
+
+    // -------------------------- DESAFÍOS --------------------------
+    let currentChallengeId = null;
+    let currentChallengeAnswer = null;
+
+    function startChallenge(challengeId) {
+        const challenge = CHALLENGES[challengeId];
+        if (!challenge) return;
+        currentChallengeId = challengeId;
+        const data = challenge.generate();
+        currentChallengeAnswer = data.answer;
+        document.getElementById('challenge-modal-title').textContent = challenge.title;
+        const content = document.getElementById('challenge-content');
+        content.innerHTML = `
+            <p><strong>${data.question}</strong></p>
+            ${data.inputType === 'select' ? 
+                `<select id="challenge-input" class="quiz-option" style="width:100%; padding:0.7rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color); border-radius:8px;">
+                    ${data.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+                </select>` :
+                `<input type="text" id="challenge-input" class="quiz-option" style="width:100%; padding:0.7rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color); border-radius:8px;" placeholder="Tu respuesta...">`
+            }
+        `;
+        document.getElementById('challenge-feedback').classList.add('hidden');
+        openModal('modal-challenge');
+    }
+
+    function submitChallenge() {
+        const inputEl = document.getElementById('challenge-input');
+        if (!inputEl) return;
+        let userAnswer = inputEl.value.trim();
+        if (inputEl.tagName === 'SELECT') {
+            userAnswer = inputEl.value;
+        }
+        const feedback = document.getElementById('challenge-feedback');
+        feedback.classList.remove('hidden');
+        if (userAnswer.toLowerCase() === currentChallengeAnswer.toLowerCase()) {
+            feedback.innerHTML = '<p style="color:var(--accent-green)">✅ ¡Correcto! Desafío superado.</p>';
+            completeChallenge(currentChallengeId);
+            setTimeout(() => closeModal('modal-challenge'), 2000);
+        } else {
+            feedback.innerHTML = `<p style="color:var(--accent-red)">❌ Incorrecto. La respuesta era: ${currentChallengeAnswer}</p>`;
+        }
+    }
+
+    // -------------------------- TIENDA --------------------------
+    function purchaseItem(itemId) {
+        const prices = { avatar1: 100, avatar2: 200, avatar3: 500 };
+        const cost = prices[itemId];
+        if (!cost) return;
+        if (gameState.coins < cost) {
+            showToast('No tienes suficientes monedas.', 'error');
+            return;
+        }
+        if (gameState.inventory.includes(itemId)) {
+            showToast('Ya posees este avatar.', 'warning');
+            return;
+        }
+        gameState.coins -= cost;
+        gameState.inventory.push(itemId);
+        gameState.activeAvatar = itemId;
+        saveState();
+        updateAllUI();
+        showToast(`¡Avatar comprado!`, 'success');
+    }
+
+    // -------------------------- RACHA DIARIA --------------------------
+    function updateStreak() {
+        const today = new Date().toDateString();
+        const last = gameState.lastLoginDate;
+        if (!last) {
+            gameState.streak = 1;
+        } else {
+            const lastDate = new Date(last);
+            const diff = Math.floor((new Date() - lastDate) / (1000 * 60 * 60 * 24));
+            if (diff === 1) {
+                gameState.streak += 1;
+            } else if (diff > 1) {
+                gameState.streak = 1;
+            }
+        }
+        gameState.lastLoginDate = today;
+        if (gameState.streak >= 3) checkAchievements();
+        saveState();
+    }
+
+    // -------------------------- INICIALIZACIÓN --------------------------
+    function initApp() {
+        loadState();
+        updateStreak();
+        updateAllUI();
+        
+        // Event Listeners de navegación
+        document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const section = e.currentTarget.getAttribute('data-section');
+                navigateTo(section);
+            });
+        });
+
+        document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+
+        // Botones de lecciones y quizzes
+        LESSONS.forEach(lesson => {
+            const quizBtn = document.getElementById(`btn-quiz-${lesson.id}`);
+            if (quizBtn) {
+                quizBtn.addEventListener('click', () => startQuiz(lesson.id));
+            }
+        });
+
+        // Desafíos
+        document.querySelectorAll('.btn-challenge').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const challengeId = parseInt(e.currentTarget.getAttribute('data-challenge'));
+                startChallenge(challengeId);
+            });
+        });
+
+        // Tienda
+        document.querySelectorAll('.btn-shop').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const item = e.currentTarget.getAttribute('data-item');
+                purchaseItem(item);
+            });
+        });
+
+        // Modal cerrar
+        document.getElementById('btn-close-quiz')?.addEventListener('click', () => closeModal('modal-quiz'));
+        document.getElementById('btn-close-notifications')?.addEventListener('click', () => closeModal('modal-notifications'));
+        document.getElementById('btn-close-challenge')?.addEventListener('click', () => closeModal('modal-challenge'));
+        document.getElementById('btn-claim-reward')?.addEventListener('click', () => closeModal('modal-reward'));
+        document.getElementById('btn-next-question')?.addEventListener('click', nextQuestion);
+        document.getElementById('btn-finish-quiz')?.addEventListener('click', finishQuiz);
+        document.getElementById('btn-submit-challenge')?.addEventListener('click', submitChallenge);
+        document.getElementById('btn-notifications')?.addEventListener('click', openNotificationsModal);
+
+        // Simuladores
+        const truthSelect = document.getElementById('truth-function-select');
+        if (truthSelect) {
+            truthSelect.addEventListener('change', updateTruthTable);
+            updateTruthTable(); // inicial
+        }
+        setupSimplifier();
+        setupCircuitSimulator();
+
+        // Splash screen
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        const enterBtn = document.getElementById('btn-enter');
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                loadingText.textContent = '¡Listo!';
+                enterBtn.classList.remove('hidden');
+            }
+            loadingBar.style.width = `${progress}%`;
+            loadingText.textContent = `Cargando módulos... ${Math.floor(progress)}%`;
+        }, 200);
+
+        enterBtn.addEventListener('click', () => {
+            document.getElementById('splash-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            navigateTo('inicio');
+            checkAchievements();
+        });
+
+        // Manejo de teclas para cerrar modales
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden'));
+            }
+        });
+    }
+
+    // Arrancar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initApp);
+})();
