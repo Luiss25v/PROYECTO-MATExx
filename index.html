@@ -2,665 +2,976 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Álgebra de Boole | Hardware Base | EPN</title>
-    <!-- CDN esenciales -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Quest: Álgebra de Boole</title>
     <style>
-        /* ===================================================
-           TODO EL CSS AQUÍ DENTRO (sin dependencias externas)
-           =================================================== */
-        :root {
-            --app-height: 100vh;
-            --bg-obsidian: #050505;
-            --bg-carbon: #0f0f0f;
-            --gold-primary: #FFD700;
-            --text-white: #ffffff;
-            --text-gray: #e0e0e0;
-            --sidebar-width: 300px;
-            --font-headers: 'Orbitron', sans-serif;
-            --font-body: 'Exo 2', sans-serif;
+        /* ========== RESET Y ESTILOS GLOBALES ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 18px; }
+
         body {
-            background-color: var(--bg-obsidian);
-            color: var(--text-white);
-            font-family: var(--font-body);
-            line-height: 1.4;
-            overflow-x: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0a0f0a;
+            color: #e0ffe0;
+            min-height: 100vh;
             display: flex;
-            align-items: stretch;
-            height: var(--app-height);
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
         }
-        h1, h2, h3, h4, h5, h6, .urban-title, .mega-title {
-            font-family: var(--font-headers);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--gold-primary) !important;
-        }
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            top: 0; left: 0;
-            background: var(--bg-obsidian);
-            border-right: 3px solid var(--gold-primary);
+
+        #app {
+            width: 100%;
+            max-width: 800px;
+            min-height: 90vh;
+            background: rgba(10, 20, 10, 0.95);
+            border: 2px solid #0f0;
+            border-radius: 15px;
+            box-shadow: 0 0 25px #0f0, inset 0 0 15px rgba(0, 255, 0, 0.1);
+            padding: 20px;
+            position: relative;
             display: flex;
             flex-direction: column;
-            z-index: 500;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ========== BARRA SUPERIOR ========== */
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background: #111;
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .score-display {
+            color: #ff0;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            flex: 1;
+            margin: 0 20px;
+            height: 12px;
+            background: #222;
+            border: 1px solid #0f0;
+            border-radius: 6px;
             overflow: hidden;
         }
-        .sidebar-header {
-            padding: 30px 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0f0, #0a0);
+            transition: width 0.5s;
+            width: 0%;
+        }
+
+        #badges-btn {
+            background: #222;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px 12px;
+            border-radius: 8px;
             cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        #badges-btn:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        /* ========== PANTALLA DE INICIO ========== */
+        #start-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #start-screen h1 {
+            font-size: 2.8em;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 0.5em;
+        }
+
+        #start-screen p {
+            max-width: 600px;
+            margin: 0 auto 2em;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: transparent;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 12px 30px;
+            margin: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 30px #0f0;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ========== SELECTOR DE NIVELES ========== */
+        #level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .level-card {
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .level-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #555;
+        }
+
+        .level-card.unlocked:not(.completed):hover {
+            border-color: #0f0;
+            box-shadow: 0 0 15px #0f0;
+            transform: translateY(-3px);
+        }
+
+        .level-card.completed {
+            border-color: #0f0;
+        }
+
+        .level-card .stars {
+            margin-top: 8px;
+            color: #ff0;
+            font-size: 1.2em;
+        }
+
+        .level-card h3 {
+            color: #0f0;
+            margin-bottom: 5px;
+        }
+
+        .level-card p {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+
+        .lock-icon {
+            font-size: 2em;
+            opacity: 0.6;
+        }
+
+        /* ========== PANTALLA DE NIVEL ========== */
+        #level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        #level-content {
+            flex: 1;
+            background: #0c1a0c;
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .learning {
+            margin-bottom: 20px;
+        }
+
+        .learning h2 {
+            color: #ff0;
+            margin-bottom: 10px;
+        }
+
+        .learning p, .learning ul {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .quiz-area {
+            border-top: 2px dashed #0f0;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .question {
+            background: #0a1a0a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            background: #1a2a1a;
+            border: 1px solid #0f0;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .option:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        .option.selected {
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .truth-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        .truth-table th, .truth-table td {
+            border: 1px solid #0f0;
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .truth-table select {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px;
+            font-family: inherit;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #1a3a1a;
+            color: #0f0;
+        }
+
+        .feedback.incorrect {
+            background: #3a1a1a;
+            color: #f66;
+        }
+
+        .btn-small {
+            padding: 8px 20px;
+            font-size: 0.9em;
+        }
+
+        /* ========== MODAL DE INSIGNIAS ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0a1a0a;
+            border: 2px solid #0f0;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .badge-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .badge-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 80px;
         }
-        .sidebar-logo { max-width: 120px; margin-bottom: 10px; }
-        .sidebar nav ul { list-style: none; padding-top: 20px; }
-        .sidebar nav ul li a {
-            display: flex; align-items: center; padding: 18px 30px;
-            color: var(--text-gray); text-decoration: none; font-size: 1.1rem;
-            transition: 0.3s; border-left: 5px solid transparent;
-            font-family: var(--font-headers);
+
+        .badge-icon {
+            font-size: 2.5em;
+            filter: grayscale(100%);
         }
-        .sidebar nav ul li a:hover, .sidebar nav ul li a.active {
-            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-            color: var(--gold-primary); border-left: 5px solid var(--gold-primary);
-            text-shadow: 0 0 10px var(--gold-primary);
+
+        .badge-icon.earned {
+            filter: none;
         }
-        .sidebar nav ul li a i { margin-right: 20px; width: 30px; text-align: center; }
-        .sidebar-footer { padding: 30px; text-align: center; font-size: 0.9rem; color: #888; }
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            background-color: var(--bg-carbon);
-            background-image:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            padding: 0;
+
+        /* ========== RESULTADO ========== */
+        #result-screen {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
-        .top-header {
-            position: sticky; top: 0; z-index: 10;
-            background: #050505 !important;
-            border-bottom: 3px solid var(--gold-primary);
-            padding: 16px 30px;
-            display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+
+        .result-stars {
+            font-size: 3em;
+            margin: 20px 0;
         }
-        .logo-area { display: flex; align-items: center; gap: 25px; flex: 1; min-width: 300px; }
-        .logo-area img { height: 70px; }
-        .university-info h1 { font-size: 1.4rem; margin-bottom: 5px; }
-        .university-info h2 { font-size: 1rem; color: white !important; }
-        .motto { font-size: 0.9rem; font-style: italic; color: #bbb !important; }
-        .welcome-section {
-            position: relative; display: flex; justify-content: center; align-items: center;
-            padding: 80px 50px; border-radius: 25px; margin: 24px;
-            border: 4px solid var(--gold-primary);
-            background: url('img/fondo_intro.png') center/cover;
-            box-shadow: 0 0 60px rgba(0,0,0,0.8);
-        }
-        .welcome-section::before {
-            content: ''; position: absolute; inset: 0;
-            background: rgba(0,0,0,0.6); z-index: 1;
-        }
-        .bot-card {
-            position: relative; z-index: 2;
-            background: #000; border: 3px solid var(--gold-primary);
-            border-radius: 20px; padding: 60px; max-width: 1000px;
-            display: flex; align-items: center; gap: 50px;
-        }
-        .mega-title { font-size: 3.5rem; text-shadow: 0 0 25px var(--gold-primary); margin-bottom: 20px; }
-        .separator { width: 150px; height: 6px; background: var(--gold-primary); margin-bottom: 30px; }
-        .cta-button {
-            background: var(--gold-primary); color: black; padding: 20px 50px;
-            border: none; border-radius: 8px; font-weight: 900; cursor: pointer;
-            font-size: 1.3rem; font-family: var(--font-headers);
-            box-shadow: 0 0 30px var(--gold-primary);
-        }
-        .card {
-            background: rgba(10,10,10,0.95); border: 3px solid var(--gold-primary);
-            border-radius: 20px; padding: 50px; margin: 24px;
-        }
-        .urban-title { font-size: 2.5rem; border-bottom: 3px solid var(--gold-primary); padding-bottom: 15px; margin-bottom: 30px; }
-        .definition-text { border-left: 6px solid var(--gold-primary); padding-left: 30px; font-size: 1.3rem; color: #ddd; margin-bottom: 30px; }
-        .topic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 2px solid rgba(255,255,255,0.1); }
-        .topic-header h2 { font-size: 3rem; }
-        .badge { background: var(--gold-primary); color: black; padding: 12px 30px; border-radius: 25px; font-weight: 900; font-size: 1.1rem; }
-        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
-        .tech-grid > div {
-            background: rgba(0,0,0,0.5); border: 2px solid var(--gold-primary); border-radius: 16px;
-            padding: 25px; text-align: center; font-family: var(--font-headers); font-size: 1.2rem;
-            color: white; box-shadow: 0 0 20px rgba(255,215,0,0.15);
-        }
-        .law-list { list-style: none; }
-        .law-list li {
-            background: rgba(255,255,255,0.03); border-left: 5px solid var(--gold-primary);
-            padding: 15px 20px; margin-bottom: 15px; border-radius: 10px; font-size: 1.2rem;
-            font-family: monospace; color: #ddd;
-        }
-        .kmap-container, .circuit-sim {
-            background: #0a0a0a; border: 2px solid var(--gold-primary); border-radius: 16px;
-            padding: 30px; margin: 20px 0; font-family: monospace; font-size: 1.3rem; text-align: center;
-        }
-        .alu-demo { background: rgba(0,0,0,0.5); border: 2px solid var(--gold-primary); border-radius: 16px; padding: 20px; margin: 20px 0; }
-        .code-optimizer textarea {
-            width: 100%; min-height: 120px; background: #0a0a0a; border: 2px solid var(--gold-primary);
-            color: white; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 1.1rem;
-        }
-        input, select, textarea {
-            background: #080808; border: 2px solid #444; color: var(--gold-primary);
-            padding: 15px; font-size: 1.1rem; border-radius: 10px; margin-bottom: 15px; width: 100%;
-            font-family: 'Orbitron', sans-serif;
-        }
-        .run-btn {
-            background: var(--gold-primary); color: black; border: none; padding: 18px 40px;
-            font-weight: 900; font-size: 1.3rem; cursor: pointer; border-radius: 10px; width: 100%;
-            box-shadow: 0 0 20px var(--gold-primary);
-        }
-        .result-display {
-            margin-top: 25px; padding: 25px; background: #000; border-left: 6px solid var(--gold-primary);
-            font-family: monospace; color: var(--gold-primary); font-size: 1.3rem; white-space: pre-wrap;
-        }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .sidebar-toggle { display: none; }
-        .whatsapp-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; z-index: 9999; text-decoration: none; }
-        .to-top { position: fixed; right: 20px; bottom: 90px; width: 46px; height: 46px; background: rgba(0,0,0,0.55); border-radius: 50%; color: white; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 999; }
-        /* Responsive */
-        @media (max-width: 980px) {
-            :root { --sidebar-width: 0px; }
-            .sidebar { transform: translateX(-105%); width: min(86vw, 360px); transition: transform 0.22s; }
-            body.sidebar-open .sidebar { transform: translateX(0); }
-            .sidebar-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.65); opacity: 0; pointer-events: none; z-index: 499; }
-            body.sidebar-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
-            .main-content { margin-left: 0 !important; }
-            .sidebar-toggle { display: inline-flex; }
-        }
+
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header" onclick="openTab(event, 'inicio')">
-            <img class="sidebar-logo" src="img/buho.png" alt="Logo MathBot">
-            <p style="font-size:0.8rem; color:var(--gold-primary); letter-spacing:2px; font-weight:bold; margin-top:15px;">GAMER EDITION</p>
-        </div>
-        <div class="sidebar-scroll">
-            <div class="sidebar-search">
-                <i class="fas fa-search"></i>
-                <input type="text" id="sidebarSearch" placeholder="Buscar sección...">
-                <button class="search-btn" id="sidebarSearchBtn"><i class="fas fa-arrow-right"></i></button>
-            </div>
-            <nav>
-                <ul>
-                    <li><a class="tab-link active" href="#" onclick="openTab(event, 'inicio')"><i class="fas fa-robot"></i> Inicio</a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'variables')"><i class="fas fa-toggle-on"></i> <span class="mission-badge">MISION 1</span> <span class="nav-text">Variables Booleanas</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'funciones-booleanas')"><i class="fas fa-table"></i> <span class="mission-badge">MISION 2</span> <span class="nav-text">Funciones Booleanas</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'simplificacion')"><i class="fas fa-compress-arrows-alt"></i> <span class="mission-badge">MISION 3</span> <span class="nav-text">Simplificación</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'circuitos')"><i class="fas fa-microchip"></i> <span class="mission-badge">MISION 4</span> <span class="nav-text">Circuitos Digitales</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'procesadores')"><i class="fas fa-cpu"></i> <span class="mission-badge">MISION 5</span> <span class="nav-text">Procesadores y ALU</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'optimizacion')"><i class="fas fa-code"></i> <span class="mission-badge">MISION 6</span> <span class="nav-text">Optimización de Código</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'practica')"><i class="fas fa-bullseye"></i> <span class="mission-badge">MISION 7</span> <span class="nav-text">Modo Práctica</span></a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'video')"><i class="fas fa-play-circle"></i> Video Explicativo</a></li>
-                    <li><a class="tab-link" href="#" onclick="openTab(event, 'resenas')"><i class="fas fa-comments"></i> Reseñas</a></li>
-                </ul>
-            </nav>
-            <!-- Panel de misión en sidebar -->
-            <div class="mission-panel" id="missionPanel">
-                <div class="mission-head">
-                    <div class="mission-title"><i class="fas fa-flag-checkered"></i><span>Modo Misión</span></div>
-                    <button class="mission-reset" onclick="resetMissions()">↺</button>
-                    <button class="mission-close" id="missionClose">✕</button>
-                </div>
-                <div class="mission-progress">
-                    <div class="mission-progress-bar"><span id="missionBarFill"></span></div>
-                    <div class="mission-progress-text"><span id="missionPct">0%</span> completado</div>
-                </div>
-                <ul class="mission-list" id="missionList"></ul>
-            </div>
-        </div>
-        <div class="sidebar-footer"><p>GRUPO 5 MC | EPN</p></div>
-    </aside>
-
-    <!-- Contenido principal -->
-    <main class="main-content" id="mainContent">
-        <header class="top-header">
-            <div class="section-pill" id="currentSection">Inicio</div>
-            <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <button class="panel-btn" id="panelBtn"><i class="fas fa-user-astronaut"></i></button>
-            <div class="xp-badge" id="xpBadge">
-                <div class="xp-top">LV <span id="levelValue">1</span> · XP <span id="xpValue">0</span></div>
-                <div class="xp-bar"><span id="xpBar"></span></div>
-                <div class="xp-row">
-                    <span class="streak"><i class="fas fa-fire"></i> <span id="streakValue">1</span></span>
-                    <button class="hud-btn" id="trophyBtn">🏆</button>
-                    <button class="hud-btn" id="soundBtn">🔇</button>
-                    <button class="hud-btn" id="themeBtn">🎨</button>
-                    <button class="hud-btn" id="fsBtn">⛶</button>
-                </div>
-            </div>
-            <div class="logo-area">
-                <img src="img/logo-epn.png" alt="Escudo EPN">
-                <div class="university-info">
-                    <h1>ESCUELA POLITÉCNICA NACIONAL</h1>
-                    <h2>FACULTAD DE INGENIERÍA DE SISTEMAS</h2>
-                    <p class="motto">"La técnica al servicio de la patria"</p>
-                </div>
-            </div>
-        </header>
-
-        <!-- Pestañas -->
-        <div id="inicio" class="tab-content active" style="display:block;">
-            <section class="welcome-section">
-                <div class="bot-card">
-                    <div class="bot-text">
-                        <h3 class="mega-title">SISTEMA BOOLEANO INICIADO</h3>
-                        <div class="separator"></div>
-                        <p><strong>Bienvenido, Jugador.</strong> Soy <strong>MathBot</strong>.</p>
-                        <p>El Álgebra de Boole es el lenguaje oculto de cada chip, cada procesador y cada línea de código que optimizas. Prepárate para dominar sus leyes y llevarlas al silicio.</p>
-                        <button class="cta-button" onclick="openTab(event, 'variables')">INICIAR MISIÓN</button>
-                    </div>
-                    <div class="bot-image-container">
-                        <img class="floating-bot" src="img/bot.png" alt="MathBot">
-                    </div>
-                </div>
-            </section>
+    <div id="app">
+        <!-- PANTALLA DE INICIO -->
+        <div id="start-screen" class="screen active">
+            <h1>🤖 LOGIC QUEST</h1>
+            <p>Bienvenido, futuro Ingeniero Lógico. Domina el Álgebra de Boole para construir el procesador definitivo y salvar el reino digital. Aprende sobre variables, funciones, simplificación y cómo todo esto da vida al hardware real.</p>
+            <button class="btn" id="start-btn">▶ COMENZAR</button>
+            <button class="btn" id="reset-btn">🗑 Reiniciar Progreso</button>
         </div>
 
-        <!-- Misión 1: Variables Booleanas -->
-        <div id="variables" class="tab-content">
-            <div class="topic-header"><h2>VARIABLES BOOLEANAS</h2><span class="badge">MISIÓN 1</span></div>
-            <div class="card">
-                <h1 class="urban-title">1. DEFINICIÓN</h1>
-                <div class="definition-text"><p>Una variable booleana solo puede tomar dos valores: <strong>0 (falso, apagado)</strong> y <strong>1 (verdadero, encendido)</strong>. Es el átomo de la electrónica digital.</p></div>
-                <div class="card">
-                    <h2>2. COMPUERTAS BÁSICAS</h2>
-                    <div class="tech-grid">
-                        <div><strong>NOT (¬A)</strong><br>Inversor</div>
-                        <div><strong>AND (A·B)</strong><br>Producto lógico</div>
-                        <div><strong>OR (A+B)</strong><br>Suma lógica</div>
-                        <div><strong>XOR (A⊕B)</strong><br>Suma exclusiva</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2>3. TABLA DE VERDAD INTERACTIVA</h2>
-                    <input id="varExpr" placeholder="Ej: A and B or not C">
-                    <button class="run-btn" onclick="generateTruthTable()">GENERAR TABLA</button>
-                    <div id="truthTableOutput" class="result-display">Esperando expresión...</div>
-                </div>
+        <!-- SELECTOR DE NIVELES -->
+        <div id="level-select-screen" class="screen">
+            <div id="top-bar">
+                <span class="score-display">⚡ <span id="score">0</span> pts</span>
+                <div class="progress-container"><div class="progress-fill" id="progress-fill"></div></div>
+                <button id="badges-btn" class="btn-small">🏆 Insignias</button>
             </div>
+            <h2>🌐 Mapa de Niveles</h2>
+            <div id="level-grid"></div>
         </div>
 
-        <!-- Misión 2: Funciones Booleanas -->
-        <div id="funciones-booleanas" class="tab-content">
-            <div class="topic-header"><h2>FUNCIONES BOOLEANAS</h2><span class="badge">MISIÓN 2</span></div>
-            <div class="card">
-                <h1 class="urban-title">1. DEFINICIÓN</h1>
-                <p>Una función booleana asigna valores 0/1 a cada combinación de sus variables de entrada.</p>
-                <p class="math-highlight">f(A,B,C) = Σ(m₁, m₂, m₅, m₇)</p>
+        <!-- PANTALLA DE NIVEL -->
+        <div id="level-screen" class="screen">
+            <div id="level-header">
+                <button class="btn btn-small" id="back-btn">◀ Volver</button>
+                <h3 id="level-title"></h3>
+                <span></span>
             </div>
-            <div class="card">
-                <h1 class="urban-title">2. FORMAS CANÓNICAS</h1>
-                <p><strong>Minterms:</strong> producto de variables que da 1 en una sola fila.<br>
-                <strong>Maxterms:</strong> suma que da 0 en una sola fila.</p>
-                <div id="canonicalDemo" class="result-display">Ejemplo: f(A,B,C) = Σm(1,2,5,7) → A'B'C + A'BC' + AB'C + ABC</div>
-            </div>
+            <div id="level-content"></div>
         </div>
 
-        <!-- Misión 3: Simplificación -->
-        <div id="simplificacion" class="tab-content">
-            <div class="topic-header"><h2>SIMPLIFICACIÓN</h2><span class="badge">MISIÓN 3</span></div>
-            <div class="card">
-                <h1 class="urban-title">1. LEYES DEL ÁLGEBRA DE BOOLE</h1>
-                <ul class="law-list">
-                    <li><strong>Idempotencia:</strong> A + A = A, A·A = A</li>
-                    <li><strong>Complemento:</strong> A + ¬A = 1, A·¬A = 0</li>
-                    <li><strong>De Morgan:</strong> ¬(A·B) = ¬A + ¬B, ¬(A+B) = ¬A·¬B</li>
-                    <li><strong>Distributiva:</strong> A·(B+C) = A·B + A·C</li>
-                </ul>
-            </div>
-            <div class="card">
-                <h1 class="urban-title">2. MAPAS DE KARNAUGH</h1>
-                <div class="kmap-container" id="kmapContainer">Mapa K para Σm(1,2,5,7)</div>
-                <button class="run-btn" onclick="simplifyWithKMap()">SIMPLIFICAR (ejemplo)</button>
-                <div id="simplifiedResult" class="result-display"></div>
-            </div>
+        <!-- RESULTADO DEL NIVEL -->
+        <div id="result-screen" class="screen">
+            <h2 id="result-message"></h2>
+            <div class="result-stars" id="result-stars"></div>
+            <p id="result-score"></p>
+            <button class="btn" id="continue-btn">Continuar ▶</button>
         </div>
 
-        <!-- Misión 4: Circuitos Digitales -->
-        <div id="circuitos" class="tab-content">
-            <div class="topic-header"><h2>CIRCUITOS DIGITALES</h2><span class="badge">MISIÓN 4</span></div>
-            <div class="card">
-                <h1 class="urban-title">DE LA EXPRESIÓN AL SILICIO</h1>
-                <p>Toda función booleana puede implementarse con compuertas lógicas reales. Ejemplo: f = A·B + ¬A·B</p>
-                <div class="circuit-sim" id="circuitSim">Aquí se dibujará el circuito</div>
-                <button class="run-btn" onclick="drawCircuit()">VISUALIZAR CIRCUITO</button>
+        <!-- MODAL DE INSIGNIAS -->
+        <div id="badges-modal" class="modal">
+            <div class="modal-content">
+                <h2>🏅 Insignias</h2>
+                <div class="badge-grid" id="badge-container"></div>
+                <button class="btn btn-small" id="close-modal">Cerrar</button>
             </div>
         </div>
-
-        <!-- Misión 5: Procesadores y ALU -->
-        <div id="procesadores" class="tab-content">
-            <div class="topic-header"><h2>PROCESADORES Y ALU</h2><span class="badge">MISIÓN 5</span></div>
-            <div class="card">
-                <h1 class="urban-title">CÓMO PIENSA UN PROCESADOR</h1>
-                <p>La ALU usa funciones booleanas. Sumador completo: XOR y AND para sumar bits.</p>
-                <div class="alu-demo">
-                    <p>Sumador de 4 bits</p>
-                    <input id="aluA" placeholder="A (4 bits)">
-                    <input id="aluB" placeholder="B (4 bits)">
-                    <button class="run-btn" onclick="simulateALU()">SUMAR (BOOLE)</button>
-                    <div id="aluResult" class="result-display"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Misión 6: Optimización de Código -->
-        <div id="optimizacion" class="tab-content">
-            <div class="topic-header"><h2>OPTIMIZACIÓN DE CÓDIGO</h2><span class="badge">MISIÓN 6</span></div>
-            <div class="card">
-                <h1 class="urban-title">EXPRESIONES LÓGICAS EFICIENTES</h1>
-                <p>Simplificar condiciones booleanas reduce instrucciones y mejora el rendimiento.</p>
-                <div class="code-optimizer">
-                    <textarea id="rawCondition" placeholder="Escribe una condición compleja..."></textarea>
-                    <button class="run-btn" onclick="optimizeCondition()">OPTIMIZAR</button>
-                    <div id="optimizedOutput" class="result-display"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Misión 7: Modo Práctica -->
-        <div id="practica" class="tab-content">
-            <div class="topic-header"><h2>MODO PRÁCTICA</h2><span class="badge">MISIÓN 7</span></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                <div class="card">
-                    <h2>Generador de retos</h2>
-                    <select id="practiceTopic">
-                        <option value="variables">Variables Booleanas</option>
-                        <option value="funciones-booleanas">Funciones Booleanas</option>
-                        <option value="simplificacion">Simplificación</option>
-                        <option value="circuitos">Circuitos Digitales</option>
-                        <option value="procesadores">Procesadores</option>
-                        <option value="optimizacion">Optimización</option>
-                    </select>
-                    <select id="practiceLevel">
-                        <option value="1">Nivel 1</option>
-                        <option value="2">Nivel 2</option>
-                        <option value="3">Nivel 3</option>
-                    </select>
-                    <button class="btn primary" id="practiceNew"><i class="fas fa-dice"></i> Nuevo reto</button>
-                    <button class="btn" id="practiceReset">Reiniciar</button>
-                </div>
-                <div class="card">
-                    <h2>Reto actual</h2>
-                    <div id="practicePrompt">Aún no hay reto</div>
-                    <input id="practiceAnswer" placeholder="Tu respuesta...">
-                    <button class="btn primary" id="practiceCheck">Evaluar</button>
-                    <button class="btn" id="practiceReveal">Ver solución</button>
-                    <div id="practiceFeedback"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Video -->
-        <div id="video" class="tab-content">
-            <div class="topic-header"><h2>VIDEO EXPLICATIVO</h2></div>
-            <div class="card">
-                <input id="videoInput" placeholder="URL de YouTube">
-                <button id="videoLoadBtn">Cargar</button>
-                <div id="videoPreviewWrap"></div>
-            </div>
-        </div>
-
-        <!-- Reseñas -->
-        <div id="resenas" class="tab-content">
-            <div class="topic-header"><h2>RESEÑAS</h2></div>
-            <div class="card">
-                <input id="revName" placeholder="Nombre">
-                <select id="revRating"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option></select>
-                <textarea id="revText" placeholder="Escribe tu reseña..."></textarea>
-                <button class="run-btn" onclick="addReview()">PUBLICAR</button>
-                <div id="reviewsList"></div>
-            </div>
-        </div>
-    </main>
-
-    <a class="whatsapp-btn" href="https://wa.me/593987662461" target="_blank"><i class="fab fa-whatsapp"></i></a>
-    <button class="to-top" id="toTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+    </div>
 
     <script>
-        // ===================================================
-        //  TODO EL JS AQUÍ DENTRO (sin dependencias externas)
-        // ===================================================
-        function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-        function showToast(msg,type='info',ms=2600){ const el=document.getElementById('toast'); if(!el) return; el.className='toast toast-'+type; el.textContent=msg; el.style.display='block'; el.style.opacity='1'; clearTimeout(el.__t); el.__t=setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; },250); }, ms); }
-        function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-        const sectionColors={ inicio:'#FFD700', variables:'#00FF00', 'funciones-booleanas':'#00FFFF', simplificacion:'#BC13FE', circuitos:'#FF00FF', procesadores:'#ff8400', optimizacion:'#00FF9C', practica:'#00FFC8', video:'#ff8400', resenas:'#00FF9C' };
-        const TAB_TITLES={ inicio:'Inicio', variables:'Variables Booleanas', 'funciones-booleanas':'Funciones Booleanas', simplificacion:'Simplificación', circuitos:'Circuitos Digitales', procesadores:'Procesadores y ALU', optimizacion:'Optimización de Código', practica:'Modo Práctica', video:'Video Explicativo', resenas:'Reseñas' };
-
-        function openTab(evt, tabName){
-            if(evt && evt.preventDefault) evt.preventDefault();
-            const newColor = sectionColors[tabName] || '#FFD700';
-            document.querySelectorAll('.tab-content').forEach(tc=>{ tc.style.display='none'; tc.classList.remove('active'); });
-            document.querySelectorAll('.tab-link').forEach(link=>{ link.classList.remove('active'); link.style.borderColor='transparent'; link.style.color='#e0e0e0'; });
-            const currentTab = document.getElementById(tabName);
-            if(currentTab){
-                currentTab.style.display='block';
-                requestAnimationFrame(()=> currentTab.classList.add('active'));
-                document.documentElement.style.setProperty('--gold-primary', newColor);
+        (function() {
+            // ========== AUDIO SIMPLE ==========
+            let audioCtx = null;
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
             }
-            if(evt && evt.currentTarget){
-                evt.currentTarget.classList.add('active');
-                evt.currentTarget.style.borderColor=newColor;
-                evt.currentTarget.style.color=newColor;
+            function playBeep(freq, duration, type = 'square') {
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
             }
-            const scroller = document.querySelector('.main-content');
-            if(scroller) scroller.scrollTo({ top:0, behavior:'smooth' });
-            const pill = document.getElementById('currentSection');
-            if(pill) pill.textContent = TAB_TITLES[tabName] || tabName;
-            try{ localStorage.setItem('mc_last_tab', tabName); }catch(e){}
-            document.body.classList.remove('sidebar-open');
-            try{ updateMiniMission(tabName); }catch(e){}
-        }
 
-        document.querySelectorAll('.sidebar a.tab-link').forEach(a=>{
-            let tab = a.getAttribute('data-tab');
-            if(!tab){
-                const oc = a.getAttribute('onclick')||'';
-                const m = oc.match(/openTab\(\s*event\s*,\s*'([^']+)'\s*\)/);
-                if(m) tab = m[1];
+            // ========== DATOS DE NIVELES ==========
+            const levelsData = [
+                {
+                    id: 1,
+                    name: 'Variables Booleanas',
+                    description: 'Verdadero/Falso y tablas básicas',
+                    learning: `
+                        <h2>📘 Variables Booleanas</h2>
+                        <p>El álgebra de Boole trabaja con dos valores: <strong>0 (FALSO)</strong> y <strong>1 (VERDADERO)</strong>. Las operaciones fundamentales son:</p>
+                        <ul>
+                            <li><strong>NOT (¬)</strong>: Invierte el valor.</li>
+                            <li><strong>AND (∧)</strong>: 1 solo si ambas entradas son 1.</li>
+                            <li><strong>OR (∨)</strong>: 1 si al menos una entrada es 1.</li>
+                        </ul>
+                        <p>📌 <em>En hardware, un 1 representa un voltaje alto (ej. 5V) y un 0 un voltaje bajo (0V). Las compuertas lógicas implementan estas operaciones con transistores.</em></p>
+                    `,
+                    quizType: 'truth-table',
+                    questions: [
+                        { type: 'truth-table', gate: 'NOT', inputs: ['A'], rows: [{A:0}, {A:1}], outputCol: 'NOT A', expected: [1,0] },
+                        { type: 'truth-table', gate: 'AND', inputs: ['A','B'], rows: [{A:0,B:0},{A:0,B:1},{A:1,B:0},{A:1,B:1}], outputCol: 'A AND B', expected: [0,0,0,1] },
+                        { type: 'truth-table', gate: 'OR', inputs: ['A','B'], rows: [{A:0,B:0},{A:0,B:1},{A:1,B:0},{A:1,B:1}], outputCol: 'A OR B', expected: [0,1,1,1] }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: 'Compuertas Lógicas',
+                    description: 'Símbolos y comportamiento',
+                    learning: `
+                        <h2>🔌 Compuertas Lógicas</h2>
+                        <p>Los circuitos digitales se construyen con compuertas. Cada una tiene un símbolo único:</p>
+                        <p>AND: <svg width="50" height="30"><path d="M8,5 Q30,5 40,15 Q30,25 8,25 L8,5" fill="none" stroke="#0f0" stroke-width="2"/><line x1="0" y1="8" x2="8" y2="8" stroke="#0f0"/><line x1="0" y1="22" x2="8" y2="22" stroke="#0f0"/><line x1="40" y1="15" x2="50" y2="15" stroke="#0f0"/></svg>  
+                        OR: <svg width="50" height="30"><path d="M8,5 Q20,5 30,10 Q35,15 30,20 Q20,25 8,25 L8,5" fill="none" stroke="#0f0" stroke-width="2"/><line x1="0" y1="8" x2="8" y2="8" stroke="#0f0"/><line x1="0" y1="22" x2="8" y2="22" stroke="#0f0"/><line x1="32" y1="15" x2="50" y2="15" stroke="#0f0"/></svg>  
+                        NOT: <svg width="50" height="30"><polygon points="8,5 30,15 8,25" fill="none" stroke="#0f0" stroke-width="2"/><circle cx="33" cy="15" r="3" fill="none" stroke="#0f0" stroke-width="2"/><line x1="0" y1="15" x2="8" y2="15" stroke="#0f0"/><line x1="36" y1="15" x2="50" y2="15" stroke="#0f0"/></svg></p>
+                        <p>📌 <em>Un procesador moderno contiene miles de millones de estas compuertas organizadas en bloques como la ALU y la unidad de control.</em></p>
+                    `,
+                    quizType: 'mcq',
+                    questions: [
+                        { question: '¿Qué compuerta representa este símbolo? <br><svg width="50" height="30"><path d="M8,5 Q30,5 40,15 Q30,25 8,25 L8,5" fill="none" stroke="#0f0" stroke-width="2"/><line x1="0" y1="8" x2="8" y2="8" stroke="#0f0"/><line x1="0" y1="22" x2="8" y2="22" stroke="#0f0"/><line x1="40" y1="15" x2="50" y2="15" stroke="#0f0"/></svg>', options: ['AND', 'OR', 'NOT', 'XOR'], correct: 0 },
+                        { question: 'La salida de una compuerta OR es 1 solo si...', options: ['Ambas entradas son 1', 'Al menos una entrada es 1', 'Ninguna entrada es 1', 'Las entradas son diferentes'], correct: 1 },
+                        { question: '¿Qué compuerta tiene la función de invertir la señal?', options: ['AND', 'OR', 'NOT', 'Buffer'], correct: 2 }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: 'Funciones Booleanas',
+                    description: 'Evaluar expresiones',
+                    learning: `
+                        <h2>🧮 Funciones Booleanas</h2>
+                        <p>Una función booleana combina variables con operadores. Ejemplo: <code>F = (A ∧ B) ∨ (¬C)</code></p>
+                        <p>Para evaluarla, sustituimos los valores de las variables y aplicamos las operaciones.</p>
+                        <p>📌 <em>En diseño de circuitos, una función booleana describe el comportamiento de un bloque lógico. Simplificarla reduce el número de compuertas necesarias.</em></p>
+                    `,
+                    quizType: 'mcq',
+                    questions: [
+                        { question: 'Evalúa F = (A AND B) OR (NOT C) con A=1, B=0, C=1', options: ['0', '1', 'A', 'Error'], correct: 0 },
+                        { question: 'Evalúa F = NOT(A) AND (B OR C) con A=0, B=0, C=1', options: ['0', '1', 'B', 'C'], correct: 1 },
+                        { question: 'Si F = A XOR B, ¿cuál es el resultado con A=1, B=1?', options: ['0', '1', 'A', 'B'], correct: 0 }
+                    ]
+                },
+                {
+                    id: 4,
+                    name: 'Simplificación',
+                    description: 'Leyes y reducción',
+                    learning: `
+                        <h2>✂️ Simplificación de Expresiones</h2>
+                        <p>Usando leyes del álgebra de Boole podemos reducir expresiones:</p>
+                        <ul>
+                            <li><strong>Absorción:</strong> A + A·B = A</li>
+                            <li><strong>De Morgan:</strong> ¬(A·B) = ¬A + ¬B ; ¬(A+B) = ¬A · ¬B</li>
+                            <li><strong>Idempotencia:</strong> A + A = A</li>
+                        </ul>
+                        <p>📌 <em>Simplificar una función booleana minimiza el número de compuertas en un chip, lo que reduce el consumo energético y aumenta la velocidad del procesador.</em></p>
+                    `,
+                    quizType: 'mcq',
+                    questions: [
+                        { question: 'Simplifica: A + (A · B)', options: ['A', 'B', 'A·B', 'A+B'], correct: 0 },
+                        { question: 'Aplicando De Morgan, ¬(A · B) equivale a:', options: ['¬A · ¬B', '¬A + ¬B', 'A + B', 'A · B'], correct: 1 },
+                        { question: 'La expresión A · (A + B) se simplifica a:', options: ['A', 'B', 'A+B', 'A·B'], correct: 0 }
+                    ]
+                },
+                {
+                    id: 5,
+                    name: 'Mapa de Karnaugh',
+                    description: 'Simplificación visual',
+                    learning: `
+                        <h2>🗺 Mapa de Karnaugh (2 variables)</h2>
+                        <p>El mapa de Karnaugh es una herramienta gráfica para simplificar funciones. Para 2 variables (A,B):</p>
+                        <table class="truth-table">
+                            <tr><th>A\\B</th><th>0</th><th>1</th></tr>
+                            <tr><td>0</td><td>0</td><td>1</td></tr>
+                            <tr><td>1</td><td>1</td><td>0</td></tr>
+                        </table>
+                        <p>Agrupando los "1" adyacentes obtenemos la expresión simplificada.</p>
+                    `,
+                    quizType: 'kmap',
+                    questions: [
+                        {
+                            kmap: [[0,1],[1,0]], // Representa A'B + AB' = A XOR B
+                            question: 'Observa el mapa de Karnaugh mostrado. ¿Cuál es la expresión simplificada?',
+                            options: ['A AND B', 'A OR B', 'A XOR B', 'NOT A'],
+                            correct: 2
+                        }
+                    ]
+                },
+                {
+                    id: 6,
+                    name: 'Semisumador (Half-Adder)',
+                    description: 'Circuito sumador básico',
+                    learning: `
+                        <h2>➕ Semisumador</h2>
+                        <p>Un semisumador suma dos bits (A y B) y produce un bit de <strong>Suma (S)</strong> y uno de <strong>Acarreo (C)</strong>.</p>
+                        <p>S = A XOR B<br>C = A AND B</p>
+                        <p>📌 <em>Los sumadores son la base de la Unidad Aritmético-Lógica (ALU) de todo procesador. La ALU realiza operaciones matemáticas y lógicas.</em></p>
+                    `,
+                    quizType: 'truth-table',
+                    questions: [
+                        {
+                            type: 'truth-table',
+                            gate: 'Half-Adder',
+                            inputs: ['A','B'],
+                            rows: [{A:0,B:0},{A:0,B:1},{A:1,B:0},{A:1,B:1}],
+                            outputCols: ['Suma (S)', 'Acarreo (C)'],
+                            expected: [0,0, 1,0, 1,0, 0,1] // S0C0, S1C0, S1C0, S0C1
+                        }
+                    ]
+                },
+                {
+                    id: 7,
+                    name: 'Optimización de Código',
+                    description: 'Booleanos en programación',
+                    learning: `
+                        <h2>💻 Optimización de Condiciones</h2>
+                        <p>En programación, las expresiones booleanas pueden simplificarse para mejorar la legibilidad y eficiencia.</p>
+                        <p>Ejemplo: <code>if (!a && !b)</code> es equivalente a <code>if (!(a || b))</code> (De Morgan).</p>
+                        <p>📌 <em>Los compiladores aplican álgebra de Boole para optimizar el código máquina, reduciendo instrucciones y mejorando el rendimiento.</em></p>
+                    `,
+                    quizType: 'mcq',
+                    questions: [
+                        { question: '¿Cuál es una versión simplificada de <code>if(!(x > 5 && y < 3))</code>?', options: ['if(x <= 5 || y >= 3)', 'if(x > 5 || y < 3)', 'if(x <= 5 && y >= 3)', 'Ninguna'], correct: 0 },
+                        { question: 'La expresión <code>(a && b) || (!a && b)</code> se reduce a:', options: ['a', 'b', 'a || b', 'true'], correct: 1 }
+                    ]
+                }
+            ];
+
+            // ========== ESTADO DEL JUEGO ==========
+            const STORAGE_KEY = 'logicQuestSave';
+            let gameState = {
+                score: 0,
+                badges: [],
+                levels: levelsData.map((lvl, idx) => ({
+                    id: lvl.id,
+                    unlocked: idx === 0,
+                    completed: false,
+                    stars: 0,
+                    bestScore: 0
+                })),
+                currentLevelId: null,
+                currentQuestionIndex: 0,
+                userAnswers: [],
+                levelScore: 0
+            };
+
+            // ========== FUNCIONES DE GUARDADO ==========
+            function saveState() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    score: gameState.score,
+                    badges: gameState.badges,
+                    levels: gameState.levels
+                }));
             }
-            if(tab) a.setAttribute('data-tab', tab);
-            a.addEventListener('click', (e)=>{ e.preventDefault(); const t = a.getAttribute('data-tab'); if(t) openTab(e,t); });
-        });
 
-        function initSidebarSearch(){
-            const input = document.getElementById('sidebarSearch');
-            if(!input) return;
-            const links = Array.from(document.querySelectorAll('.sidebar .tab-link'));
-            links.forEach(a=>{ const txt = (a.querySelector('.nav-text')||a).textContent.trim(); if(!a.dataset.label) a.dataset.label=txt; });
-            const norm = s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-            const apply = ()=>{
-                const q = norm(input.value.trim());
-                links.forEach(a=>{
-                    const label = a.dataset.label;
-                    const match = !q || norm(label).includes(q);
-                    const li = a.closest('li')||a.parentElement;
-                    if(li) li.style.display = match ? '' : 'none';
+            function loadState() {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    gameState.score = parsed.score || 0;
+                    gameState.badges = parsed.badges || [];
+                    if (parsed.levels) {
+                        parsed.levels.forEach((sl, i) => {
+                            if (gameState.levels[i]) {
+                                gameState.levels[i].unlocked = sl.unlocked;
+                                gameState.levels[i].completed = sl.completed;
+                                gameState.levels[i].stars = sl.stars;
+                                gameState.levels[i].bestScore = sl.bestScore;
+                            }
+                        });
+                    }
+                }
+            }
+
+            function resetProgress() {
+                if (confirm('¿Seguro que quieres borrar todo el progreso?')) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    gameState.score = 0;
+                    gameState.badges = [];
+                    gameState.levels.forEach((lvl, idx) => {
+                        lvl.unlocked = idx === 0;
+                        lvl.completed = false;
+                        lvl.stars = 0;
+                        lvl.bestScore = 0;
+                    });
+                    showScreen('start-screen');
+                }
+            }
+
+            // ========== NAVEGACIÓN DE PANTALLAS ==========
+            function showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(screenId).classList.add('active');
+                if (screenId === 'level-select-screen') renderLevelSelect();
+            }
+
+            // ========== RENDERIZADO DEL SELECTOR DE NIVELES ==========
+            function renderLevelSelect() {
+                const grid = document.getElementById('level-grid');
+                grid.innerHTML = '';
+                gameState.levels.forEach((lvl, idx) => {
+                    const data = levelsData[idx];
+                    const card = document.createElement('div');
+                    card.className = `level-card ${lvl.unlocked ? (lvl.completed ? 'completed' : 'unlocked') : 'locked'}`;
+                    card.innerHTML = `
+                        <h3>${data.name}</h3>
+                        <p>${data.description}</p>
+                        ${lvl.unlocked ? `<div class="stars">${'★'.repeat(lvl.stars)}${'☆'.repeat(3-lvl.stars)}</div>` : '<div class="lock-icon">🔒</div>'}
+                    `;
+                    if (lvl.unlocked) {
+                        card.addEventListener('click', () => startLevel(data.id));
+                    }
+                    grid.appendChild(card);
                 });
-            };
-            input.addEventListener('input', apply);
-            apply();
-        }
-
-        // Misiones interactivas
-        function generateTruthTable(){
-            const input = document.getElementById('varExpr').value.trim().toUpperCase();
-            const out = document.getElementById('truthTableOutput');
-            if(!out) return;
-            const vars = [...new Set(input.match(/[A-Z]/g)||[])].sort();
-            if(vars.length<1||vars.length>4){ out.textContent='Usa de 1 a 4 variables (A, B, C, D).'; return; }
-            const expr = input.replace(/AND/gi,'&&').replace(/OR/gi,'||').replace(/NOT\s*/gi,'!').replace(/XOR/gi,'^');
-            let html = `<table><tr>${vars.map(v=>`<th>${v}</th>`).join('')}<th>Resultado</th></tr>`;
-            for(let i=0; i<(1<<vars.length); i++){
-                const vals = {};
-                vars.forEach((v,j)=> vals[v] = (i>>(vars.length-1-j))&1 );
-                try{
-                    const fn = new Function(...vars, `return (${expr}) ? 1 : 0;`);
-                    const result = fn(...vars.map(v=>vals[v]));
-                    html += `<tr>${vars.map(v=>`<td>${vals[v]}</td>`).join('')}<td><strong>${result}</strong></td></tr>`;
-                }catch(e){ html += '<tr><td colspan="100%">Error</td></tr>'; break; }
+                document.getElementById('score').textContent = gameState.score;
+                updateProgressBar();
             }
-            html += '</table>';
-            out.innerHTML = html;
-            awardXp(40, 'Tabla de verdad', `truth|${input}`);
-        }
-        function simplifyWithKMap(){
-            const out = document.getElementById('simplifiedResult');
-            if(out) out.textContent = 'Simplificación: A·C + B·¬C';
-            awardXp(60, 'Simplificación', 'kmap');
-        }
-        function drawCircuit(){
-            const div = document.getElementById('circuitSim');
-            if(div) div.innerHTML = `<pre>Circuito para A·B + ¬A·B\nUsa 2 AND, 1 OR, 1 NOT</pre>`;
-            awardXp(50, 'Circuito', 'circuit');
-        }
-        function simulateALU(){
-            const a = document.getElementById('aluA').value.trim();
-            const b = document.getElementById('aluB').value.trim();
-            const out = document.getElementById('aluResult');
-            if(!out) return;
-            const toBits = s => s.padStart(4,'0').split('').map(Number).reverse();
-            const bitsA = toBits(a), bitsB = toBits(b);
-            let carry=0, result='', steps='';
-            for(let i=0;i<4;i++){
-                const sum = bitsA[i] ^ bitsB[i] ^ carry;
-                const newCarry = (bitsA[i] & bitsB[i]) | (bitsA[i] & carry) | (bitsB[i] & carry);
-                steps += `Bit ${i}: ${bitsA[i]}+${bitsB[i]}+Cin${carry} = Sum ${sum}, Cout ${newCarry}\n`;
-                result = sum + result;
-                carry = newCarry;
+
+            function updateProgressBar() {
+                const totalStars = gameState.levels.length * 3;
+                const earned = gameState.levels.reduce((sum, l) => sum + l.stars, 0);
+                const percent = totalStars ? (earned / totalStars) * 100 : 0;
+                document.getElementById('progress-fill').style.width = percent + '%';
             }
-            result = carry + result;
-            out.innerHTML = `<pre>${steps}\nResultado: ${result} (decimal ${parseInt(result,2)})</pre>`;
-            awardXp(70, 'ALU', `alu|${a}|${b}`);
-        }
-        function optimizeCondition(){
-            const raw = document.getElementById('rawCondition').value.trim();
-            const out = document.getElementById('optimizedOutput');
-            if(!out) return;
-            let opt = raw.replace(/\(([A-Za-z]+)\s*\|\|\s*\1\)/g,'$1').replace(/\(([A-Za-z]+)\s*&&\s*\1\)/g,'$1');
-            if(opt===raw) opt='Sin cambios evidentes.';
-            out.textContent = opt;
-            awardXp(50, 'Optimización', `optim|${raw}`);
-        }
 
-        // Sistema de XP y logros
-        function loadXp(){ return parseInt(localStorage.getItem('mc_xp')||'0',10); }
-        function saveXp(v){ localStorage.setItem('mc_xp',String(v)); document.getElementById('xpValue').textContent=v; updateLevelHud(v); }
-        function updateLevelHud(xp){ const levelSize=500; const level=Math.floor(xp/levelSize)+1; const pct=Math.round((xp%levelSize)/levelSize*100); document.getElementById('levelValue').textContent=level; document.getElementById('xpBar').style.width=pct+'%'; }
-        function awardXp(amount, reason, key){
-            amount=Number(amount); if(!amount) return false;
-            if(key){ const keys=JSON.parse(localStorage.getItem('mc_xp_keys')||'{}'); if(keys[key]){ showToast('Ya obtenido', 'info'); return false; } keys[key]=Date.now(); localStorage.setItem('mc_xp_keys',JSON.stringify(keys)); }
-            const newXp=loadXp()+amount; saveXp(newXp); showToast(`+${amount} XP · ${reason}`); updateStreak(); return true;
-        }
-        function updateStreak(){ const today=new Date().toISOString().slice(0,10); const st=JSON.parse(localStorage.getItem('mc_streak')||'{}'); if(st.last!==today){ st.last=today; st.count=(st.count||0)+1; localStorage.setItem('mc_streak',JSON.stringify(st)); } document.getElementById('streakValue').textContent=st.count||1; }
-
-        // Misiones
-        const MISSIONS = ['variables','funciones-booleanas','simplificacion','circuitos','procesadores','optimizacion','practica'];
-        function loadMissions(){ return JSON.parse(localStorage.getItem('mc_missions')||'{}'); }
-        function saveMissions(st){ localStorage.setItem('mc_missions',JSON.stringify(st)); }
-        function setMissionDone(id, done=true){ const st=loadMissions(); st[id]=!!done; saveMissions(st); renderMissions(); updateMiniMission(id); }
-        function resetMissions(){ localStorage.removeItem('mc_missions'); renderMissions(); MISSIONS.forEach(m=>updateMiniMission(m)); }
-        function renderMissions(){
-            const list=document.getElementById('missionList'), fill=document.getElementById('missionBarFill'), pctEl=document.getElementById('missionPct');
-            if(!list) return;
-            const st=loadMissions(); const done=MISSIONS.filter(m=>st[m]).length; const pct=Math.round(done/MISSIONS.length*100);
-            list.innerHTML=MISSIONS.map((m,i)=>`<li class="mission-item ${st[m]?'done':''}">${m} <button onclick="setMissionDone('${m}',${!st[m]})">${st[m]?'Desmarcar':'Completar'}</button></li>`).join('');
-            fill.style.width=pct+'%'; pctEl.textContent=pct+'%';
-        }
-        function ensureMiniMissions(){ MISSIONS.forEach(m=>{ const tab=document.getElementById(m); if(!tab||tab.querySelector('.mission-mini')) return; const bar=document.createElement('div'); bar.className='mission-mini'; bar.innerHTML=`<span>Misión ${m}</span><button class="mini-btn">Completar</button>`; bar.querySelector('button').addEventListener('click',()=>setMissionDone(m,!loadMissions()[m])); tab.insertBefore(bar,tab.firstChild); }); }
-        function updateMiniMission(id){ const tab=document.getElementById(id); if(!tab) return; const btn=tab.querySelector('.mission-mini button'); if(btn){ const done=!!loadMissions()[id]; btn.textContent=done?'Completada ✓':'Marcar completada'; } }
-
-        // Práctica
-        let PRACTICE_STATE=null;
-        function makePractice(topic, level){
-            const vars=['A','B','C','D'].slice(0,level+1);
-            if(topic==='variables'){
-                const a=randInt(0,1), b=randInt(0,1); const expr=`${vars[0]} AND ${vars[1]}`;
-                const result = a & b;
-                return { topic, level, prompt:`Para ${expr} con ${vars[0]}=${a},${vars[1]}=${b} ¿salida? (0 o 1)`, expected:String(result) };
+            // ========== INICIAR NIVEL ==========
+            function startLevel(levelId) {
+                gameState.currentLevelId = levelId;
+                gameState.currentQuestionIndex = 0;
+                gameState.userAnswers = [];
+                gameState.levelScore = 0;
+                showScreen('level-screen');
+                const level = levelsData.find(l => l.id === levelId);
+                document.getElementById('level-title').textContent = level.name;
+                renderLevelContent(level);
             }
-            return { topic, level, prompt:'Reto genérico', expected:'0' };
-        }
-        function renderPractice(){
-            const box=document.getElementById('practicePrompt'); if(!box) return;
-            box.innerHTML = PRACTICE_STATE ? PRACTICE_STATE.prompt : 'Aún no hay reto';
-        }
-        function checkPractice(){
-            const ans=document.getElementById('practiceAnswer').value.trim();
-            if(!PRACTICE_STATE) return;
-            if(ans===PRACTICE_STATE.expected){ awardXp(60,'Práctica','prac'); document.getElementById('practiceFeedback').textContent='Correcto +60 XP'; }
-            else document.getElementById('practiceFeedback').textContent='Incorrecto';
-        }
-        document.getElementById('practiceNew')?.addEventListener('click',()=>{
-            const topic=document.getElementById('practiceTopic').value;
-            const level=parseInt(document.getElementById('practiceLevel').value);
-            PRACTICE_STATE=makePractice(topic,level);
-            renderPractice();
-        });
-        document.getElementById('practiceCheck')?.addEventListener('click',checkPractice);
 
-        // Inicialización
-        document.addEventListener('DOMContentLoaded',()=>{
-            const last=localStorage.getItem('mc_last_tab')||'inicio';
-            if(document.getElementById(last)) openTab(null,last); else openTab(null,'inicio');
-            initSidebarSearch();
-            renderMissions();
-            ensureMiniMissions();
-            updateStreak();
-            saveXp(loadXp());
-            updateLevelHud(loadXp());
-            document.getElementById('sidebarToggle')?.addEventListener('click',()=>document.body.classList.toggle('sidebar-open'));
-            document.getElementById('trophyBtn')?.addEventListener('click',()=>alert('Logros (próximamente)'));
-            // Video
-            document.getElementById('videoLoadBtn')?.addEventListener('click',()=>{
-                const url=document.getElementById('videoInput').value;
-                const embed=url.includes('embed')?url:url.replace('watch?v=','embed/').replace('youtu.be/','youtube.com/embed/');
-                document.getElementById('videoPreviewWrap').innerHTML=`<iframe width="100%" height="315" src="${embed}" frameborder="0" allowfullscreen></iframe>`;
+            function renderLevelContent(level) {
+                const content = document.getElementById('level-content');
+                let html = `<div class="learning">${level.learning}</div>`;
+                html += `<div class="quiz-area" id="quiz-area"></div>`;
+                content.innerHTML = html;
+                showQuestion(level, 0);
+            }
+
+            function showQuestion(level, qIndex) {
+                if (qIndex >= level.questions.length) {
+                    finishLevel();
+                    return;
+                }
+                gameState.currentQuestionIndex = qIndex;
+                const quizArea = document.getElementById('quiz-area');
+                const question = level.questions[qIndex];
+                let html = '';
+                if (question.type === 'truth-table') {
+                    html = renderTruthTableQuestion(question, qIndex);
+                } else if (question.type === 'mcq') {
+                    html = renderMCQQuestion(question, qIndex);
+                } else if (question.type === 'kmap') {
+                    html = renderKMapQuestion(question, qIndex);
+                }
+                quizArea.innerHTML = html;
+                // Agregar eventos después de renderizar
+                if (question.type === 'mcq' || question.type === 'kmap') {
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.addEventListener('click', function() {
+                            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                            this.classList.add('selected');
+                        });
+                    });
+                    document.getElementById('submit-answer')?.addEventListener('click', () => handleMCQAnswer(level, qIndex));
+                } else if (question.type === 'truth-table') {
+                    document.getElementById('submit-table')?.addEventListener('click', () => handleTruthTableAnswer(level, qIndex));
+                }
+            }
+
+            function renderTruthTableQuestion(q, idx) {
+                let html = `<div class="question"><p><strong>Completa la tabla de verdad para ${q.gate}:</strong></p>`;
+                html += `<table class="truth-table"><tr>`;
+                q.inputs.forEach(inp => html += `<th>${inp}</th>`);
+                const outputs = q.outputCols || [q.outputCol];
+                outputs.forEach(out => html += `<th>${out}</th>`);
+                html += `</tr>`;
+                q.rows.forEach((row, ri) => {
+                    html += `<tr>`;
+                    q.inputs.forEach(inp => html += `<td>${row[inp]}</td>`);
+                    outputs.forEach((_, oi) => {
+                        const cellIdx = ri * outputs.length + oi;
+                        html += `<td><select class="cell-input" data-cell="${cellIdx}">
+                                    <option value="-1">?</option>
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                </select></td>`;
+                    });
+                    html += `</tr>`;
+                });
+                html += `</table>`;
+                html += `<button class="btn btn-small" id="submit-table">Verificar</button>`;
+                html += `<div class="feedback" id="feedback-${idx}"></div></div>`;
+                return html;
+            }
+
+            function handleTruthTableAnswer(level, qIndex) {
+                const question = level.questions[qIndex];
+                const selects = document.querySelectorAll('.cell-input');
+                const outputs = question.outputCols ? question.outputCols.length : 1;
+                const userVals = [];
+                let allAnswered = true;
+                selects.forEach(sel => {
+                    const val = parseInt(sel.value);
+                    if (val === -1) allAnswered = false;
+                    userVals.push(val);
+                });
+                if (!allAnswered) {
+                    document.getElementById(`feedback-${qIndex}`).innerHTML = '<span style="color:orange;">⚠️ Completa todas las celdas.</span>';
+                    return;
+                }
+                const expected = question.expected;
+                let correctCount = 0;
+                userVals.forEach((v, i) => { if (v === expected[i]) correctCount++; });
+                const totalCells = expected.length;
+                const pointsEarned = Math.round((correctCount / totalCells) * 10);
+                gameState.levelScore += pointsEarned;
+                const feedback = document.getElementById(`feedback-${qIndex}`);
+                if (correctCount === totalCells) {
+                    feedback.innerHTML = '<span class="correct">✅ ¡Correcto! +' + pointsEarned + ' pts</span>';
+                    playBeep(800, 0.2, 'square');
+                } else {
+                    feedback.innerHTML = `<span class="incorrect">❌ ${correctCount}/${totalCells} correctas. Revisa las respuestas. +${pointsEarned} pts</span>`;
+                    playBeep(200, 0.3, 'sawtooth');
+                }
+                gameState.userAnswers.push({ questionIndex: qIndex, points: pointsEarned });
+                document.getElementById('submit-table').disabled = true;
+                setTimeout(() => showQuestion(level, qIndex + 1), 1500);
+            }
+
+            function renderMCQQuestion(q, idx) {
+                let html = `<div class="question"><p><strong>${q.question}</strong></p><div class="options">`;
+                q.options.forEach((opt, oi) => {
+                    html += `<div class="option" data-index="${oi}">${opt}</div>`;
+                });
+                html += `</div>`;
+                html += `<button class="btn btn-small" id="submit-answer">Enviar</button>`;
+                html += `<div class="feedback" id="feedback-${idx}"></div></div>`;
+                return html;
+            }
+
+            function handleMCQAnswer(level, qIndex) {
+                const selected = document.querySelector('.option.selected');
+                if (!selected) {
+                    document.getElementById(`feedback-${qIndex}`).innerHTML = '<span style="color:orange;">⚠️ Selecciona una opción.</span>';
+                    return;
+                }
+                const chosen = parseInt(selected.dataset.index);
+                const question = level.questions[qIndex];
+                const isCorrect = chosen === question.correct;
+                const pointsEarned = isCorrect ? 10 : 0;
+                gameState.levelScore += pointsEarned;
+                const feedback = document.getElementById(`feedback-${qIndex}`);
+                if (isCorrect) {
+                    feedback.innerHTML = '<span class="correct">✅ ¡Correcto! +10 pts</span>';
+                    playBeep(800, 0.2);
+                } else {
+                    feedback.innerHTML = `<span class="incorrect">❌ Incorrecto. La respuesta correcta es: ${question.options[question.correct]}</span>`;
+                    playBeep(200, 0.4, 'sawtooth');
+                }
+                gameState.userAnswers.push({ questionIndex: qIndex, points: pointsEarned });
+                document.getElementById('submit-answer').disabled = true;
+                document.querySelectorAll('.option').forEach(o => o.style.pointerEvents = 'none');
+                setTimeout(() => showQuestion(level, qIndex + 1), 2000);
+            }
+
+            function renderKMapQuestion(q, idx) {
+                let html = `<div class="question"><p><strong>${q.question}</strong></p>`;
+                // Mostrar el mapa de Karnaugh
+                html += `<table class="truth-table"><tr><th>A\\B</th><th>0</th><th>1</th></tr>`;
+                for (let i = 0; i < 2; i++) {
+                    html += `<tr><td>${i}</td>`;
+                    for (let j = 0; j < 2; j++) {
+                        html += `<td>${q.kmap[i][j]}</td>`;
+                    }
+                    html += `</tr>`;
+                }
+                html += `</table>`;
+                html += `<div class="options">`;
+                q.options.forEach((opt, oi) => {
+                    html += `<div class="option" data-index="${oi}">${opt}</div>`;
+                });
+                html += `</div>`;
+                html += `<button class="btn btn-small" id="submit-answer">Enviar</button>`;
+                html += `<div class="feedback" id="feedback-${idx}"></div></div>`;
+                return html;
+            }
+
+            // ========== FINALIZAR NIVEL ==========
+            function finishLevel() {
+                const levelIdx = gameState.levels.findIndex(l => l.id === gameState.currentLevelId);
+                if (levelIdx === -1) return;
+                const levelState = gameState.levels[levelIdx];
+                const maxPoints = levelsData[levelIdx].questions.reduce((acc, q) => {
+                    if (q.type === 'truth-table') return acc + 10; // cada tabla da max 10
+                    return acc + 10;
+                }, 0);
+                const percentage = maxPoints ? gameState.levelScore / maxPoints : 0;
+                let stars = 0;
+                if (percentage >= 0.9) stars = 3;
+                else if (percentage >= 0.5) stars = 2;
+                else if (percentage > 0) stars = 1;
+
+                if (stars > levelState.stars) levelState.stars = stars;
+                if (gameState.levelScore > levelState.bestScore) levelState.bestScore = gameState.levelScore;
+                levelState.completed = true;
+                gameState.score += gameState.levelScore;
+
+                // Desbloquear siguiente nivel
+                if (levelIdx + 1 < gameState.levels.length) {
+                    gameState.levels[levelIdx + 1].unlocked = true;
+                }
+
+                // Otorgar insignias
+                awardBadges(levelIdx, stars);
+
+                saveState();
+                showResultScreen(stars, gameState.levelScore);
+            }
+
+            function showResultScreen(stars, score) {
+                showScreen('result-screen');
+                document.getElementById('result-message').textContent = '🎉 ¡Nivel Completado!';
+                document.getElementById('result-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+                document.getElementById('result-score').textContent = `Puntuación: +${score} pts`;
+                document.getElementById('continue-btn').onclick = () => {
+                    showScreen('level-select-screen');
+                };
+            }
+
+            // ========== INSIGNIAS ==========
+            const badgeDefinitions = [
+                { id: 'truth_master', name: 'Maestro de la Verdad', icon: '📋', condition: (s) => s.levels[0].stars === 3 },
+                { id: 'gate_guru', name: 'Guardián de las Compuertas', icon: '🔌', condition: (s) => s.levels[1].stars === 3 },
+                { id: 'eval_expert', name: 'Evaluador Experto', icon: '🧮', condition: (s) => s.levels[2].stars === 3 },
+                { id: 'simplifier', name: 'Simplificador Supremo', icon: '✂️', condition: (s) => s.levels[3].stars === 3 },
+                { id: 'kmap_cartographer', name: 'Cartógrafo de Karnaugh', icon: '🗺', condition: (s) => s.levels[4].stars === 3 },
+                { id: 'digital_designer', name: 'Diseñador Digital', icon: '➕', condition: (s) => s.levels[5].stars === 3 },
+                { id: 'code_optimizer', name: 'Optimizador de Código', icon: '💻', condition: (s) => s.levels[6].stars === 3 },
+                { id: 'logic_engineer', name: 'Ingeniero Lógico', icon: '🏆', condition: (s) => s.levels.every(l => l.stars === 3) }
+            ];
+
+            function awardBadges(completedLevelIdx, stars) {
+                badgeDefinitions.forEach(badge => {
+                    if (gameState.badges.includes(badge.id)) return;
+                    if (badge.condition(gameState)) {
+                        gameState.badges.push(badge.id);
+                        alert(`🏅 ¡Nueva insignia!: ${badge.name}`);
+                    }
+                });
+            }
+
+            function renderBadgesModal() {
+                const container = document.getElementById('badge-container');
+                container.innerHTML = '';
+                badgeDefinitions.forEach(badge => {
+                    const earned = gameState.badges.includes(badge.id);
+                    const div = document.createElement('div');
+                    div.className = 'badge-item';
+                    div.innerHTML = `<span class="badge-icon ${earned ? 'earned' : ''}">${badge.icon}</span><small>${badge.name}</small>`;
+                    container.appendChild(div);
+                });
+                document.getElementById('badges-modal').classList.add('active');
+            }
+
+            // ========== EVENTOS GLOBALES ==========
+            document.getElementById('start-btn').addEventListener('click', () => {
+                initAudio();
+                showScreen('level-select-screen');
             });
-            // Reseñas
-            window.addReview = function(){
-                const name=document.getElementById('revName').value;
-                const text=document.getElementById('revText').value;
-                const arr=JSON.parse(localStorage.getItem('mc_reviews')||'[]');
-                arr.push({name,text,date:new Date().toLocaleString()});
-                localStorage.setItem('mc_reviews',JSON.stringify(arr));
-                renderReviews();
-            };
-            function renderReviews(){
-                const arr=JSON.parse(localStorage.getItem('mc_reviews')||'[]');
-                document.getElementById('reviewsList').innerHTML=arr.map(r=>`<p><b>${r.name||'Anónimo'}</b>: ${escapeHtml(r.text)}</p>`).join('');
-            }
-            renderReviews();
-            // Scroll progress
-            window.addEventListener('scroll',()=>{
-                const scrolled=document.documentElement.scrollTop/(document.documentElement.scrollHeight-window.innerHeight)*100;
-                const el=document.getElementById('scrollProgress'); if(el) el.style.width=scrolled+'%';
-                document.getElementById('toTopBtn').style.display=window.scrollY>400?'flex':'none';
+
+            document.getElementById('reset-btn').addEventListener('click', resetProgress);
+
+            document.getElementById('back-btn').addEventListener('click', () => {
+                showScreen('level-select-screen');
             });
-        });
+
+            document.getElementById('badges-btn').addEventListener('click', renderBadgesModal);
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('badges-modal').classList.remove('active');
+            });
+
+            // Inicializar
+            loadState();
+            // Si ya había progreso, mostrar selector de niveles, si no, inicio
+            if (gameState.levels.some(l => l.completed)) {
+                showScreen('level-select-screen');
+            } else {
+                showScreen('start-screen');
+            }
+        })();
     </script>
 </body>
 </html>
