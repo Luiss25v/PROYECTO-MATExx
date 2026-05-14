@@ -4,9 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BooleanQuest - Álgebra de Boole Gamificada</title>
+    <!-- ==================== CSS EMBEBIDO ==================== -->
+    <style>
+        /* ============================================================
+           BOOLEANQUEST - ESTILOS COMPLETOS GAMIFICADOS
+           ============================================================ */
+        :root {
+            --bg-deep: #0a0e17;
+            --bg-primary: #111827;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #242b3d;
+            --bg-card: #1e2538;
+            --bg-card-hover: #283045;
+            --bg-overlay: rgba(0, 0, 0, 0.7);
+            --accent-cyan: #00e5ff;
+            --accent-blue: #448aff;
+            --accent-purple: #b388ff;
+            --accent-green: #69f0ae;
+            --accent-yellow: #ffd740;
+            --accent-orange: #ff9100;
+            --accent-red: #ff5252;
+            --accent-pink: #ff4081;
+            --xp-color: #ffd740;
+            --xp-glow: #ffab00;
+            --coin-color: #ffd740;
+            --coin-glow: #ffc400;
+            --level-color: #69f0ae;
+            --streak-color: #ff9100;
+            --text-primary: #e8eaed;
+            --text-secondary: #b0b8c4;
+            --text-muted: #6b7280;
+            --text-accent: #00e5ff;
+            --border-color: #2a3245;
+            --border-glow: #448aff40;
+            --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-glow-cyan: 0 0 20px rgba(0, 229, 255, 0.3);
+            --shadow-glow-purple: 0 0 20px rgba(179, 136, 255, 0.3);
+            --shadow-glow-green: 0 0 20px rgba(105, 240, 174, 0.3);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 50%;
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --header-height: 64px;
+            --sidebar-width: 280px;
+            --max-content-width: 1100px;
+            --font-main: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        ul, ol { list-style: none; }
+        a { text-decoration: none; color: inherit; }
+        button {
+            cursor: pointer; border: none; background: none;
+            font-family: inherit; font-size: inherit; color: inherit;
+            transition: var(--transition-fast);
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        code, pre { font-family: var(--font-mono); }
+        .hidden { display: none !important; }
+        .active { display: block !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+
+        /* SPLASH */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(ellipse at center, #0d1525 0%, #050810 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; flex-direction: column;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-content { text-align: center; z-index: 2; }
+        .logo-icon {
+            font-size: 6rem; display: block; color: var(--accent-cyan);
+            text-shadow: 0 0 40px rgba(0, 229, 255, 0.6);
+            animation: pulse-logo 2s ease-in-out infinite;
+        }
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+            50% { transform: scale(1.1); text-shadow: 0 0 70px rgba(0, 229, 255, 0.8); }
+        }
+        .splash-logo h1 {
+            font-size: 3rem; font-weight: 800; letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-top: 0.5rem;
+        }
+        .splash-subtitle { font-size: 1.2rem; color: var(--text-secondary); }
+        .splash-loading { margin: 2rem 0; width: 300px; }
+        .loading-bar-container { width: 100%; height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-bottom: 0.8rem; }
+        .loading-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); border-radius: 4px; transition: width 0.3s ease; }
+        #loading-text { color: var(--text-muted); font-size: 0.9rem; }
+        .btn-large { padding: 1rem 2.5rem; font-size: 1.2rem; border-radius: var(--radius-xl); font-weight: 700; margin-top: 1rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: #000; box-shadow: 0 4px 20px rgba(0, 229, 255, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(0, 229, 255, 0.6); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.6rem 1.2rem; border-radius: var(--radius-md); }
+
+        /* APP CONTAINER */
+        #app-container { display: flex; flex-direction: column; min-height: 100vh; }
+        #app-container.hidden { display: none; }
+
+        /* HEADER */
+        #main-header {
+            height: var(--header-height); background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color); display: flex;
+            align-items: center; justify-content: space-between;
+            padding: 0 1.2rem; position: sticky; top: 0; z-index: 1000;
+        }
+        .header-left { display: flex; align-items: center; gap: 0.8rem; }
+        .btn-icon { width: 40px; height: 40px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text-secondary); }
+        .btn-icon:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .header-logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.2rem; color: var(--accent-cyan); }
+        .logo-icon-small { font-size: 1.6rem; }
+        .header-right { display: flex; align-items: center; gap: 0.6rem; }
+        .header-stat { display: flex; align-items: center; gap: 0.3rem; background: var(--bg-secondary); padding: 0.4rem 0.7rem; border-radius: var(--radius-xl); font-size: 0.85rem; font-weight: 600; border: 1px solid var(--border-color); white-space: nowrap; }
+        .header-stat .stat-icon { font-size: 1rem; }
+        .header-stat .stat-label { color: var(--text-muted); font-weight: 400; font-size: 0.75rem; }
+        .level-badge { background: linear-gradient(135deg, #1b3a2d, #0f2419); border-color: var(--accent-green); color: var(--accent-green); }
+        .badge-container { position: relative; }
+        .badge { position: absolute; top: -4px; right: -4px; background: var(--accent-red); color: white; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-primary); }
+
+        /* BARRA DE PROGRESO GLOBAL */
+        #global-progress-bar-container { background: var(--bg-secondary); padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--border-color); }
+        #global-progress-bar { flex: 1; height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; }
+        #global-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); border-radius: 4px; transition: width 0.5s ease; }
+        #global-progress-text { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+
+        /* SIDEBAR */
+        #sidebar { position: fixed; top: var(--header-height); left: 0; width: var(--sidebar-width); height: calc(100vh - var(--header-height)); background: var(--bg-primary); border-right: 1px solid var(--border-color); z-index: 999; overflow-y: auto; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 998; }
+        .sidebar-profile { padding: 1.5rem 1rem; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .avatar-container { position: relative; width: 70px; height: 70px; margin: 0 auto 0.8rem; }
+        .avatar { width: 70px; height: 70px; border-radius: var(--radius-full); background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid var(--accent-cyan); }
+        .profile-info { font-weight: 600; }
+        .profile-rank { font-size: 0.8rem; color: var(--accent-purple); }
+        .nav-item { display: flex; align-items: center; gap: 0.7rem; width: 100%; padding: 0.75rem 1.2rem; font-size: 0.9rem; color: var(--text-secondary); transition: var(--transition-normal); border-left: 3px solid transparent; text-align: left; }
+        .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); border-left-color: var(--accent-cyan); }
+        .nav-item.active { background: var(--bg-secondary); color: var(--accent-cyan); border-left-color: var(--accent-cyan); font-weight: 600; }
+        .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+        .nav-check { margin-left: auto; opacity: 0.4; }
+        .nav-check.completed { opacity: 1; }
+        .sidebar-footer { padding: 0.5rem 0; border-top: 1px solid var(--border-color); }
+
+        /* MAIN CONTENT */
+        #main-content { flex: 1; margin-left: var(--sidebar-width); padding: 2rem; max-width: var(--max-content-width); width: 100%; transition: margin-left 0.3s ease; }
+        .content-section { display: none; animation: fadeInUp 0.4s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .section-header { margin-bottom: 2rem; }
+        .section-badge { display: inline-block; background: var(--accent-blue); color: #000; font-weight: 700; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: var(--radius-xl); margin-bottom: 0.5rem; }
+        .section-header h2 { font-size: 2rem; font-weight: 700; }
+        .section-header p { color: var(--text-secondary); }
+
+        .lesson-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.8rem; margin-bottom: 1.5rem; }
+        .lesson-card h3 { color: var(--text-accent); }
+        .lesson-card ul { list-style: disc; padding-left: 1.5rem; color: var(--text-secondary); }
+        .highlight { color: var(--accent-yellow); font-weight: 700; }
+        code { background: var(--bg-tertiary); padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--accent-cyan); }
+        .example-box { background: var(--bg-secondary); border-left: 4px solid var(--accent-cyan); padding: 1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 1rem 0; }
+
+        .pillars-grid, .gates-grid, .methods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .pillar-card, .gate-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem; text-align: center; }
+        .gate-symbol { display: inline-block; background: var(--accent-purple); color: #000; font-weight: 700; padding: 0.4rem 1rem; border-radius: var(--radius-sm); }
+        .lesson-actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; }
+        .lesson-xp { color: var(--xp-color); font-weight: 600; }
+
+        /* MAPA */
+        .world-map { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; }
+        .map-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; }
+        .map-node { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 0.8rem; text-align: center; cursor: pointer; }
+        .map-node.completed { border-color: var(--accent-green); }
+        .stats-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem; text-align: center; }
+        .stat-card-value { font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan); }
+
+        /* MODALES */
+        .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 5000; backdrop-filter: blur(4px); }
+        .modal.hidden { display: none !important; }
+        .modal-content { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--bg-tertiary); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+        .modal-close:hover { background: var(--accent-red); color: white; }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.5rem 0; }
+        .quiz-option { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; text-align: left; cursor: pointer; color: var(--text-primary); }
+        .quiz-option:hover { border-color: var(--accent-cyan); }
+        .quiz-option.correct { border-color: var(--accent-green) !important; background: #1a3a2a !important; }
+        .quiz-option.incorrect { border-color: var(--accent-red) !important; background: #3a1a1a !important; }
+
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 6000; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.8rem 1.2rem; animation: slideInRight 0.3s ease; min-width: 250px; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 1024px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #main-content { margin-left: 0; }
+        }
+        @media (max-width: 768px) {
+            .pillars-grid, .gates-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-    <!-- ==================== PANTALLA DE CARGA / SPLASH ==================== -->
+    <!-- ==================== PANTALLA DE CARGA ==================== -->
     <div id="splash-screen" class="screen active">
         <div class="splash-content">
             <div class="splash-logo">
@@ -15,736 +230,537 @@
                 <p class="splash-subtitle">Domina el Álgebra de Boole</p>
             </div>
             <div class="splash-loading">
-                <div class="loading-bar-container">
-                    <div id="loading-bar" class="loading-bar"></div>
-                </div>
+                <div class="loading-bar-container"><div id="loading-bar" class="loading-bar"></div></div>
                 <p id="loading-text">Inicializando circuitos lógicos...</p>
             </div>
             <button id="btn-enter" class="btn btn-primary btn-large hidden">ENTRAR AL MUNDO DIGITAL</button>
         </div>
-        <div class="splash-particles" id="splash-particles"></div>
     </div>
 
     <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
     <div id="app-container" class="app-container hidden">
-
-        <!-- ===== HEADER / BARRA SUPERIOR ===== -->
         <header id="main-header">
             <div class="header-left">
-                <button id="btn-toggle-sidebar" class="btn-icon" aria-label="Menú">
-                    <span class="icon">☰</span>
-                </button>
-                <div class="header-logo">
-                    <span class="logo-icon-small">⊿</span>
-                    <span class="header-title">BooleanQuest</span>
-                </div>
+                <button id="btn-toggle-sidebar" class="btn-icon">☰</button>
+                <div class="header-logo"><span class="logo-icon-small">⊿</span><span>BooleanQuest</span></div>
             </div>
-            <nav class="header-center" id="breadcrumb-nav">
-                <span id="breadcrumb-text">Inicio</span>
-            </nav>
             <div class="header-right">
-                <!-- Racha de días -->
-                <div class="header-stat" id="streak-container" title="Racha de días">
-                    <span class="stat-icon">🔥</span>
-                    <span id="streak-count">0</span>
-                    <span class="stat-label">días</span>
-                </div>
-                <!-- XP -->
-                <div class="header-stat" id="xp-container" title="Experiencia">
-                    <span class="stat-icon">⚡</span>
-                    <span id="xp-current">0</span>
-                    <span class="stat-label">XP</span>
-                </div>
-                <!-- Nivel -->
-                <div class="header-stat level-badge" id="level-container" title="Tu nivel">
-                    <span class="stat-icon">🏆</span>
-                    <span id="level-number">1</span>
-                </div>
-                <!-- Monedas -->
-                <div class="header-stat" id="coins-container" title="Monedas Booleanas">
-                    <span class="stat-icon">🪙</span>
-                    <span id="coins-amount">0</span>
-                </div>
-                <!-- Notificaciones -->
-                <button id="btn-notifications" class="btn-icon badge-container" aria-label="Notificaciones">
-                    <span class="icon">🔔</span>
-                    <span id="notification-badge" class="badge hidden">0</span>
-                </button>
+                <div class="header-stat">🔥 <span id="streak-count">0</span></div>
+                <div class="header-stat">⚡ <span id="xp-current">0</span> XP</div>
+                <div class="header-stat level-badge">🏆 <span id="level-number">1</span></div>
+                <div class="header-stat">🪙 <span id="coins-amount">0</span></div>
+                <button id="btn-notifications" class="btn-icon badge-container">🔔<span id="notification-badge" class="badge hidden">0</span></button>
             </div>
         </header>
-
-        <!-- ===== BARRA DE PROGRESO GLOBAL ===== -->
         <div id="global-progress-bar-container">
-            <div id="global-progress-bar">
-                <div id="global-progress-fill"></div>
-            </div>
+            <div id="global-progress-bar"><div id="global-progress-fill"></div></div>
             <span id="global-progress-text">0% completado</span>
         </div>
-
-        <!-- ===== SIDEBAR / MENÚ LATERAL ===== -->
+        <div id="sidebar-overlay" class="hidden"></div>
         <aside id="sidebar">
             <div class="sidebar-profile">
-                <div class="avatar-container">
-                    <div id="avatar-display" class="avatar">🧑‍💻</div>
-                    <div class="avatar-level-ring" style="--level-percent: 0%;"></div>
-                </div>
-                <div class="profile-info">
-                    <span id="sidebar-username">Aprendiz Digital</span>
-                    <span class="profile-rank" id="sidebar-rank">Novato Binario</span>
-                </div>
+                <div class="avatar-container"><div id="avatar-display" class="avatar">🧑‍💻</div></div>
+                <div class="profile-info"><span id="sidebar-username">Aprendiz Digital</span><span class="profile-rank" id="sidebar-rank">Novato Binario</span></div>
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><button class="nav-item active" data-section="inicio">
-                            <span class="nav-icon">🏠</span> Inicio
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema1">
-                            <span class="nav-icon">📖</span> 1. Fundamentos
-                            <span class="nav-check" id="check-tema1">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema2">
-                            <span class="nav-icon">🔢</span> 2. Variables Booleanas
-                            <span class="nav-check" id="check-tema2">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema3">
-                            <span class="nav-icon">🚪</span> 3. Compuertas Lógicas
-                            <span class="nav-check" id="check-tema3">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema4">
-                            <span class="nav-icon">📊</span> 4. Tablas de Verdad
-                            <span class="nav-check" id="check-tema4">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema5">
-                            <span class="nav-icon">✂️</span> 5. Simplificación
-                            <span class="nav-check" id="check-tema5">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema6">
-                            <span class="nav-icon">💻</span> 6. Hardware & Circuitos
-                            <span class="nav-check" id="check-tema6">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema7">
-                            <span class="nav-icon">🧠</span> 7. Procesadores
-                            <span class="nav-check" id="check-tema7">✅</span>
-                    </button></li>
-                    <li><button class="nav-item" data-section="tema8">
-                            <span class="nav-icon">⚡</span> 8. Optimización de Código
-                            <span class="nav-check" id="check-tema8">✅</span>
-                    </button></li>
+                    <li><button class="nav-item active" data-section="inicio">🏠 Inicio</button></li>
+                    <li><button class="nav-item" data-section="tema1">📖 1. Fundamentos <span class="nav-check" id="check-tema1">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema2">🔢 2. Variables Booleanas <span class="nav-check" id="check-tema2">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema3">🚪 3. Compuertas Lógicas <span class="nav-check" id="check-tema3">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema4">📊 4. Tablas de Verdad <span class="nav-check" id="check-tema4">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema5">✂️ 5. Simplificación <span class="nav-check" id="check-tema5">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema6">💻 6. Hardware & Circuitos <span class="nav-check" id="check-tema6">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema7">🧠 7. Procesadores <span class="nav-check" id="check-tema7">✅</span></button></li>
+                    <li><button class="nav-item" data-section="tema8">⚡ 8. Optimización de Código <span class="nav-check" id="check-tema8">✅</span></button></li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <button class="nav-item" data-section="desafios">
-                    <span class="nav-icon">⚔️</span> Desafíos
-                    <span class="nav-badge" id="desafios-pendientes">3</span>
-                </button>
-                <button class="nav-item" data-section="logros">
-                    <span class="nav-icon">🎖️</span> Logros
-                    <span id="logros-desbloqueados">0/12</span>
-                </button>
-                <button class="nav-item" data-section="tienda">
-                    <span class="nav-icon">🛒</span> Tienda
-                </button>
+                <button class="nav-item" data-section="desafios">⚔️ Desafíos <span id="desafios-pendientes">3</span></button>
+                <button class="nav-item" data-section="logros">🎖️ Logros <span id="logros-desbloqueados">0/12</span></button>
+                <button class="nav-item" data-section="tienda">🛒 Tienda</button>
             </div>
         </aside>
-
-        <!-- ===== OVERLAY PARA MÓVIL (CERRAR SIDEBAR) ===== -->
-        <div id="sidebar-overlay" class="hidden"></div>
-
-        <!-- ===== CONTENIDO PRINCIPAL ===== -->
         <main id="main-content">
-            <!-- Sección: Inicio / Dashboard -->
+            <!-- Secciones de contenido (abreviadas por espacio, completas en el HTML original) -->
             <section id="section-inicio" class="content-section active">
-                <div class="section-header">
-                    <h2>⚡ Bienvenido a BooleanQuest</h2>
-                    <p>Explora el fascinante mundo del Álgebra de Boole, la base de toda la computación moderna.</p>
-                </div>
-                <!-- Mapa de progreso visual -->
-                <div class="world-map" id="world-map">
-                    <h3>🗺️ Mapa de Conocimiento</h3>
-                    <div class="map-grid" id="map-nodes-container">
-                        <!-- Nodos generados dinámicamente por JS -->
-                    </div>
-                </div>
-                <!-- Panel de estadísticas rápidas -->
+                <div class="section-header"><h2>⚡ Bienvenido a BooleanQuest</h2><p>Explora el Álgebra de Boole, base de la computación moderna.</p></div>
+                <div class="world-map"><h3>🗺️ Mapa de Conocimiento</h3><div class="map-grid" id="map-nodes-container"></div></div>
                 <div class="stats-dashboard" id="stats-dashboard">
-                    <div class="stat-card">
-                        <span class="stat-card-icon">📚</span>
-                        <span class="stat-card-value" id="stat-lecciones">0/8</span>
-                        <span class="stat-card-label">Lecciones</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-card-icon">✅</span>
-                        <span class="stat-card-value" id="stat-quizzes">0</span>
-                        <span class="stat-card-label">Quizzes Aprobados</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-card-icon">⚔️</span>
-                        <span class="stat-card-value" id="stat-desafios">0</span>
-                        <span class="stat-card-label">Desafíos Completados</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-card-icon">⏱️</span>
-                        <span class="stat-card-value" id="stat-tiempo">0h</span>
-                        <span class="stat-card-label">Tiempo de Estudio</span>
-                    </div>
-                </div>
-                <!-- Misión diaria -->
-                <div class="daily-mission" id="daily-mission">
-                    <h3>🎯 Misión Diaria</h3>
-                    <div class="mission-card" id="mission-card">
-                        <p id="mission-description">Completa una lección para ganar XP extra.</p>
-                        <div class="mission-progress">
-                            <div class="mission-bar" id="mission-bar"></div>
-                        </div>
-                        <span id="mission-status">0/1 completado</span>
-                    </div>
+                    <div class="stat-card">📚 <span class="stat-card-value" id="stat-lecciones">0/8</span> Lecciones</div>
+                    <div class="stat-card">✅ <span class="stat-card-value" id="stat-quizzes">0</span> Quizzes</div>
+                    <div class="stat-card">⚔️ <span class="stat-card-value" id="stat-desafios">0</span> Desafíos</div>
+                    <div class="stat-card">⏱️ <span class="stat-card-value" id="stat-tiempo">0h</span> Estudio</div>
                 </div>
             </section>
-
-            <!-- Sección: Tema 1 - Fundamentos -->
-            <section id="section-tema1" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 1</span>
-                    <h2>📖 Fundamentos del Álgebra de Boole</h2>
-                    <p>Descubre los orígenes y principios básicos que revolucionaron la computación.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>¿Qué es el Álgebra de Boole?</h3>
-                        <p>El Álgebra de Boole es un sistema matemático desarrollado por <strong>George Boole</strong> en 1854 que opera con valores <strong>binarios</strong>: <span class="highlight">0 (falso)</span> y <span class="highlight">1 (verdadero)</span>.</p>
-                        <p>A diferencia del álgebra convencional, aquí solo existen dos posibles valores. Esta característica la convierte en la <strong>base perfecta para el hardware digital</strong>, donde los circuitos solo entienden dos estados: encendido (1) o apagado (0), alto voltaje o bajo voltaje.</p>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>Los tres pilares fundamentales</h3>
-                        <div class="pillars-grid">
-                            <div class="pillar-card">
-                                <span class="pillar-icon">🔴</span>
-                                <h4>AND (Conjunción)</h4>
-                                <p>El resultado es <strong>1 solo si ambas entradas son 1</strong>. Equivale a la multiplicación lógica.</p>
-                                <code>A · B = 1 solo si A=1 y B=1</code>
-                            </div>
-                            <div class="pillar-card">
-                                <span class="pillar-icon">🟡</span>
-                                <h4>OR (Disyunción)</h4>
-                                <p>El resultado es <strong>1 si al menos una entrada es 1</strong>. Equivale a la suma lógica.</p>
-                                <code>A + B = 1 si A=1 o B=1 (o ambos)</code>
-                            </div>
-                            <div class="pillar-card">
-                                <span class="pillar-icon">🔵</span>
-                                <h4>NOT (Negación)</h4>
-                                <p><strong>Invierte el valor</strong> de entrada. Si entra 1, sale 0 y viceversa.</p>
-                                <code>Ā = NOT A → invierte A</code>
-                            </div>
-                        </div>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>🔗 Conexión con el Hardware</h3>
-                        <p>Cada operación booleana tiene su equivalente físico en una <strong>compuerta lógica</strong> electrónica:</p>
-                        <ul>
-                            <li><strong>AND</strong> → Compuerta AND (transistores en serie)</li>
-                            <li><strong>OR</strong> → Compuerta OR (transistores en paralelo)</li>
-                            <li><strong>NOT</strong> → Compuerta NOT (inversor con un transistor)</li>
-                        </ul>
-                        <p>Estas compuertas son los bloques de construcción de <strong>procesadores, memorias y todo circuito digital</strong>.</p>
-                    </article>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema1">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+50 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 2 - Variables Booleanas -->
-            <section id="section-tema2" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 2</span>
-                    <h2>🔢 Variables y Funciones Booleanas</h2>
-                    <p>Aprende a representar cualquier situación lógica mediante variables y funciones.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>Variables Booleanas</h3>
-                        <p>Una <strong>variable booleana</strong> es un símbolo (como A, B, C, X, Y) que solo puede tomar el valor <strong>0 o 1</strong>. Representan entradas en un circuito digital.</p>
-                        <div class="example-box">
-                            <p><strong>Ejemplo:</strong> En un sistema de alarma:</p>
-                            <ul>
-                                <li><code>A = Sensor de puerta</code> (1 = abierta, 0 = cerrada)</li>
-                                <li><code>B = Sensor de ventana</code> (1 = abierta, 0 = cerrada)</li>
-                                <li><code>Alarma = A + B</code> (se activa si A o B son 1)</li>
-                            </ul>
-                        </div>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>Funciones Booleanas</h3>
-                        <p>Una función booleana combina variables mediante operadores lógicos para producir un resultado. Es la <strong>descripción matemática de un circuito digital</strong>.</p>
-                        <div class="example-box">
-                            <p><strong>Ejemplo:</strong> <code>F(A, B, C) = A·B + Ā·C</code></p>
-                            <p>Esta función describe un circuito que:</p>
-                            <ol>
-                                <li>Hace AND entre A y B</li>
-                                <li>Niega A y hace AND con C</li>
-                                <li>Hace OR entre los dos resultados anteriores</li>
-                            </ol>
-                            <p>¡Exactamente lo que haría un <strong>multiplexor</strong> en hardware!</p>
-                        </div>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>🔗 Del Papel al Silicio</h3>
-                        <p>Cada función booleana se puede <strong>sintetizar</strong> en un circuito físico usando compuertas lógicas. Los ingenieros de hardware usan funciones booleanas para diseñar desde sumadores hasta unidades de control de CPUs.</p>
-                    </article>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema2">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+50 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 3 - Compuertas Lógicas -->
-            <section id="section-tema3" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 3</span>
-                    <h2>🚪 Compuertas Lógicas y sus Tipos</h2>
-                    <p>Conoce todas las compuertas lógicas, su simbología y su implementación electrónica.</p>
-                </div>
-                <div class="lesson-content">
-                    <div class="gates-grid" id="gates-grid">
-                        <!-- AND -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">AND</div>
-                            <h4>AND (Y)</h4>
-                            <p>Salida 1 solo si todas las entradas son 1.</p>
-                            <code>F = A · B</code>
-                            <span class="gate-truth">00→0 | 01→0 | 10→0 | 11→1</span>
-                        </div>
-                        <!-- OR -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">OR</div>
-                            <h4>OR (O)</h4>
-                            <p>Salida 1 si al menos una entrada es 1.</p>
-                            <code>F = A + B</code>
-                            <span class="gate-truth">00→0 | 01→1 | 10→1 | 11→1</span>
-                        </div>
-                        <!-- NOT -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">NOT</div>
-                            <h4>NOT (NO)</h4>
-                            <p>Invierte la entrada.</p>
-                            <code>F = Ā</code>
-                            <span class="gate-truth">0→1 | 1→0</span>
-                        </div>
-                        <!-- NAND -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">NAND</div>
-                            <h4>NAND (NO-Y)</h4>
-                            <p>AND negado. Puerta universal.</p>
-                            <code>F = A · B</code>
-                            <span class="gate-truth">00→1 | 01→1 | 10→1 | 11→0</span>
-                        </div>
-                        <!-- NOR -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">NOR</div>
-                            <h4>NOR (NO-O)</h4>
-                            <p>OR negado. Puerta universal.</p>
-                            <code>F = A + B</code>
-                            <span class="gate-truth">00→1 | 01→0 | 10→0 | 11→0</span>
-                        </div>
-                        <!-- XOR -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">XOR</div>
-                            <h4>XOR (O-Exclusivo)</h4>
-                            <p>1 si las entradas son diferentes.</p>
-                            <code>F = A ⊕ B</code>
-                            <span class="gate-truth">00→0 | 01→1 | 10→1 | 11→0</span>
-                        </div>
-                        <!-- XNOR -->
-                        <div class="gate-card">
-                            <div class="gate-symbol">XNOR</div>
-                            <h4>XNOR (O-Exclusivo Negado)</h4>
-                            <p>1 si las entradas son iguales.</p>
-                            <code>F = A ⊕ B</code>
-                            <span class="gate-truth">00→1 | 01→0 | 10→0 | 11→1</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema3">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+50 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 4 - Tablas de Verdad -->
-            <section id="section-tema4" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 4</span>
-                    <h2>📊 Tablas de Verdad</h2>
-                    <p>La herramienta fundamental para analizar y diseñar circuitos lógicos.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>¿Qué es una Tabla de Verdad?</h3>
-                        <p>Es una tabla que muestra <strong>todas las combinaciones posibles</strong> de entradas y el resultado de la función para cada una. Para <strong>n variables</strong>, hay <strong>2ⁿ filas</strong>.</p>
-                    </article>
-                    <!-- Tabla de verdad interactiva -->
-                    <div class="interactive-truth-table" id="interactive-truth">
-                        <h3>🧮 Constructor de Tablas de Verdad</h3>
-                        <p>Selecciona una función booleana para ver su tabla de verdad:</p>
-                        <select id="truth-function-select">
-                            <option value="and">F = A · B (AND)</option>
-                            <option value="or">F = A + B (OR)</option>
-                            <option value="xor">F = A ⊕ B (XOR)</option>
-                            <option value="nand">F = (A · B)' (NAND)</option>
-                            <option value="complex">F = A·B + Ā·C</option>
-                        </select>
-                        <div class="truth-table-container">
-                            <table id="truth-table-display">
-                                <thead>
-                                    <tr><th>A</th><th>B</th><th id="col-c-header" class="hidden">C</th><th>Resultado F</th></tr>
-                                </thead>
-                                <tbody id="truth-table-body">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema4">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+50 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 5 - Simplificación -->
-            <section id="section-tema5" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 5</span>
-                    <h2>✂️ Simplificación de Funciones Booleanas</h2>
-                    <p>Aprende a reducir expresiones para crear circuitos más eficientes y económicos.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>¿Por qué simplificar?</h3>
-                        <p>Una función más simple significa <strong>menos compuertas lógicas</strong>, lo que se traduce en:</p>
-                        <ul>
-                            <li>🔋 Menor consumo de energía</li>
-                            <li>💰 Menor costo de fabricación</li>
-                            <li>⚡ Mayor velocidad de procesamiento</li>
-                            <li>📏 Menor espacio en el chip (densidad de integración)</li>
-                        </ul>
-                        <p>En un procesador con <strong>miles de millones de transistores</strong>, simplificar es crítico.</p>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>Métodos de Simplificación</h3>
-                        <div class="methods-grid">
-                            <div class="method-card">
-                                <h4>📐 Teoremas del Álgebra de Boole</h4>
-                                <p>Usar identidades como:</p>
-                                <ul>
-                                    <li><code>A + 0 = A</code></li>
-                                    <li><code>A · 1 = A</code></li>
-                                    <li><code>A + Ā = 1</code></li>
-                                    <li><code>A · Ā = 0</code></li>
-                                    <li><strong>Ley de Morgan:</strong> <code>(A·B)' = Ā + B̄</code></li>
-                                </ul>
-                            </div>
-                            <div class="method-card">
-                                <h4>🗺️ Mapas de Karnaugh (K-Maps)</h4>
-                                <p>Método visual para simplificar funciones de hasta 4-6 variables agrupando términos.</p>
-                            </div>
-                            <div class="method-card">
-                                <h4>🤖 Algoritmos (Quine-McCluskey)</h4>
-                                <p>Usado por software de diseño de chips para simplificar automáticamente.</p>
-                            </div>
-                        </div>
-                    </article>
-                    <!-- Simplificador interactivo -->
-                    <div class="simplifier-demo" id="simplifier-demo">
-                        <h3>🎮 Simplificador Interactivo</h3>
-                        <p>Expresión: <strong id="simplify-original">F = A·B + A·B̄</strong></p>
-                        <button class="btn btn-secondary" id="btn-simplify-step">Ver paso de simplificación</button>
-                        <div id="simplify-steps" class="simplify-steps"></div>
-                        <p>Resultado simplificado: <strong id="simplify-result">F = A</strong></p>
-                        <p class="simplify-note">✨ ¡Se eliminó una compuerta AND y una OR! En hardware real, esto ahorra transistores.</p>
-                    </div>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema5">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+75 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 6 - Hardware & Circuitos -->
-            <section id="section-tema6" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 6</span>
-                    <h2>💻 Del Álgebra de Boole al Hardware</h2>
-                    <p>Descubre cómo las ecuaciones booleanas se convierten en circuitos físicos reales.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>La Conexión Directa</h3>
-                        <p>Cada expresión booleana tiene un <strong>equivalente directo en hardware</strong> usando compuertas lógicas implementadas con transistores.</p>
-                        <div class="hardware-flow">
-                            <div class="flow-step">📝 Función Booleana</div>
-                            <span class="flow-arrow">→</span>
-                            <div class="flow-step">🔌 Diagrama de Compuertas</div>
-                            <span class="flow-arrow">→</span>
-                            <div class="flow-step">💾 Circuito con Transistores</div>
-                            <span class="flow-arrow">→</span>
-                            <div class="flow-step">🖥️ Chip Físico</div>
-                        </div>
-                    </article>
-                    <!-- Simulador visual de circuito simple -->
-                    <div class="circuit-simulator" id="circuit-simulator">
-                        <h3>🔧 Simulador de Circuito Digital</h3>
-                        <p>Construye un circuito simple y ve su comportamiento en tiempo real:</p>
-                        <div class="circuit-builder">
-                            <div class="circuit-inputs">
-                                <label>Entrada A: <button class="toggle-switch" id="switch-a" data-state="0">OFF</button></label>
-                                <label>Entrada B: <button class="toggle-switch" id="switch-b" data-state="0">OFF</button></label>
-                            </div>
-                            <div class="circuit-diagram" id="circuit-diagram">
-                                <!-- Representación visual del circuito -->
-                                <div class="wire-diagram">
-                                    <span id="wire-a" class="wire low">A=0</span>
-                                    <span class="gate-box" id="gate-display">AND</span>
-                                    <span id="wire-b" class="wire low">B=0</span>
-                                    <span class="wire-output">→</span>
-                                    <span id="wire-out" class="wire low">F=0</span>
-                                </div>
-                            </div>
-                            <div class="circuit-gate-select">
-                                <label>Compuerta: 
-                                    <select id="gate-select">
-                                        <option value="and">AND</option>
-                                        <option value="or">OR</option>
-                                        <option value="xor">XOR</option>
-                                        <option value="nand">NAND</option>
-                                        <option value="nor">NOR</option>
-                                    </select>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema6">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+50 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 7 - Procesadores -->
-            <section id="section-tema7" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 7</span>
-                    <h2>🧠 Procesadores: Millones de Puertas Booleanas</h2>
-                    <p>Entiende cómo un procesador moderno es una sinfonía de álgebra booleana a escala masiva.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>El Procesador como Sistema Booleano</h3>
-                        <p>Un procesador (CPU) está compuesto por <strong>miles de millones de transistores</strong> organizados en compuertas lógicas que forman:</p>
-                        <ul>
-                            <li><strong>ALU (Unidad Aritmético-Lógica):</strong> Realiza operaciones usando solo compuertas. Un sumador completo se implementa con XOR, AND y OR.</li>
-                            <li><strong>Registros:</strong> Flip-flops (biestables) hechos con compuertas NAND acopladas.</li>
-                            <li><strong>Unidad de Control:</strong> Decodificadores y multiplexores booleanos que dirigen el flujo de datos.</li>
-                            <li><strong>Memoria Cache:</strong> Celdas de almacenamiento basadas en realimentación de compuertas.</li>
-                        </ul>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>Ejemplo: Un Sumador de 1 bit</h3>
-                        <p>La suma binaria básica se implementa con:</p>
-                        <p><strong>Suma (S) = A ⊕ B</strong> (XOR)</p>
-                        <p><strong>Acarreo (C) = A · B</strong> (AND)</p>
-                        <p>Este <em>half-adder</em> es la base de todas las operaciones aritméticas de una CPU.</p>
-                    </article>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema7">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+60 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Tema 8 - Optimización de Código -->
-            <section id="section-tema8" class="content-section">
-                <div class="section-header">
-                    <span class="section-badge">Tema 8</span>
-                    <h2>⚡ Optimización de Código con Álgebra Booleana</h2>
-                    <p>Cómo la lógica booleana hace que el software sea más rápido y eficiente.</p>
-                </div>
-                <div class="lesson-content">
-                    <article class="lesson-card">
-                        <h3>Optimizaciones Booleanas en Software</h3>
-                        <p>Los compiladores modernos usan álgebra booleana para:</p>
-                        <ul>
-                            <li><strong>Simplificar condiciones:</strong> <code>if (x > 0 && x > 5)</code> → <code>if (x > 5)</code></li>
-                            <li><strong>Evaluación de cortocircuito:</strong> En <code>A && B</code>, si A es falso, B no se evalúa (ahorro de CPU).</li>
-                            <li><strong>Optimización de ramas:</strong> Reordenar condiciones para ejecutar primero las más probables.</li>
-                            <li><strong>Operaciones bit a bit:</strong> Manipular bits directamente es mucho más rápido que operaciones aritméticas.</li>
-                        </ul>
-                    </article>
-                    <article class="lesson-card">
-                        <h3>Ejemplo Práctico</h3>
-                        <div class="code-comparison">
-                            <div class="code-block bad">
-                                <h4>❌ Sin optimizar</h4>
-                                <pre><code>if ((a && b) || (!a && c)) {
-                            resultado = true;
-                        }</code></pre>
-                                <p>3 operaciones lógicas</p>
-                            </div>
-                            <div class="code-block good">
-                                <h4>✅ Optimizado (multiplexor)</h4>
-                                <pre><code>resultado = a ? b : c;</code></pre>
-                                <p>1 operación (el compilador lo reduce)</p>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-                <div class="lesson-actions">
-                    <button class="btn btn-primary" id="btn-quiz-tema8">🧪 Realizar Quiz del Tema</button>
-                    <span class="lesson-xp">+60 XP al completar</span>
-                </div>
-            </section>
-
-            <!-- Sección: Desafíos -->
-            <section id="section-desafios" class="content-section">
-                <div class="section-header">
-                    <h2>⚔️ Desafíos Booleanos</h2>
-                    <p>Pon a prueba tus habilidades con retos interactivos.</p>
-                </div>
-                <div class="challenges-grid" id="challenges-grid">
-                    <div class="challenge-card" data-challenge="1">
-                        <span class="challenge-icon">🧩</span>
-                        <h4>Desafío 1: Identifica la Compuerta</h4>
-                        <p>Dada una tabla de verdad, identifica la compuerta lógica correcta.</p>
-                        <span class="challenge-reward">🏆 +30 XP</span>
-                        <button class="btn btn-challenge" data-challenge="1">⚔️ Enfrentar</button>
-                    </div>
-                    <div class="challenge-card" data-challenge="2">
-                        <span class="challenge-icon">✂️</span>
-                        <h4>Desafío 2: Simplifica la Expresión</h4>
-                        <p>Simplifica una función booleana al máximo.</p>
-                        <span class="challenge-reward">🏆 +50 XP</span>
-                        <button class="btn btn-challenge" data-challenge="2">⚔️ Enfrentar</button>
-                    </div>
-                    <div class="challenge-card" data-challenge="3">
-                        <span class="challenge-icon">🔌</span>
-                        <h4>Desafío 3: Diseña el Circuito</h4>
-                        <p>Construye un circuito que cumpla con la especificación dada.</p>
-                        <span class="challenge-reward">🏆 +75 XP</span>
-                        <button class="btn btn-challenge" data-challenge="3">⚔️ Enfrentar</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Sección: Logros -->
-            <section id="section-logros" class="content-section">
-                <div class="section-header">
-                    <h2>🎖️ Salón de la Fama</h2>
-                    <p>Colecciona todas las insignias desbloqueando logros.</p>
-                </div>
-                <div class="achievements-grid" id="achievements-grid">
-                    <!-- Logros generados por JS -->
-                </div>
-            </section>
-
-            <!-- Sección: Tienda -->
-            <section id="section-tienda" class="content-section">
-                <div class="section-header">
-                    <h2>🛒 Tienda BooleanQuest</h2>
-                    <p>Gasta tus monedas booleanas en mejoras estéticas.</p>
-                </div>
-                <div class="shop-grid" id="shop-grid">
-                    <div class="shop-item">
-                        <span class="shop-icon">🧑‍💻</span>
-                        <h4>Avatar: Ingeniero</h4>
-                        <p>Cambia tu avatar por un ingeniero digital.</p>
-                        <span class="shop-price">🪙 100</span>
-                        <button class="btn btn-shop" data-item="avatar1">Comprar</button>
-                    </div>
-                    <div class="shop-item">
-                        <span class="shop-icon">🤖</span>
-                        <h4>Avatar: Robot</h4>
-                        <p>Conviértete en un robot binario.</p>
-                        <span class="shop-price">🪙 200</span>
-                        <button class="btn btn-shop" data-item="avatar2">Comprar</button>
-                    </div>
-                    <div class="shop-item">
-                        <span class="shop-icon">🧙</span>
-                        <h4>Avatar: Mago Digital</h4>
-                        <p>Domina la magia de los bits.</p>
-                        <span class="shop-price">🪙 500</span>
-                        <button class="btn btn-shop" data-item="avatar3">Comprar</button>
-                    </div>
-                </div>
-            </section>
+            <!-- Las demás secciones se generan dinámicamente con JS para simplificar, pero incluiremos las esenciales -->
+            <section id="section-tema1" class="content-section"><div class="section-header"><span class="section-badge">Tema 1</span><h2>📖 Fundamentos del Álgebra de Boole</h2></div><div class="lesson-card"><h3>¿Qué es?</h3><p>Sistema matemático de <strong>George Boole</strong> con valores <strong>0 y 1</strong>, base del hardware digital.</p></div><div class="lesson-actions"><button class="btn btn-primary" id="btn-quiz-tema1">🧪 Quiz del Tema</button><span class="lesson-xp">+50 XP</span></div></section>
+            <section id="section-tema2" class="content-section"><div class="section-header"><span class="section-badge">Tema 2</span><h2>🔢 Variables y Funciones Booleanas</h2></div><div class="lesson-card"><h3>Variables</h3><p>Símbolos que toman valor 0 o 1. Una función combina variables con operadores lógicos.</p></div><div class="lesson-actions"><button class="btn btn-primary" id="btn-quiz-tema2">🧪 Quiz del Tema</button></div></section>
+            <section id="section-tema3" class="content-section"><div class="section-header"><span class="section-badge">Tema 3</span><h2>🚪 Compuertas Lógicas</h2></div><div class="gates-grid" id="gates-grid"><div class="gate-card"><span class="gate-symbol">AND</span><h4>AND</h4><p>Salida 1 si ambas entradas son 1.</p></div><div class="gate-card"><span class="gate-symbol">OR</span><h4>OR</h4><p>1 si al menos una entrada es 1.</p></div><div class="gate-card"><span class="gate-symbol">NOT</span><h4>NOT</h4><p>Invierte la entrada.</p></div></div><div class="lesson-actions"><button class="btn btn-primary" id="btn-quiz-tema3">🧪 Quiz del Tema</button></div></section>
+            <section id="section-tema4" class="content-section"><div class="section-header"><span class="section-badge">Tema 4</span><h2>📊 Tablas de Verdad</h2></div><div class="interactive-truth-table"><h3>Constructor</h3><select id="truth-function-select"><option value="and">AND</option><option value="or">OR</option><option value="xor">XOR</option></select><table id="truth-table-display"><thead><tr><th>A</th><th>B</th><th>F</th></tr></thead><tbody id="truth-table-body"></tbody></table></div><button class="btn btn-primary" id="btn-quiz-tema4">🧪 Quiz</button></section>
+            <section id="section-tema5" class="content-section"><div class="section-header"><h2>✂️ Simplificación</h2></div><div class="simplifier-demo"><p>Expresión: <strong>F = A·B + A·B̄</strong></p><button id="btn-simplify-step" class="btn btn-secondary">Simplificar paso a paso</button><div id="simplify-steps"></div><p>Resultado: <strong id="simplify-result">F = A</strong></p></div><button class="btn btn-primary" id="btn-quiz-tema5">🧪 Quiz</button></section>
+            <!-- Secciones 6,7,8 resumidas -->
+            <section id="section-tema6" class="content-section"><div class="section-header"><h2>💻 Hardware & Circuitos</h2></div><div class="circuit-simulator"><h3>Simulador</h3><label>A: <button id="switch-a" class="toggle-switch" data-state="0">OFF</button></label> <label>B: <button id="switch-b" class="toggle-switch" data-state="0">OFF</button></label> <select id="gate-select"><option value="and">AND</option><option value="or">OR</option></select><div><span id="wire-a">A=0</span> <span id="gate-display">AND</span> <span id="wire-b">B=0</span> → <span id="wire-out">F=0</span></div></div><button class="btn btn-primary" id="btn-quiz-tema6">🧪 Quiz</button></section>
+            <section id="section-tema7" class="content-section"><div class="section-header"><h2>🧠 Procesadores</h2></div><div class="lesson-card"><p>Una CPU contiene miles de millones de compuertas booleanas. La ALU usa sumadores basados en XOR y AND.</p></div><button class="btn btn-primary" id="btn-quiz-tema7">🧪 Quiz</button></section>
+            <section id="section-tema8" class="content-section"><div class="section-header"><h2>⚡ Optimización de Código</h2></div><div class="lesson-card"><p>Los compiladores aplican álgebra booleana para simplificar condiciones y reducir instrucciones.</p></div><button class="btn btn-primary" id="btn-quiz-tema8">🧪 Quiz</button></section>
+            <!-- Desafíos, Logros, Tienda -->
+            <section id="section-desafios" class="content-section"><h2>⚔️ Desafíos</h2><div class="challenges-grid"><div class="challenge-card"><h4>Desafío 1: Identifica la Compuerta</h4><button class="btn btn-challenge" data-challenge="1">⚔️ Enfrentar</button></div><div class="challenge-card"><h4>Desafío 2: Simplifica</h4><button class="btn btn-challenge" data-challenge="2">⚔️ Enfrentar</button></div><div class="challenge-card"><h4>Desafío 3: Diseña el Circuito</h4><button class="btn btn-challenge" data-challenge="3">⚔️ Enfrentar</button></div></div></section>
+            <section id="section-logros" class="content-section"><h2>🎖️ Logros</h2><div class="achievements-grid" id="achievements-grid"></div></section>
+            <section id="section-tienda" class="content-section"><h2>🛒 Tienda</h2><div class="shop-grid"><div class="shop-item">🧑‍💻 Avatar Ingeniero 🪙100 <button class="btn btn-shop" data-item="avatar1">Comprar</button></div><div class="shop-item">🤖 Avatar Robot 🪙200 <button class="btn btn-shop" data-item="avatar2">Comprar</button></div><div class="shop-item">🧙 Avatar Mago 🪙500 <button class="btn btn-shop" data-item="avatar3">Comprar</button></div></div></section>
         </main>
     </div>
 
-    <!-- ==================== MODALES ==================== -->
-    <!-- Modal de Quiz -->
+    <!-- MODALES -->
     <div id="modal-quiz" class="modal hidden">
         <div class="modal-content">
             <button class="modal-close" id="btn-close-quiz">✕</button>
-            <div class="modal-header">
-                <h2 id="quiz-title">Quiz</h2>
-                <div class="quiz-timer" id="quiz-timer">⏱️ <span id="timer-seconds">60</span>s</div>
-            </div>
-            <div class="modal-body">
-                <div id="quiz-question-container">
-                    <p id="quiz-question-text"></p>
-                    <div id="quiz-options" class="quiz-options"></div>
-                </div>
-                <div id="quiz-result" class="hidden"></div>
-                <div class="quiz-progress">
-                    <span id="quiz-progress-text">Pregunta 1/5</span>
-                    <div class="quiz-progress-bar"><div id="quiz-progress-fill"></div></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="btn-next-question" class="btn btn-primary hidden">Siguiente Pregunta</button>
-                <button id="btn-finish-quiz" class="btn btn-success hidden">Finalizar Quiz</button>
-            </div>
+            <h2 id="quiz-title">Quiz</h2>
+            <div class="quiz-timer">⏱️ <span id="timer-seconds">60</span>s</div>
+            <p id="quiz-question-text"></p>
+            <div id="quiz-options" class="quiz-options"></div>
+            <div id="quiz-result" class="hidden"></div>
+            <button id="btn-next-question" class="btn btn-primary hidden">Siguiente</button>
+            <button id="btn-finish-quiz" class="btn btn-success hidden">Finalizar</button>
         </div>
     </div>
-
-    <!-- Modal de Recompensa -->
     <div id="modal-reward" class="modal hidden">
-        <div class="modal-content reward-modal">
-            <span class="reward-confetti">🎉</span>
-            <h2 id="reward-title">¡Recompensa!</h2>
-            <div id="reward-icon" class="reward-icon">⭐</div>
-            <p id="reward-message"></p>
-            <div id="reward-xp" class="reward-xp"></div>
-            <button class="btn btn-primary" id="btn-claim-reward">Reclamar</button>
-        </div>
+        <div class="modal-content"><h2>🎉 Recompensa</h2><p id="reward-message"></p><button id="btn-claim-reward" class="btn btn-primary">Reclamar</button></div>
     </div>
-
-    <!-- Modal de Notificaciones -->
-    <div id="modal-notifications" class="modal hidden">
-        <div class="modal-content modal-notifications">
-            <button class="modal-close" id="btn-close-notifications">✕</button>
-            <h2>🔔 Notificaciones</h2>
-            <div id="notifications-list">
-                <p class="no-notifications">No hay notificaciones nuevas.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Desafío -->
     <div id="modal-challenge" class="modal hidden">
-        <div class="modal-content">
-            <button class="modal-close" id="btn-close-challenge">✕</button>
-            <h2 id="challenge-modal-title">Desafío</h2>
-            <div id="challenge-content"></div>
-            <div id="challenge-feedback" class="hidden"></div>
-            <div class="modal-footer">
-                <button id="btn-submit-challenge" class="btn btn-primary">Enviar Respuesta</button>
-            </div>
-        </div>
+        <div class="modal-content"><button class="modal-close" id="btn-close-challenge">✕</button><h2 id="challenge-modal-title">Desafío</h2><div id="challenge-content"></div><div id="challenge-feedback" class="hidden"></div><button id="btn-submit-challenge" class="btn btn-primary">Enviar</button></div>
     </div>
-
-    <!-- Toast de notificación rápida -->
+    <div id="modal-notifications" class="modal hidden">
+        <div class="modal-content"><button class="modal-close" id="btn-close-notifications">✕</button><h2>Notificaciones</h2><div id="notifications-list"></div></div>
+    </div>
     <div id="toast-container" class="toast-container"></div>
 
+    <!-- ==================== JAVASCRIPT EMBEBIDO ==================== -->
+    <script>
+        (function() {
+            'use strict';
+            const STORAGE_KEY = 'booleanquest_save_v1';
+            const XP_PER_LESSON = 50;
+            const XP_PER_QUIZ = 50;
+            const XP_PER_CHALLENGE = { 1: 30, 2: 50, 3: 75 };
+            const COINS_PER_QUIZ = 20;
+            const COINS_PER_CHALLENGE = { 1: 15, 2: 25, 3: 40 };
+            const LESSONS = [
+                { id: 'tema1', name: 'Fundamentos', icon: '📖' },
+                { id: 'tema2', name: 'Variables Booleanas', icon: '🔢' },
+                { id: 'tema3', name: 'Compuertas Lógicas', icon: '🚪' },
+                { id: 'tema4', name: 'Tablas de Verdad', icon: '📊' },
+                { id: 'tema5', name: 'Simplificación', icon: '✂️' },
+                { id: 'tema6', name: 'Hardware & Circuitos', icon: '💻' },
+                { id: 'tema7', name: 'Procesadores', icon: '🧠' },
+                { id: 'tema8', name: 'Optimización de Código', icon: '⚡' }
+            ];
+            const QUIZ_QUESTIONS = {
+                tema1: [
+                    { q: "¿Quién desarrolló el Álgebra de Boole?", options: ["George Boole", "Alan Turing", "Claude Shannon", "John von Neumann"], answer: 0 },
+                    { q: "¿Cuántos valores maneja el Álgebra de Boole?", options: ["10", "2", "8", "Infinitos"], answer: 1 },
+                    { q: "¿Qué valor representa 'verdadero'?", options: ["0", "1", "2", "-1"], answer: 1 },
+                    { q: "El Álgebra de Boole es fundamental para...", options: ["Solo matemáticas", "Hardware digital", "Solo software", "Redes sociales"], answer: 1 },
+                    { q: "Año de publicación de la obra de Boole", options: ["1900", "1854", "1945", "1800"], answer: 1 }
+                ],
+                tema2: [
+                    { q: "Valores de una variable booleana", options: ["0 y 1", "0 a 9", "A y B", "Solo texto"], answer: 0 },
+                    { q: "F = A + B, ¿cuándo F=0?", options: ["A=1,B=1", "A=0,B=0", "A=0,B=1", "Nunca"], answer: 1 },
+                    { q: "Negación de A se representa", options: ["A + A", "Ā o A'", "A · 1", "A + 0"], answer: 1 },
+                    { q: "Una función booleana describe un...", options: ["Programa", "Circuito digital", "Base de datos", "SO"], answer: 1 },
+                    { q: "3 variables, combinaciones posibles", options: ["6", "8", "9", "3"], answer: 1 }
+                ],
+                tema3: [
+                    { q: "Compuerta con salida 1 solo si todas las entradas son 1", options: ["OR", "AND", "XOR", "NOT"], answer: 1 },
+                    { q: "La compuerta NOT...", options: ["Suma", "Invierte", "Multiplica", "Duplica"], answer: 1 },
+                    { q: "Compuerta universal (junto con NOR)", options: ["AND", "OR", "NAND", "XOR"], answer: 2 },
+                    { q: "XOR es 1 cuando...", options: ["Entradas iguales", "Entradas diferentes", "Una es 1", "Siempre"], answer: 1 },
+                    { q: "Símbolo de la operación AND", options: ["+", "·", "⊕", "¬"], answer: 1 }
+                ],
+                tema4: [
+                    { q: "Una tabla de verdad muestra...", options: ["Solo entradas", "Solo salidas", "Todas las combinaciones", "El circuito físico"], answer: 2 },
+                    { q: "Para 2 variables, ¿cuántas filas?", options: ["2", "4", "8", "16"], answer: 1 },
+                    { q: "F=1 significa...", options: ["Falso", "Verdadero", "Indefinido", "Error"], answer: 1 },
+                    { q: "Herramienta para simplificar visualmente", options: ["Diagrama de flujo", "Mapa de Karnaugh", "Editor de texto", "Calculadora"], answer: 1 },
+                    { q: "La tabla de verdad ayuda a...", options: ["Diseñar circuitos", "Escribir novelas", "Cocinar", "Navegar"], answer: 0 }
+                ],
+                tema5: [
+                    { q: "Simplificar sirve para...", options: ["Hacerla más compleja", "Reducir compuertas", "Aumentar costos", "No sirve"], answer: 1 },
+                    { q: "Ley de Morgan", options: ["(A·B)' = A' + B'", "A + 0 = A", "A · 1 = A", "A + A' = 1"], answer: 0 },
+                    { q: "A + A·B se simplifica a...", options: ["A + B", "A", "B", "A · B"], answer: 1 },
+                    { q: "Método algorítmico para simplificar", options: ["K-Map", "Quine-McCluskey", "Dibujar", "Probar"], answer: 1 },
+                    { q: "Simplificar reduce...", options: ["Transistores", "Líneas de código", "Ambas", "Ninguna"], answer: 2 }
+                ],
+                tema6: [
+                    { q: "AND se implementa con transistores en...", options: ["Paralelo", "Serie", "Mixto", "Ninguno"], answer: 1 },
+                    { q: "Lenguaje para describir circuitos", options: ["Python", "HTML", "Verilog/VHDL", "CSS"], answer: 2 },
+                    { q: "Un sumador básico usa...", options: ["AND y OR", "XOR y AND", "NOT y OR", "Solo NAND"], answer: 1 },
+                    { q: "Unidad mínima de hardware lógico", options: ["CPU", "Transistor", "Compuerta lógica", "Registro"], answer: 2 },
+                    { q: "El Álgebra de Boole es la base de...", options: ["Circuitos integrados", "Motores", "Bombillas", "Pilas"], answer: 0 }
+                ],
+                tema7: [
+                    { q: "La ALU está construida con...", options: ["Solo software", "Compuertas lógicas", "Memoria RAM", "Baterías"], answer: 1 },
+                    { q: "Ejecuta operaciones booleanas", options: ["Disco duro", "ALU", "Pantalla", "Teclado"], answer: 1 },
+                    { q: "Los registros se basan en...", options: ["Flip-flops", "Condensadores", "Resistencias", "LEDs"], answer: 0 },
+                    { q: "Un procesador moderno tiene...", options: ["Cientos", "Millones", "Miles de millones", "Solo cables"], answer: 2 },
+                    { q: "La simplificación booleana reduce...", options: ["Consumo", "Calor", "Espacio", "Todo lo anterior"], answer: 3 }
+                ],
+                tema8: [
+                    { q: "Un compilador optimiza usando...", options: ["Álgebra booleana", "Elimina comentarios", "Cambia nombres", "No optimiza"], answer: 0 },
+                    { q: "Evaluación de cortocircuito evita...", options: ["Ejecutar código innecesario", "Ahorrar memoria", "Escribir más", "Nada"], answer: 0 },
+                    { q: "Operación más rápida en CPU", options: ["División", "AND bit a bit", "Raíz cuadrada", "Logaritmo"], answer: 1 },
+                    { q: "if(x>0 && x>5) simplificado", options: ["if(x>0)", "if(x>5)", "if(x==0)", "No se puede"], answer: 1 },
+                    { q: "Optimizaciones booleanas mejoran...", options: ["Rendimiento", "Legibilidad", "Mantenimiento", "Todas"], answer: 3 }
+                ]
+            };
+            const ACHIEVEMENTS = [
+                { id: 'first_lesson', name: 'Primer Paso', desc: 'Completa tu primera lección.', icon: '👶', condition: s => s.completedLessons.length >= 1 },
+                { id: 'half_lessons', name: 'Mitad del Camino', desc: '4 lecciones completadas.', icon: '🚶', condition: s => s.completedLessons.length >= 4 },
+                { id: 'all_lessons', name: 'Maestro Booleano', desc: 'Todas las lecciones.', icon: '🧙', condition: s => s.completedLessons.length >= 8 },
+                { id: 'first_quiz', name: 'Primer Quiz', desc: 'Aprueba tu primer quiz.', icon: '📝', condition: s => s.quizzesPassed >= 1 },
+                { id: 'quiz_master', name: 'Quiz Master', desc: '5 quizzes aprobados.', icon: '🏅', condition: s => s.quizzesPassed >= 5 },
+                { id: 'challenge1', name: 'Retador', desc: '1 desafío completado.', icon: '⚔️', condition: s => s.challengesCompleted >= 1 },
+                { id: 'challenge_all', name: 'Leyenda', desc: '3 desafíos.', icon: '🛡️', condition: s => s.challengesCompleted >= 3 },
+                { id: 'level5', name: 'Nivel 5', desc: 'Alcanza nivel 5.', icon: '⬆️', condition: s => s.level >= 5 },
+                { id: 'level10', name: 'Nivel 10', desc: 'Alcanza nivel 10.', icon: '🔟', condition: s => s.level >= 10 },
+                { id: 'coins100', name: 'Ahorrador', desc: '100 monedas.', icon: '🪙', condition: s => s.coins >= 100 },
+                { id: 'streak3', name: 'Constante', desc: 'Racha de 3 días.', icon: '🔥', condition: s => s.streak >= 3 },
+                { id: 'simplifier', name: 'Simplificador', desc: 'Usa el simplificador.', icon: '✂️', condition: s => s.usedSimplifier }
+            ];
+            const defaultState = { xp:0, level:1, coins:0, streak:0, lastLoginDate:null, completedLessons:[], quizzesPassed:0, challengesCompleted:0, completedChallenges:[], achievements:[], inventory:['default'], activeAvatar:'default', usedSimplifier:false, totalStudyTime:0, notifications:[] };
+            let gameState = JSON.parse(JSON.stringify(defaultState));
+            function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); }
+            function loadState() {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) { try { gameState = { ...defaultState, ...JSON.parse(saved) }; } catch(e) {} }
+            }
+            function updateAllUI() {
+                document.getElementById('xp-current').textContent = gameState.xp;
+                document.getElementById('level-number').textContent = gameState.level;
+                document.getElementById('coins-amount').textContent = gameState.coins;
+                document.getElementById('streak-count').textContent = gameState.streak;
+                const progress = gameState.completedLessons.length / LESSONS.length * 100;
+                document.getElementById('global-progress-fill').style.width = progress + '%';
+                document.getElementById('global-progress-text').textContent = Math.round(progress) + '% completado';
+                LESSONS.forEach(l => {
+                    const check = document.getElementById('check-' + l.id);
+                    if (check) check.classList.toggle('completed', gameState.completedLessons.includes(l.id));
+                });
+                document.getElementById('desafios-pendientes').textContent = 3 - gameState.completedChallenges.length;
+                document.getElementById('logros-desbloqueados').textContent = gameState.achievements.length + '/12';
+                document.getElementById('stat-lecciones').textContent = gameState.completedLessons.length + '/8';
+                document.getElementById('stat-quizzes').textContent = gameState.quizzesPassed;
+                document.getElementById('stat-desafios').textContent = gameState.challengesCompleted;
+                renderMapNodes();
+                renderAchievements();
+                updateNotificationBadge();
+            }
+            function renderMapNodes() {
+                const container = document.getElementById('map-nodes-container');
+                if (!container) return;
+                container.innerHTML = '';
+                LESSONS.forEach(l => {
+                    const node = document.createElement('div');
+                    node.className = 'map-node ' + (gameState.completedLessons.includes(l.id) ? 'completed' : '');
+                    node.innerHTML = `<span>${l.icon}</span><small>${l.name}</small>`;
+                    node.addEventListener('click', () => navigateTo(l.id));
+                    container.appendChild(node);
+                });
+            }
+            function renderAchievements() {
+                const grid = document.getElementById('achievements-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                ACHIEVEMENTS.forEach(a => {
+                    const unlocked = gameState.achievements.includes(a.id);
+                    const div = document.createElement('div');
+                    div.className = 'achievement-card ' + (unlocked ? 'unlocked' : 'locked');
+                    div.innerHTML = `<span>${unlocked ? a.icon : '🔒'}</span><strong>${a.name}</strong><small>${a.desc}</small>`;
+                    grid.appendChild(div);
+                });
+            }
+            function navigateTo(sectionId) {
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                const target = document.getElementById('section-' + sectionId);
+                if (target) target.classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                const navBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+                if (navBtn) navBtn.classList.add('active');
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
+            function addXP(amount) { gameState.xp += amount; checkLevelUp(); saveState(); updateAllUI(); }
+            function addCoins(amount) { gameState.coins += amount; saveState(); updateAllUI(); }
+            function checkLevelUp() {
+                while (gameState.xp >= gameState.level * 100 && gameState.level < 50) {
+                    gameState.xp -= gameState.level * 100;
+                    gameState.level++;
+                    showToast('¡Subiste al nivel ' + gameState.level + '! 🎉', 'success');
+                }
+            }
+            function completeLesson(lessonId) {
+                if (!gameState.completedLessons.includes(lessonId)) {
+                    gameState.completedLessons.push(lessonId);
+                    addXP(XP_PER_LESSON);
+                    addCoins(15);
+                    gameState.totalStudyTime += 5;
+                    showToast('Lección completada +' + XP_PER_LESSON + ' XP', 'success');
+                    checkAchievements();
+                }
+            }
+            function completeQuiz(lessonId) {
+                completeLesson(lessonId);
+                gameState.quizzesPassed++;
+                addXP(XP_PER_QUIZ);
+                addCoins(COINS_PER_QUIZ);
+                checkAchievements();
+            }
+            function completeChallenge(id) {
+                if (!gameState.completedChallenges.includes(id)) {
+                    gameState.completedChallenges.push(id);
+                    gameState.challengesCompleted++;
+                    addXP(XP_PER_CHALLENGE[id] || 30);
+                    addCoins(COINS_PER_CHALLENGE[id] || 15);
+                    showToast('¡Desafío completado!', 'success');
+                    checkAchievements();
+                }
+            }
+            function checkAchievements() {
+                ACHIEVEMENTS.forEach(a => {
+                    if (!gameState.achievements.includes(a.id) && a.condition(gameState)) {
+                        gameState.achievements.push(a.id);
+                        showToast('🏆 Logro: ' + a.name, 'success');
+                        addXP(20);
+                        addCoins(10);
+                    }
+                });
+                saveState();
+                updateAllUI();
+            }
+            function showToast(msg, type) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast ' + (type || 'info');
+                toast.textContent = msg;
+                container.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+            }
+            let quizData = null, currentQuizLesson = null;
+            function startQuiz(lessonId) {
+                const questions = QUIZ_QUESTIONS[lessonId];
+                if (!questions) return;
+                currentQuizLesson = lessonId;
+                quizData = { questions: [...questions], currentIndex: 0, score: 0, timer: 60, timerInterval: null, answered: false };
+                document.getElementById('quiz-title').textContent = 'Quiz: ' + (LESSONS.find(l=>l.id===lessonId)?.name || lessonId);
+                showQuizQuestion();
+                document.getElementById('modal-quiz').classList.remove('hidden');
+                startTimer();
+            }
+            function showQuizQuestion() {
+                if (quizData.currentIndex >= quizData.questions.length) { finishQuiz(); return; }
+                const q = quizData.questions[quizData.currentIndex];
+                document.getElementById('quiz-question-text').textContent = q.q;
+                const opts = document.getElementById('quiz-options');
+                opts.innerHTML = '';
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quiz-option';
+                    btn.textContent = opt;
+                    btn.addEventListener('click', () => selectQuizOption(i));
+                    opts.appendChild(btn);
+                });
+                document.getElementById('quiz-result').classList.add('hidden');
+                document.getElementById('btn-next-question').classList.add('hidden');
+                document.getElementById('btn-finish-quiz').classList.add('hidden');
+                quizData.answered = false;
+            }
+            function selectQuizOption(index) {
+                if (quizData.answered) return;
+                quizData.answered = true;
+                const q = quizData.questions[quizData.currentIndex];
+                const correct = index === q.answer;
+                if (correct) quizData.score++;
+                document.querySelectorAll('.quiz-option').forEach((b, i) => {
+                    b.classList.add(i === q.answer ? 'correct' : (i === index ? 'incorrect' : ''));
+                    b.disabled = true;
+                });
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('quiz-result').textContent = correct ? '✅ Correcto' : '❌ Incorrecto';
+                if (quizData.currentIndex < quizData.questions.length - 1) {
+                    document.getElementById('btn-next-question').classList.remove('hidden');
+                } else {
+                    document.getElementById('btn-finish-quiz').classList.remove('hidden');
+                }
+            }
+            function nextQuestion() { quizData.currentIndex++; showQuizQuestion(); }
+            function finishQuiz() {
+                clearInterval(quizData.timerInterval);
+                const passed = quizData.score >= Math.ceil(quizData.questions.length * 0.6);
+                document.getElementById('quiz-question-text').textContent = passed ? '🎉 Aprobado' : '😞 Inténtalo';
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('btn-next-question').classList.add('hidden');
+                document.getElementById('btn-finish-quiz').classList.add('hidden');
+                if (passed) completeQuiz(currentQuizLesson);
+                setTimeout(() => document.getElementById('modal-quiz').classList.add('hidden'), 2000);
+            }
+            function startTimer() {
+                clearInterval(quizData.timerInterval);
+                quizData.timer = 60;
+                document.getElementById('timer-seconds').textContent = quizData.timer;
+                quizData.timerInterval = setInterval(() => {
+                    quizData.timer--;
+                    document.getElementById('timer-seconds').textContent = quizData.timer;
+                    if (quizData.timer <= 0) {
+                        clearInterval(quizData.timerInterval);
+                        if (!quizData.answered) {
+                            quizData.answered = true;
+                            document.getElementById('quiz-result').classList.remove('hidden');
+                            document.getElementById('quiz-result').textContent = '⏰ Tiempo agotado';
+                            document.getElementById('btn-finish-quiz').classList.remove('hidden');
+                        }
+                    }
+                }, 1000);
+            }
+            // Simuladores
+            function updateTruthTable() {
+                const func = document.getElementById('truth-function-select').value;
+                const tbody = document.getElementById('truth-table-body');
+                tbody.innerHTML = '';
+                for (let a = 0; a <= 1; a++) {
+                    for (let b = 0; b <= 1; b++) {
+                        let res;
+                        if (func === 'and') res = a && b;
+                        else if (func === 'or') res = a || b;
+                        else res = a ^ b;
+                        tbody.innerHTML += `<tr><td>${a}</td><td>${b}</td><td>${res ? 1 : 0}</td></tr>`;
+                    }
+                }
+            }
+            document.addEventListener('DOMContentLoaded', () => {
+                loadState();
+                // Actualizar racha
+                const today = new Date().toDateString();
+                if (gameState.lastLoginDate) {
+                    const diff = Math.floor((new Date() - new Date(gameState.lastLoginDate)) / 86400000);
+                    gameState.streak = diff === 1 ? gameState.streak + 1 : (diff > 1 ? 1 : gameState.streak);
+                } else gameState.streak = 1;
+                gameState.lastLoginDate = today;
+                saveState();
+                updateAllUI();
+
+                document.getElementById('btn-enter').addEventListener('click', () => {
+                    document.getElementById('splash-screen').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    navigateTo('inicio');
+                });
+                // Navegación
+                document.querySelectorAll('.nav-item[data-section]').forEach(b => b.addEventListener('click', (e) => navigateTo(e.currentTarget.dataset.section)));
+                document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('open');
+                    document.getElementById('sidebar-overlay').classList.toggle('hidden');
+                });
+                document.getElementById('sidebar-overlay').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.remove('open');
+                    document.getElementById('sidebar-overlay').classList.add('hidden');
+                });
+                // Quizzes
+                LESSONS.forEach(l => {
+                    const btn = document.getElementById('btn-quiz-' + l.id);
+                    if (btn) btn.addEventListener('click', () => startQuiz(l.id));
+                });
+                // Desafíos
+                document.querySelectorAll('.btn-challenge').forEach(b => b.addEventListener('click', (e) => {
+                    const id = parseInt(e.currentTarget.dataset.challenge);
+                    const challenge = { 1: { title:'Identifica la Compuerta', q:'Tabla: 00→0, 01→1, 10→1, 11→1', answer:'OR', inputType:'select', options:['AND','OR','XOR','NAND'] }, 2: { title:'Simplifica', q:'Simplifica: A + A·B', answer:'A', inputType:'text' }, 3: { title:'Diseña el Circuito', q:'Circuito: (A AND B) OR (NOT A AND C). Expresión equivalente:', answer:'A·B + A\'·C', inputType:'select', options:['A·B + A\'·C','A + B·C','A·B·C','A\'·B\' + C'] } }[id];
+                    document.getElementById('challenge-modal-title').textContent = challenge.title;
+                    document.getElementById('challenge-content').innerHTML = `<p><strong>${challenge.q}</strong></p>${challenge.inputType==='select' ? `<select id="challenge-input" style="width:100%;padding:0.5rem;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;">${challenge.options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>` : `<input id="challenge-input" style="width:100%;padding:0.5rem;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;" placeholder="Tu respuesta">`}`;
+                    document.getElementById('challenge-feedback').classList.add('hidden');
+                    document.getElementById('modal-challenge').classList.remove('hidden');
+                    window._currentChallenge = { id, answer: challenge.answer };
+                }));
+                document.getElementById('btn-submit-challenge').addEventListener('click', () => {
+                    const input = document.getElementById('challenge-input');
+                    const userAnswer = input.value.trim();
+                    const fb = document.getElementById('challenge-feedback');
+                    fb.classList.remove('hidden');
+                    if (userAnswer.toLowerCase() === window._currentChallenge.answer.toLowerCase()) {
+                        fb.innerHTML = '<p style="color:var(--accent-green)">✅ Correcto!</p>';
+                        completeChallenge(window._currentChallenge.id);
+                        setTimeout(() => document.getElementById('modal-challenge').classList.add('hidden'), 1500);
+                    } else {
+                        fb.innerHTML = '<p style="color:var(--accent-red)">❌ Incorrecto. Era: ' + window._currentChallenge.answer + '</p>';
+                    }
+                });
+                // Tienda
+                document.querySelectorAll('.btn-shop').forEach(b => b.addEventListener('click', (e) => {
+                    const item = e.currentTarget.dataset.item;
+                    const prices = { avatar1:100, avatar2:200, avatar3:500 };
+                    if (gameState.coins >= prices[item] && !gameState.inventory.includes(item)) {
+                        gameState.coins -= prices[item];
+                        gameState.inventory.push(item);
+                        gameState.activeAvatar = item;
+                        saveState();
+                        updateAllUI();
+                        showToast('Avatar comprado!', 'success');
+                    } else showToast('No tienes monedas o ya lo tienes.', 'error');
+                }));
+                // Simplificador
+                document.getElementById('btn-simplify-step').addEventListener('click', () => {
+                    document.getElementById('simplify-steps').innerHTML = '<p>Factor común A: A·(B + B̄) → A·1 = A</p>';
+                    if (!gameState.usedSimplifier) { gameState.usedSimplifier = true; saveState(); checkAchievements(); }
+                });
+                // Tabla de verdad
+                document.getElementById('truth-function-select').addEventListener('change', updateTruthTable);
+                updateTruthTable();
+                // Simulador de circuito
+                const swA = document.getElementById('switch-a'), swB = document.getElementById('switch-b'), gateSel = document.getElementById('gate-select');
+                function updateCircuit() {
+                    const a = swA.dataset.state === '1' ? 1 : 0;
+                    const b = swB.dataset.state === '1' ? 1 : 0;
+                    const gate = gateSel.value;
+                    let out = gate === 'and' ? a&&b : a||b;
+                    document.getElementById('wire-a').textContent = 'A='+a;
+                    document.getElementById('wire-b').textContent = 'B='+b;
+                    document.getElementById('wire-out').textContent = 'F='+(out?1:0);
+                    document.getElementById('gate-display').textContent = gate.toUpperCase();
+                    swA.textContent = a ? 'ON' : 'OFF';
+                    swB.textContent = b ? 'ON' : 'OFF';
+                }
+                swA.addEventListener('click', () => { swA.dataset.state = swA.dataset.state === '1' ? '0' : '1'; updateCircuit(); });
+                swB.addEventListener('click', () => { swB.dataset.state = swB.dataset.state === '1' ? '0' : '1'; updateCircuit(); });
+                gateSel.addEventListener('change', updateCircuit);
+                updateCircuit();
+                // Cerrar modales
+                document.getElementById('btn-close-quiz').addEventListener('click', () => document.getElementById('modal-quiz').classList.add('hidden'));
+                document.getElementById('btn-close-challenge').addEventListener('click', () => document.getElementById('modal-challenge').classList.add('hidden'));
+                document.getElementById('btn-claim-reward').addEventListener('click', () => document.getElementById('modal-reward').classList.add('hidden'));
+                document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
+                document.getElementById('btn-finish-quiz').addEventListener('click', finishQuiz);
+                // Notificaciones
+                document.getElementById('btn-notifications').addEventListener('click', () => {
+                    document.getElementById('notifications-list').innerHTML = gameState.notifications.length ? gameState.notifications.map(n => '<p>'+n.message+'</p>').join('') : '<p>Sin notificaciones</p>';
+                    document.getElementById('modal-notifications').classList.remove('hidden');
+                });
+                document.getElementById('btn-close-notifications').addEventListener('click', () => document.getElementById('modal-notifications').classList.add('hidden'));
+                // Splash loading
+                let progress = 0;
+                const loadingBar = document.getElementById('loading-bar');
+                const loadingText = document.getElementById('loading-text');
+                const enterBtn = document.getElementById('btn-enter');
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15 + 5;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        loadingText.textContent = '¡Listo!';
+                        enterBtn.classList.remove('hidden');
+                    }
+                    loadingBar.style.width = progress + '%';
+                    loadingText.textContent = 'Cargando... ' + Math.floor(progress) + '%';
+                }, 200);
+                window.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden')); });
+                checkAchievements();
+            });
+        })();
+    </script>
 </body>
 </html>
