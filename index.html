@@ -1,3 +1,6 @@
+Te entrego el código completo y funcional de **BooleanQuest**, ya con la pantalla de carga arreglada (la barra se llena en 2 segundos y luego aparece el botón de entrar), los submenús funcionando, las pestañas de teoría/quiz en cada tema, el botón flotante de WhatsApp, el footer con derechos reservados y toda la gamificación robusta.
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -39,17 +42,21 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            line-height: 1.6;
         }
         button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; transition: var(--transition); }
         .hidden { display: none !important; }
 
-        /* ========== SPLASH ========== */
+        /* SPLASH MEJORADO */
         #splash-screen {
-            position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0d1525, #050810);
-            display: flex; align-items: center; justify-content: center; z-index: 10000;
-            flex-direction: column; transition: opacity 0.8s, visibility 0.8s;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(ellipse at center, #0d1525 0%, #050810 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; flex-direction: column;
+            transition: opacity 0.8s, visibility 0.8s;
         }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-logo { text-align: center; }
         .logo-icon { font-size: 6rem; color: var(--accent-cyan); text-shadow: 0 0 40px #00e5ff; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
         .splash-logo h1 {
@@ -63,7 +70,7 @@
         .btn-primary { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: #000; padding: 0.8rem 2rem; border-radius: var(--radius-xl); font-weight: 700; box-shadow: 0 4px 20px rgba(0,229,255,0.4); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(0,229,255,0.6); }
 
-        /* ========== APP ========== */
+        /* APP */
         #app-container { display: flex; flex-direction: column; min-height: 100vh; }
         #main-header {
             height: 64px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color);
@@ -76,7 +83,7 @@
         .stat-badge { display: flex; align-items: center; gap: 0.3rem; background: var(--bg-secondary); padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; border: 1px solid var(--border-color); }
         .badge { position: absolute; top: -5px; right: -5px; background: var(--accent-red); color: #fff; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
 
-        /* ========== SIDEBAR ========== */
+        /* SIDEBAR */
         #sidebar {
             position: fixed; top: 64px; left: 0; width: 280px; height: calc(100vh - 64px);
             background: var(--bg-primary); border-right: 1px solid var(--border-color);
@@ -88,19 +95,20 @@
         .nav-item {
             display: flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1.5rem;
             font-weight: 500; color: var(--text-secondary); border-left: 3px solid transparent;
-            transition: var(--transition);
+            transition: var(--transition); width: 100%; text-align: left;
         }
         .nav-item:hover, .nav-item.active { background: var(--bg-secondary); color: var(--accent-cyan); border-left-color: var(--accent-cyan); }
-        .submenu { background: var(--bg-secondary); padding-left: 2rem; }
-        .submenu .nav-item { font-size: 0.9rem; padding: 0.6rem 1.5rem; }
+        .submenu { background: var(--bg-secondary); }
+        .submenu .nav-item { font-size: 0.9rem; padding: 0.6rem 1.5rem 0.6rem 2.5rem; }
+        .submenu.hidden { display: none; }
 
-        /* ========== CONTENIDO PRINCIPAL ========== */
+        /* CONTENIDO */
         #main-content { margin-left: 280px; padding: 2rem; flex: 1; }
         .content-section { display: none; animation: fadeUp 0.4s ease; }
         .content-section.active { display: block; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
 
-        .lesson-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .lesson-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1.5rem; }
         .lesson-card h3 { color: var(--accent-cyan); margin-bottom: 0.8rem; }
         .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
         .tab-btn { padding: 0.6rem 1.5rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: transparent; color: var(--text-secondary); font-weight: 600; }
@@ -109,18 +117,27 @@
         .btn-secondary { background: var(--bg-tertiary); padding: 0.7rem 1.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); }
         .footer { background: var(--bg-primary); border-top: 1px solid var(--border-color); padding: 1.5rem; text-align: center; color: var(--text-muted); margin-top: auto; }
 
-        /* ========== BOTÓN WHATSAPP ========== */
+        /* WHATSAPP FLOAT */
         .whatsapp-float {
             position: fixed; bottom: 30px; right: 30px; z-index: 9999;
             background: #25D366; color: #fff; width: 60px; height: 60px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 2rem; box-shadow: 0 4px 20px rgba(37,211,102,0.5);
-            transition: transform 0.3s; animation: bounce 2s infinite;
+            transition: transform 0.3s; animation: bounce 2s infinite; text-decoration: none;
         }
         .whatsapp-float:hover { transform: scale(1.1); }
         @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
 
-        /* ========== RESPONSIVE ========== */
+        /* MODALES */
+        .modal { position: fixed; inset: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 5000; backdrop-filter: blur(4px); }
+        .modal.hidden { display: none !important; }
+        .modal-content { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--bg-tertiary); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.5rem 0; }
+        .quiz-option { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; text-align: left; }
+        .quiz-option.correct { border-color: var(--accent-green); background: #1a3a2a; }
+        .quiz-option.incorrect { border-color: var(--accent-red); background: #3a1a1a; }
+
         @media (max-width: 1024px) {
             #sidebar { transform: translateX(-100%); }
             #sidebar.open { transform: translateX(0); }
@@ -129,7 +146,7 @@
     </style>
 </head>
 <body>
-    <!-- SPLASH -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-logo">
             <span class="logo-icon">⊿</span>
@@ -137,14 +154,15 @@
             <p style="color:var(--text-secondary)">Domina el Álgebra de Boole</p>
         </div>
         <div class="loading-bar-container"><div id="loading-bar" class="loading-bar"></div></div>
+        <p id="loading-text" style="color:var(--text-muted)">Inicializando circuitos lógicos...</p>
         <button id="btn-enter" class="btn-primary hidden" style="margin-top:1rem;">ENTRAR AL MUNDO DIGITAL</button>
     </div>
 
-    <!-- APP -->
+    <!-- APP CONTAINER -->
     <div id="app-container" class="hidden">
         <header id="main-header">
             <div class="header-left">
-                <button id="btn-toggle-sidebar" class="btn-icon" style="font-size:1.5rem;">☰</button>
+                <button id="btn-toggle-sidebar" style="font-size:1.5rem;">☰</button>
                 <span class="header-logo">⊿ BooleanQuest</span>
             </div>
             <div class="header-right">
@@ -162,47 +180,46 @@
                 <div class="avatar" id="avatar-display">🧑‍💻</div>
                 <div style="font-weight:600;" id="sidebar-username">Aprendiz Digital</div>
                 <div style="color:var(--accent-purple); font-size:0.9rem;" id="sidebar-rank">Novato Binario</div>
-                <div style="margin-top:0.5rem; height:6px; background:var(--bg-tertiary); border-radius:3px;"><div id="sidebar-xp-bar" style="height:100%; width:0%; background:var(--accent-cyan); border-radius:3px;"></div></div>
             </div>
             <nav>
                 <button class="nav-item active" data-section="inicio">🏠 Inicio</button>
                 <!-- Temas con submenús -->
-                <button class="nav-item" data-section="tema1" data-bs-toggle="collapse" data-bs-target="#submenu1">📖 1. Fundamentos</button>
+                <button class="nav-item" data-section="tema1" data-toggle="submenu1">📖 1. Fundamentos</button>
                 <div id="submenu1" class="submenu hidden">
                     <button class="nav-item" data-section="tema1" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema1" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema2" data-bs-toggle="collapse" data-bs-target="#submenu2">🔢 2. Variables Booleanas</button>
+                <button class="nav-item" data-section="tema2" data-toggle="submenu2">🔢 2. Variables Booleanas</button>
                 <div id="submenu2" class="submenu hidden">
                     <button class="nav-item" data-section="tema2" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema2" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema3" data-bs-toggle="collapse" data-bs-target="#submenu3">🚪 3. Compuertas Lógicas</button>
+                <button class="nav-item" data-section="tema3" data-toggle="submenu3">🚪 3. Compuertas Lógicas</button>
                 <div id="submenu3" class="submenu hidden">
                     <button class="nav-item" data-section="tema3" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema3" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema4" data-bs-toggle="collapse" data-bs-target="#submenu4">📊 4. Tablas de Verdad</button>
+                <button class="nav-item" data-section="tema4" data-toggle="submenu4">📊 4. Tablas de Verdad</button>
                 <div id="submenu4" class="submenu hidden">
                     <button class="nav-item" data-section="tema4" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema4" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema5" data-bs-toggle="collapse" data-bs-target="#submenu5">✂️ 5. Simplificación</button>
+                <button class="nav-item" data-section="tema5" data-toggle="submenu5">✂️ 5. Simplificación</button>
                 <div id="submenu5" class="submenu hidden">
                     <button class="nav-item" data-section="tema5" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema5" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema6" data-bs-toggle="collapse" data-bs-target="#submenu6">💻 6. Hardware & Circuitos</button>
+                <button class="nav-item" data-section="tema6" data-toggle="submenu6">💻 6. Hardware & Circuitos</button>
                 <div id="submenu6" class="submenu hidden">
                     <button class="nav-item" data-section="tema6" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema6" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema7" data-bs-toggle="collapse" data-bs-target="#submenu7">🧠 7. Procesadores</button>
+                <button class="nav-item" data-section="tema7" data-toggle="submenu7">🧠 7. Procesadores</button>
                 <div id="submenu7" class="submenu hidden">
                     <button class="nav-item" data-section="tema7" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema7" data-tab="quiz">🧪 Quiz</button>
                 </div>
-                <button class="nav-item" data-section="tema8" data-bs-toggle="collapse" data-bs-target="#submenu8">⚡ 8. Optimización de Código</button>
+                <button class="nav-item" data-section="tema8" data-toggle="submenu8">⚡ 8. Optimización de Código</button>
                 <div id="submenu8" class="submenu hidden">
                     <button class="nav-item" data-section="tema8" data-tab="teoria">📘 Teoría</button>
                     <button class="nav-item" data-section="tema8" data-tab="quiz">🧪 Quiz</button>
@@ -214,28 +231,590 @@
         </aside>
 
         <main id="main-content">
-            <!-- Secciones dinámicas generadas por JS -->
-            <section id="section-inicio" class="content-section active"></section>
-            <!-- Las secciones de temas se crean dinámicamente -->
+            <!-- Sección Inicio -->
+            <section id="section-inicio" class="content-section active">
+                <h2 style="font-size:2rem; margin-bottom:1rem;">⚡ Bienvenido a BooleanQuest</h2>
+                <p style="color:var(--text-secondary); margin-bottom:2rem;">Explora el Álgebra de Boole, la base de toda la computación moderna.</p>
+                <div class="lesson-card">
+                    <h3>🗺️ Mapa de Conocimiento</h3>
+                    <div id="map-nodes-container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:1rem; margin-top:1rem;"></div>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:1rem; margin:1.5rem 0;">
+                    <div class="lesson-card" style="text-align:center;"><span style="font-size:2rem;">📚</span><br><span id="stat-lecciones">0/8</span><br>Lecciones</div>
+                    <div class="lesson-card" style="text-align:center;"><span style="font-size:2rem;">✅</span><br><span id="stat-quizzes">0</span><br>Quizzes</div>
+                    <div class="lesson-card" style="text-align:center;"><span style="font-size:2rem;">⚔️</span><br><span id="stat-desafios">0</span><br>Desafíos</div>
+                    <div class="lesson-card" style="text-align:center;"><span style="font-size:2rem;">⏱️</span><br><span id="stat-tiempo">0h</span><br>Estudio</div>
+                </div>
+            </section>
+            <!-- Las demás secciones se generan dinámicamente -->
         </main>
 
         <footer class="footer">
-            <p>© 2025 BooleanQuest · GRUPO 4|MC · Todos los derechos reservados</p>
+            <p>© 2025 BooleanQuest · <strong>GRUPO 4|MC</strong> · Todos los derechos reservados</p>
         </footer>
     </div>
 
-    <!-- Botón WhatsApp -->
+    <!-- BOTÓN WHATSAPP -->
     <a href="https://wa.me/593989352793" target="_blank" class="whatsapp-float" title="Contactar al desarrollador">💬</a>
 
-    <!-- Modales -->
-    <div id="modal-quiz" class="modal hidden">...</div>
-    <div id="modal-challenge" class="modal hidden">...</div>
-    <div id="modal-notifications" class="modal hidden">...</div>
-    <div id="toast-container" style="position:fixed; top:80px; right:20px; z-index:6000;"></div>
+    <!-- MODALES -->
+    <div id="modal-quiz" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="btn-close-quiz">✕</button>
+            <h2 id="quiz-title">Quiz</h2>
+            <div style="margin:0.5rem 0;">⏱️ <span id="timer-seconds">60</span>s</div>
+            <p id="quiz-question-text"></p>
+            <div id="quiz-options" class="quiz-options"></div>
+            <div id="quiz-result" class="hidden"></div>
+            <button id="btn-next-question" class="btn-primary hidden">Siguiente</button>
+            <button id="btn-finish-quiz" class="btn-primary hidden">Finalizar</button>
+        </div>
+    </div>
+    <div id="modal-challenge" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="btn-close-challenge">✕</button>
+            <h2 id="challenge-modal-title">Desafío</h2>
+            <div id="challenge-content"></div>
+            <div id="challenge-feedback" class="hidden"></div>
+            <button id="btn-submit-challenge" class="btn-primary">Enviar</button>
+        </div>
+    </div>
+    <div id="modal-notifications" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="btn-close-notifications">✕</button>
+            <h2>Notificaciones</h2>
+            <div id="notifications-list"></div>
+        </div>
+    </div>
+    <div id="toast-container" style="position:fixed; top:80px; right:20px; z-index:6000; display:flex; flex-direction:column; gap:0.5rem;"></div>
 
     <script>
-        // Todo el JavaScript anterior mejorado con submenús, pestañas, etc.
-        // (Se mantiene la lógica completa ya implementada, añadiendo los nuevos requisitos)
+        (function() {
+            // ========== ESTADO ==========
+            const STORAGE_KEY = 'booleanquest_save_v2';
+            const LESSONS = [
+                { id: 'tema1', name: 'Fundamentos', icon: '📖' },
+                { id: 'tema2', name: 'Variables Booleanas', icon: '🔢' },
+                { id: 'tema3', name: 'Compuertas Lógicas', icon: '🚪' },
+                { id: 'tema4', name: 'Tablas de Verdad', icon: '📊' },
+                { id: 'tema5', name: 'Simplificación', icon: '✂️' },
+                { id: 'tema6', name: 'Hardware & Circuitos', icon: '💻' },
+                { id: 'tema7', name: 'Procesadores', icon: '🧠' },
+                { id: 'tema8', name: 'Optimización de Código', icon: '⚡' }
+            ];
+            const THEORY_CONTENT = {
+                tema1: '<h3>📖 Fundamentos</h3><p>El Álgebra de Boole es un sistema matemático desarrollado por <strong>George Boole</strong> en 1854. Opera con valores binarios <strong>0 (falso)</strong> y <strong>1 (verdadero)</strong>. Es la base del hardware digital: los circuitos solo entienden dos estados (encendido/apagado).</p>',
+                tema2: '<h3>🔢 Variables y Funciones Booleanas</h3><p>Una variable booleana (A, B, C...) toma valores 0 o 1. Una función combina variables con operadores lógicos (AND, OR, NOT) para producir un resultado. Ejemplo: <code>F = A·B + Ā·C</code>.</p>',
+                tema3: '<h3>🚪 Compuertas Lógicas</h3><p>AND, OR, NOT, NAND, NOR, XOR, XNOR. Cada una implementa una operación booleana con transistores. Son los bloques de construcción de procesadores y memorias.</p>',
+                tema4: '<h3>📊 Tablas de Verdad</h3><p>Muestran todas las combinaciones posibles de entradas y sus salidas. Para n variables hay 2<sup>n</sup> filas. Herramienta fundamental para diseñar y verificar circuitos.</p>',
+                tema5: '<h3>✂️ Simplificación</h3><p>Reducir expresiones booleanas minimiza el número de compuertas necesarias, ahorrando energía, espacio y costo. Métodos: teoremas algebraicos, Mapas de Karnaugh, Quine-McCluskey.</p>',
+                tema6: '<h3>💻 Hardware & Circuitos</h3><p>Cada función booleana se puede sintetizar en un circuito físico con compuertas lógicas. Los diseños se describen con lenguajes como Verilog o VHDL.</p>',
+                tema7: '<h3>🧠 Procesadores</h3><p>Una CPU contiene miles de millones de transistores organizados en compuertas. La ALU realiza operaciones aritméticas usando solo lógica booleana (ej. sumador con XOR y AND).</p>',
+                tema8: '<h3>⚡ Optimización de Código</h3><p>Los compiladores aplican álgebra booleana para simplificar condiciones (<code>if(x>0 && x>5) → if(x>5)</code>) y reducir instrucciones. Las operaciones bit a bit son extremadamente rápidas.</p>'
+            };
+            const QUIZ_QUESTIONS = {
+                tema1: [
+                    { q: "¿Quién desarrolló el Álgebra de Boole?", options: ["George Boole", "Alan Turing", "Claude Shannon", "John von Neumann"], answer: 0 },
+                    { q: "¿Cuántos valores maneja?", options: ["10", "2", "8", "Infinitos"], answer: 1 },
+                    { q: "¿Qué valor representa 'verdadero'?", options: ["0", "1", "2", "-1"], answer: 1 },
+                    { q: "Es fundamental para...", options: ["Solo matemáticas", "Hardware digital", "Solo software", "Redes sociales"], answer: 1 },
+                    { q: "Año de publicación de Boole", options: ["1900", "1854", "1945", "1800"], answer: 1 }
+                ],
+                tema2: [
+                    { q: "Valores de una variable booleana", options: ["0 y 1", "0 a 9", "A y B", "Solo texto"], answer: 0 },
+                    { q: "F = A + B, ¿cuándo F=0?", options: ["A=1,B=1", "A=0,B=0", "A=0,B=1", "Nunca"], answer: 1 },
+                    { q: "Negación de A", options: ["A + A", "Ā o A'", "A · 1", "A + 0"], answer: 1 },
+                    { q: "Una función booleana describe un...", options: ["Programa", "Circuito digital", "Base de datos", "SO"], answer: 1 },
+                    { q: "3 variables, combinaciones", options: ["6", "8", "9", "3"], answer: 1 }
+                ],
+                tema3: [
+                    { q: "Compuerta AND: salida 1 si...", options: ["Alguna es 1", "Todas son 1", "Son diferentes", "Ninguna"], answer: 1 },
+                    { q: "La compuerta NOT...", options: ["Suma", "Invierte", "Multiplica", "Duplica"], answer: 1 },
+                    { q: "Compuerta universal", options: ["AND", "OR", "NAND", "XOR"], answer: 2 },
+                    { q: "XOR es 1 cuando...", options: ["Iguales", "Diferentes", "Una es 1", "Siempre"], answer: 1 },
+                    { q: "Símbolo AND", options: ["+", "·", "⊕", "¬"], answer: 1 }
+                ],
+                tema4: [
+                    { q: "La tabla de verdad muestra...", options: ["Solo entradas", "Todas las combinaciones", "Solo salidas", "Circuito físico"], answer: 1 },
+                    { q: "2 variables, ¿cuántas filas?", options: ["2", "4", "8", "16"], answer: 1 },
+                    { q: "F=1 significa...", options: ["Falso", "Verdadero", "Indefinido", "Error"], answer: 1 },
+                    { q: "Herramienta visual para simplificar", options: ["Diagrama de flujo", "Mapa de Karnaugh", "Editor de texto", "Calculadora"], answer: 1 },
+                    { q: "La tabla ayuda a...", options: ["Diseñar circuitos", "Escribir novelas", "Cocinar", "Navegar"], answer: 0 }
+                ],
+                tema5: [
+                    { q: "Simplificar reduce...", options: ["Complejidad", "Compuertas", "Ambas", "Nada"], answer: 1 },
+                    { q: "Ley de Morgan", options: ["(A·B)' = A' + B'", "A + 0 = A", "A · 1 = A", "A + A' = 1"], answer: 0 },
+                    { q: "A + A·B = ?", options: ["A + B", "A", "B", "A·B"], answer: 1 },
+                    { q: "Método algorítmico", options: ["K-Map", "Quine-McCluskey", "Dibujar", "Probar"], answer: 1 },
+                    { q: "Simplificar ahorra...", options: ["Transistores", "Código", "Ambas", "Ninguna"], answer: 2 }
+                ],
+                tema6: [
+                    { q: "AND en hardware se implementa con transistores en...", options: ["Paralelo", "Serie", "Mixto", "Ninguno"], answer: 1 },
+                    { q: "Lenguaje de descripción de hardware", options: ["Python", "HTML", "Verilog/VHDL", "CSS"], answer: 2 },
+                    { q: "Sumador básico usa...", options: ["AND y OR", "XOR y AND", "NOT y OR", "Solo NAND"], answer: 1 },
+                    { q: "Unidad mínima lógica", options: ["CPU", "Transistor", "Compuerta lógica", "Registro"], answer: 2 },
+                    { q: "Base de circuitos integrados", options: ["Álgebra de Boole", "Motores", "Bombillas", "Pilas"], answer: 0 }
+                ],
+                tema7: [
+                    { q: "La ALU se construye con...", options: ["Solo software", "Compuertas lógicas", "RAM", "Baterías"], answer: 1 },
+                    { q: "Ejecuta operaciones booleanas", options: ["Disco duro", "ALU", "Pantalla", "Teclado"], answer: 1 },
+                    { q: "Registros se basan en...", options: ["Flip-flops", "Condensadores", "Resistencias", "LEDs"], answer: 0 },
+                    { q: "Transistores en CPU moderno", options: ["Cientos", "Millones", "Miles de millones", "Cables"], answer: 2 },
+                    { q: "Simplificación booleana reduce...", options: ["Consumo", "Calor", "Espacio", "Todo"], answer: 3 }
+                ],
+                tema8: [
+                    { q: "Compilador optimiza con...", options: ["Álgebra booleana", "Eliminar comentarios", "Cambiar nombres", "Nada"], answer: 0 },
+                    { q: "Cortocircuito (&&) evita...", options: ["Código innecesario", "Memoria", "Escribir", "Nada"], answer: 0 },
+                    { q: "Operación más rápida", options: ["División", "AND bit a bit", "Raíz cuadrada", "Logaritmo"], answer: 1 },
+                    { q: "if(x>0 && x>5) ->", options: ["if(x>0)", "if(x>5)", "if(x==0)", "No"], answer: 1 },
+                    { q: "Optimizaciones mejoran...", options: ["Rendimiento", "Legibilidad", "Mantenimiento", "Todas"], answer: 3 }
+                ]
+            };
+            const ACHIEVEMENTS = [
+                { id: 'first_lesson', name: 'Primer Paso', icon: '👶', condition: s => s.completedLessons.length >= 1 },
+                { id: 'half_lessons', name: 'Mitad del Camino', icon: '🚶', condition: s => s.completedLessons.length >= 4 },
+                { id: 'all_lessons', name: 'Maestro Booleano', icon: '🧙', condition: s => s.completedLessons.length >= 8 },
+                { id: 'first_quiz', name: 'Primer Quiz', icon: '📝', condition: s => s.quizzesPassed >= 1 },
+                { id: 'quiz_master', name: 'Quiz Master', icon: '🏅', condition: s => s.quizzesPassed >= 5 },
+                { id: 'challenge1', name: 'Retador', icon: '⚔️', condition: s => s.challengesCompleted >= 1 },
+                { id: 'challenge_all', name: 'Leyenda', icon: '🛡️', condition: s => s.challengesCompleted >= 3 },
+                { id: 'level5', name: 'Nivel 5', icon: '⬆️', condition: s => s.level >= 5 },
+                { id: 'level10', name: 'Nivel 10', icon: '🔟', condition: s => s.level >= 10 },
+                { id: 'coins100', name: 'Ahorrador', icon: '🪙', condition: s => s.coins >= 100 },
+                { id: 'streak3', name: 'Constante', icon: '🔥', condition: s => s.streak >= 3 },
+                { id: 'simplifier', name: 'Simplificador', icon: '✂️', condition: s => s.usedSimplifier }
+            ];
+            const defaultState = { xp:0, level:1, coins:0, streak:0, lastLoginDate:null, completedLessons:[], quizzesPassed:0, challengesCompleted:0, completedChallenges:[], achievements:[], inventory:['default'], activeAvatar:'default', usedSimplifier:false, totalStudyTime:0, notifications:[] };
+            let gameState = JSON.parse(JSON.stringify(defaultState));
+
+            function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); }
+            function loadState() {
+                try { const saved = localStorage.getItem(STORAGE_KEY); if (saved) gameState = { ...defaultState, ...JSON.parse(saved) }; } catch(e) {}
+            }
+
+            // ========== UI HELPERS ==========
+            function updateUI() {
+                document.getElementById('xp-current').textContent = gameState.xp;
+                document.getElementById('level-number').textContent = gameState.level;
+                document.getElementById('coins-amount').textContent = gameState.coins;
+                document.getElementById('streak-count').textContent = gameState.streak;
+                const progress = (gameState.completedLessons.length / LESSONS.length) * 100;
+                document.getElementById('stat-lecciones').textContent = gameState.completedLessons.length + '/8';
+                document.getElementById('stat-quizzes').textContent = gameState.quizzesPassed;
+                document.getElementById('stat-desafios').textContent = gameState.challengesCompleted;
+                document.getElementById('stat-tiempo').textContent = gameState.totalStudyTime + 'min';
+                renderMapNodes();
+                updateNotificationBadge();
+                // Actualizar sidebar
+                const avatarMap = { default: '🧑‍💻', avatar1: '👨‍🔧', avatar2: '🤖', avatar3: '🧙' };
+                document.getElementById('avatar-display').textContent = avatarMap[gameState.activeAvatar] || '🧑‍💻';
+                document.getElementById('sidebar-rank').textContent = gameState.level >= 10 ? 'Maestro Digital' : gameState.level >= 5 ? 'Ingeniero' : 'Novato Binario';
+            }
+            function renderMapNodes() {
+                const container = document.getElementById('map-nodes-container');
+                if (!container) return;
+                container.innerHTML = '';
+                LESSONS.forEach(l => {
+                    const node = document.createElement('div');
+                    node.className = 'lesson-card';
+                    node.style.textAlign = 'center';
+                    node.style.cursor = 'pointer';
+                    node.style.opacity = gameState.completedLessons.includes(l.id) ? '1' : '0.6';
+                    node.innerHTML = `<span style="font-size:2rem;">${l.icon}</span><br><small>${l.name}</small>`;
+                    node.addEventListener('click', () => navigateTo(l.id, 'teoria'));
+                    container.appendChild(node);
+                });
+            }
+            function showToast(msg) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.style.cssText = 'background:var(--bg-card); padding:0.8rem 1.2rem; border-radius:var(--radius-md); border:1px solid var(--border-color); animation:slideInRight 0.3s ease;';
+                toast.textContent = msg;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+            function updateNotificationBadge() {
+                const unread = gameState.notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notification-badge');
+                badge.textContent = unread;
+                badge.classList.toggle('hidden', unread === 0);
+            }
+
+            // ========== NAVEGACIÓN ==========
+            function navigateTo(sectionId, tab = 'teoria') {
+                // Ocultar todas las secciones
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                // Si es inicio o secciones especiales
+                if (['inicio', 'desafios', 'logros', 'tienda'].includes(sectionId)) {
+                    const target = document.getElementById('section-' + sectionId);
+                    if (target) target.classList.add('active');
+                } else {
+                    // Es un tema: crear/actualizar sección dinámica
+                    let section = document.getElementById('section-' + sectionId);
+                    if (!section) {
+                        section = document.createElement('section');
+                        section.id = 'section-' + sectionId;
+                        section.className = 'content-section';
+                        document.getElementById('main-content').appendChild(section);
+                    }
+                    section.innerHTML = '';
+                    section.classList.add('active');
+                    const lesson = LESSONS.find(l => l.id === sectionId);
+                    if (tab === 'teoria') {
+                        section.innerHTML = `
+                            <h2 style="font-size:2rem; margin-bottom:1rem;">${lesson.icon} ${lesson.name}</h2>
+                            <div class="lesson-card">${THEORY_CONTENT[sectionId] || '<p>Contenido en desarrollo.</p>'}</div>
+                            <div class="nav-buttons">
+                                <button class="btn-secondary" id="btn-prev-${sectionId}">← Anterior</button>
+                                <button class="btn-primary" id="btn-quiz-${sectionId}">🧪 Ir al Quiz</button>
+                                <button class="btn-secondary" id="btn-next-${sectionId}">Siguiente →</button>
+                            </div>
+                        `;
+                        document.getElementById('btn-quiz-' + sectionId).addEventListener('click', () => navigateTo(sectionId, 'quiz'));
+                        document.getElementById('btn-prev-' + sectionId).addEventListener('click', () => navigateToPrev(sectionId));
+                        document.getElementById('btn-next-' + sectionId).addEventListener('click', () => navigateToNext(sectionId));
+                    } else if (tab === 'quiz') {
+                        section.innerHTML = `
+                            <h2 style="font-size:2rem; margin-bottom:1rem;">${lesson.icon} Quiz: ${lesson.name}</h2>
+                            <p style="color:var(--text-secondary); margin-bottom:1rem;">Demuestra tus conocimientos sobre ${lesson.name}.</p>
+                            <button class="btn-primary" id="btn-start-quiz-${sectionId}">▶️ Iniciar Quiz</button>
+                            <button class="btn-secondary" style="margin-left:1rem;" id="btn-back-teoria-${sectionId}">← Volver a Teoría</button>
+                        `;
+                        document.getElementById('btn-start-quiz-' + sectionId).addEventListener('click', () => startQuiz(sectionId));
+                        document.getElementById('btn-back-teoria-' + sectionId).addEventListener('click', () => navigateTo(sectionId, 'teoria'));
+                    }
+                }
+                // Actualizar sidebar activo
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                const activeNav = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+                if (activeNav) activeNav.classList.add('active');
+                // Cerrar sidebar en móvil
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
+            function navigateToPrev(currentId) {
+                const idx = LESSONS.findIndex(l => l.id === currentId);
+                if (idx > 0) navigateTo(LESSONS[idx-1].id, 'teoria');
+            }
+            function navigateToNext(currentId) {
+                const idx = LESSONS.findIndex(l => l.id === currentId);
+                if (idx < LESSONS.length - 1) navigateTo(LESSONS[idx+1].id, 'teoria');
+            }
+
+            // ========== SISTEMA DE RECOMPENSAS ==========
+            function addXP(amount) { gameState.xp += amount; checkLevelUp(); saveState(); updateUI(); }
+            function addCoins(amount) { gameState.coins += amount; saveState(); updateUI(); }
+            function checkLevelUp() {
+                while (gameState.xp >= gameState.level * 100 && gameState.level < 50) {
+                    gameState.xp -= gameState.level * 100;
+                    gameState.level++;
+                    showToast('🎉 ¡Subiste al nivel ' + gameState.level + '!');
+                }
+            }
+            function completeLesson(lessonId) {
+                if (!gameState.completedLessons.includes(lessonId)) {
+                    gameState.completedLessons.push(lessonId);
+                    addXP(50); addCoins(15);
+                    gameState.totalStudyTime += 5;
+                    showToast('✅ Lección completada +50 XP');
+                    checkAchievements();
+                }
+            }
+            function completeQuiz(lessonId) {
+                completeLesson(lessonId);
+                gameState.quizzesPassed++;
+                addXP(50); addCoins(20);
+                checkAchievements();
+            }
+            function completeChallenge(id) {
+                if (!gameState.completedChallenges.includes(id)) {
+                    gameState.completedChallenges.push(id);
+                    gameState.challengesCompleted++;
+                    const rewards = {1:[30,15], 2:[50,25], 3:[75,40]};
+                    const [xp, coins] = rewards[id] || [30,15];
+                    addXP(xp); addCoins(coins);
+                    showToast('🏆 ¡Desafío completado!');
+                    checkAchievements();
+                }
+            }
+            function checkAchievements() {
+                ACHIEVEMENTS.forEach(a => {
+                    if (!gameState.achievements.includes(a.id) && a.condition(gameState)) {
+                        gameState.achievements.push(a.id);
+                        showToast('🏅 Logro: ' + a.name);
+                        addXP(20); addCoins(10);
+                    }
+                });
+                saveState();
+                updateUI();
+            }
+
+            // ========== QUIZ ==========
+            let quizData = null, currentQuizLesson = null;
+            function startQuiz(lessonId) {
+                const questions = QUIZ_QUESTIONS[lessonId];
+                if (!questions) return;
+                currentQuizLesson = lessonId;
+                quizData = { questions: [...questions], currentIndex: 0, score: 0, timer: 60, timerInterval: null, answered: false };
+                document.getElementById('quiz-title').textContent = 'Quiz: ' + (LESSONS.find(l=>l.id===lessonId)?.name || '');
+                document.getElementById('modal-quiz').classList.remove('hidden');
+                showQuestion();
+                startTimer();
+            }
+            function showQuestion() {
+                if (quizData.currentIndex >= quizData.questions.length) { finishQuiz(); return; }
+                const q = quizData.questions[quizData.currentIndex];
+                document.getElementById('quiz-question-text').textContent = q.q;
+                const opts = document.getElementById('quiz-options');
+                opts.innerHTML = '';
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quiz-option';
+                    btn.textContent = opt;
+                    btn.addEventListener('click', () => selectAnswer(i));
+                    opts.appendChild(btn);
+                });
+                document.getElementById('quiz-result').classList.add('hidden');
+                document.getElementById('btn-next-question').classList.add('hidden');
+                document.getElementById('btn-finish-quiz').classList.add('hidden');
+                quizData.answered = false;
+            }
+            function selectAnswer(index) {
+                if (quizData.answered) return;
+                quizData.answered = true;
+                const q = quizData.questions[quizData.currentIndex];
+                const correct = index === q.answer;
+                if (correct) quizData.score++;
+                document.querySelectorAll('.quiz-option').forEach((b, i) => {
+                    b.classList.add(i === q.answer ? 'correct' : (i === index ? 'incorrect' : ''));
+                    b.disabled = true;
+                });
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('quiz-result').textContent = correct ? '✅ Correcto' : '❌ Incorrecto';
+                if (quizData.currentIndex < quizData.questions.length - 1) {
+                    document.getElementById('btn-next-question').classList.remove('hidden');
+                } else {
+                    document.getElementById('btn-finish-quiz').classList.remove('hidden');
+                }
+            }
+            function nextQuestion() { quizData.currentIndex++; showQuestion(); }
+            function finishQuiz() {
+                clearInterval(quizData.timerInterval);
+                const passed = quizData.score >= Math.ceil(quizData.questions.length * 0.6);
+                document.getElementById('quiz-question-text').textContent = passed ? '🎉 ¡Aprobado!' : '😞 No aprobado';
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('btn-next-question').classList.add('hidden');
+                document.getElementById('btn-finish-quiz').classList.add('hidden');
+                if (passed) completeQuiz(currentQuizLesson);
+                setTimeout(() => document.getElementById('modal-quiz').classList.add('hidden'), 2000);
+            }
+            function startTimer() {
+                clearInterval(quizData.timerInterval);
+                quizData.timer = 60;
+                document.getElementById('timer-seconds').textContent = quizData.timer;
+                quizData.timerInterval = setInterval(() => {
+                    quizData.timer--;
+                    document.getElementById('timer-seconds').textContent = quizData.timer;
+                    if (quizData.timer <= 0) {
+                        clearInterval(quizData.timerInterval);
+                        if (!quizData.answered) {
+                            quizData.answered = true;
+                            document.getElementById('quiz-result').classList.remove('hidden');
+                            document.getElementById('quiz-result').textContent = '⏰ Tiempo agotado';
+                            document.getElementById('btn-finish-quiz').classList.remove('hidden');
+                        }
+                    }
+                }, 1000);
+            }
+
+            // ========== INICIALIZACIÓN ==========
+            window.addEventListener('DOMContentLoaded', () => {
+                loadState();
+                // Racha
+                const today = new Date().toDateString();
+                if (gameState.lastLoginDate) {
+                    const diff = Math.floor((new Date() - new Date(gameState.lastLoginDate)) / 86400000);
+                    gameState.streak = diff === 1 ? gameState.streak + 1 : (diff > 1 ? 1 : gameState.streak);
+                } else gameState.streak = 1;
+                gameState.lastLoginDate = today;
+                saveState();
+                updateUI();
+
+                // Splash: barra y botón
+                setTimeout(() => {
+                    document.getElementById('loading-bar').style.width = '100%';
+                    document.getElementById('loading-text').textContent = '¡Listo!';
+                }, 200);
+                setTimeout(() => {
+                    document.getElementById('btn-enter').classList.remove('hidden');
+                }, 2500);
+                document.getElementById('btn-enter').addEventListener('click', () => {
+                    document.getElementById('splash-screen').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    navigateTo('inicio');
+                });
+
+                // Sidebar toggle
+                document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('open');
+                    document.getElementById('sidebar-overlay').classList.toggle('hidden');
+                });
+                document.getElementById('sidebar-overlay').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.remove('open');
+                    document.getElementById('sidebar-overlay').classList.add('hidden');
+                });
+
+                // Navegación principal
+                document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const section = e.currentTarget.dataset.section;
+                        const tab = e.currentTarget.dataset.tab || 'teoria';
+                        if (['inicio','desafios','logros','tienda'].includes(section)) {
+                            navigateTo(section);
+                        } else {
+                            navigateTo(section, tab);
+                        }
+                    });
+                });
+
+                // Toggle submenús
+                document.querySelectorAll('[data-toggle]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const targetId = btn.dataset.toggle;
+                        const submenu = document.getElementById(targetId);
+                        if (submenu) submenu.classList.toggle('hidden');
+                    });
+                });
+
+                // Desafíos (simplificado)
+                document.querySelector('.nav-item[data-section="desafios"]').addEventListener('click', () => {
+                    const section = document.getElementById('section-desafios');
+                    if (!section) {
+                        const sec = document.createElement('section');
+                        sec.id = 'section-desafios';
+                        sec.className = 'content-section';
+                        sec.innerHTML = `
+                            <h2>⚔️ Desafíos</h2>
+                            <div class="lesson-card"><h3>Desafío 1: Identifica la Compuerta</h3><button class="btn-primary btn-challenge" data-id="1">Enfrentar</button></div>
+                            <div class="lesson-card"><h3>Desafío 2: Simplifica</h3><button class="btn-primary btn-challenge" data-id="2">Enfrentar</button></div>
+                            <div class="lesson-card"><h3>Desafío 3: Diseña el Circuito</h3><button class="btn-primary btn-challenge" data-id="3">Enfrentar</button></div>
+                        `;
+                        document.getElementById('main-content').appendChild(sec);
+                        sec.querySelectorAll('.btn-challenge').forEach(b => {
+                            b.addEventListener('click', (e) => {
+                                const id = parseInt(e.target.dataset.id);
+                                startChallenge(id);
+                            });
+                        });
+                    }
+                    navigateTo('desafios');
+                });
+                // Logros
+                document.querySelector('.nav-item[data-section="logros"]').addEventListener('click', () => {
+                    const section = document.getElementById('section-logros');
+                    if (!section) {
+                        const sec = document.createElement('section');
+                        sec.id = 'section-logros';
+                        sec.className = 'content-section';
+                        sec.innerHTML = '<h2>🎖️ Logros</h2><div id="achievements-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:1rem;"></div>';
+                        document.getElementById('main-content').appendChild(sec);
+                    }
+                    renderAchievementsGrid();
+                    navigateTo('logros');
+                });
+                function renderAchievementsGrid() {
+                    const grid = document.getElementById('achievements-grid');
+                    if (!grid) return;
+                    grid.innerHTML = '';
+                    ACHIEVEMENTS.forEach(a => {
+                        const unlocked = gameState.achievements.includes(a.id);
+                        grid.innerHTML += `<div class="lesson-card" style="text-align:center; opacity:${unlocked ? 1 : 0.4}">${unlocked ? a.icon : '🔒'}<br>${a.name}</div>`;
+                    });
+                }
+                // Tienda
+                document.querySelector('.nav-item[data-section="tienda"]').addEventListener('click', () => {
+                    const section = document.getElementById('section-tienda');
+                    if (!section) {
+                        const sec = document.createElement('section');
+                        sec.id = 'section-tienda';
+                        sec.className = 'content-section';
+                        sec.innerHTML = `
+                            <h2>🛒 Tienda</h2>
+                            <div class="lesson-card">🧑‍💻 Avatar Ingeniero 🪙100 <button class="btn-shop" data-item="avatar1">Comprar</button></div>
+                            <div class="lesson-card">🤖 Avatar Robot 🪙200 <button class="btn-shop" data-item="avatar2">Comprar</button></div>
+                            <div class="lesson-card">🧙 Avatar Mago 🪙500 <button class="btn-shop" data-item="avatar3">Comprar</button></div>
+                        `;
+                        document.getElementById('main-content').appendChild(sec);
+                        sec.querySelectorAll('.btn-shop').forEach(b => {
+                            b.addEventListener('click', (e) => {
+                                const item = e.target.dataset.item;
+                                const prices = { avatar1:100, avatar2:200, avatar3:500 };
+                                if (gameState.coins >= prices[item] && !gameState.inventory.includes(item)) {
+                                    gameState.coins -= prices[item];
+                                    gameState.inventory.push(item);
+                                    gameState.activeAvatar = item;
+                                    saveState();
+                                    updateUI();
+                                    showToast('¡Avatar comprado!');
+                                } else showToast('No tienes monedas o ya lo tienes.');
+                            });
+                        });
+                    }
+                    navigateTo('tienda');
+                });
+
+                // Modales
+                document.getElementById('btn-close-quiz').addEventListener('click', () => document.getElementById('modal-quiz').classList.add('hidden'));
+                document.getElementById('btn-close-challenge').addEventListener('click', () => document.getElementById('modal-challenge').classList.add('hidden'));
+                document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
+                document.getElementById('btn-finish-quiz').addEventListener('click', finishQuiz);
+                document.getElementById('btn-notifications').addEventListener('click', () => {
+                    document.getElementById('notifications-list').innerHTML = gameState.notifications.length ? gameState.notifications.map(n => '<p>'+n.message+'</p>').join('') : '<p>Sin notificaciones</p>';
+                    document.getElementById('modal-notifications').classList.remove('hidden');
+                });
+                document.getElementById('btn-close-notifications').addEventListener('click', () => document.getElementById('modal-notifications').classList.add('hidden'));
+                document.getElementById('btn-submit-challenge')?.addEventListener('click', submitChallenge);
+                window.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden')); });
+
+                checkAchievements();
+            });
+
+            // Desafíos
+            function startChallenge(id) {
+                const challenges = {
+                    1: { title:'Identifica la Compuerta', q:'Tabla: 00→0, 01→1, 10→1, 11→1', answer:'OR', inputType:'select', options:['AND','OR','XOR','NAND'] },
+                    2: { title:'Simplifica', q:'Simplifica: A + A·B', answer:'A', inputType:'text' },
+                    3: { title:'Diseña el Circuito', q:'Circuito: (A AND B) OR (NOT A AND C). Expresión:', answer:'A·B + A\'·C', inputType:'select', options:['A·B + A\'·C','A + B·C','A·B·C','A\'·B\' + C'] }
+                };
+                const c = challenges[id];
+                document.getElementById('challenge-modal-title').textContent = c.title;
+                document.getElementById('challenge-content').innerHTML = `
+                    <p><strong>${c.q}</strong></p>
+                    ${c.inputType === 'select' ? 
+                        `<select id="challenge-input" style="width:100%;padding:0.5rem;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;">${c.options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>` :
+                        `<input id="challenge-input" style="width:100%;padding:0.5rem;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;" placeholder="Tu respuesta">`
+                    }
+                `;
+                document.getElementById('challenge-feedback').classList.add('hidden');
+                document.getElementById('modal-challenge').classList.remove('hidden');
+                window._currentChallenge = { id, answer: c.answer };
+            }
+            function submitChallenge() {
+                const input = document.getElementById('challenge-input');
+                const answer = input.value.trim();
+                const fb = document.getElementById('challenge-feedback');
+                fb.classList.remove('hidden');
+                if (answer.toLowerCase() === window._currentChallenge.answer.toLowerCase()) {
+                    fb.innerHTML = '<p style="color:var(--accent-green)">✅ Correcto!</p>';
+                    completeChallenge(window._currentChallenge.id);
+                    setTimeout(() => document.getElementById('modal-challenge').classList.add('hidden'), 1500);
+                } else {
+                    fb.innerHTML = '<p style="color:var(--accent-red)">❌ Incorrecto. Era: ' + window._currentChallenge.answer + '</p>';
+                }
+            }
+        })();
     </script>
 </body>
 </html>
+```
