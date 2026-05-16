@@ -9,12 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #020617;
-            --bg-primary: #0a0f1e;
-            --bg-secondary: #111827;
-            --bg-tertiary: #1a2236;
-            --bg-card: #131b2e;
-            --border-color: #2e3a55;
+            --bg-deep: #010314;
+            --bg-primary: #070c1a;
+            --bg-secondary: #0e1326;
+            --bg-tertiary: #151d30;
+            --bg-card: #101728;
+            --border-color: #2a3350;
             --accent-cyan: #00f5ff;
             --accent-blue: #3b82f6;
             --accent-purple: #c084fc;
@@ -22,7 +22,6 @@
             --accent-yellow: #fbbf24;
             --accent-red: #f87171;
             --accent-pink: #f472b6;
-            --accent-orange: #fb923c;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
@@ -36,13 +35,15 @@
             --shadow-glow-cyan: 0 0 18px rgba(0, 245, 255, 0.7);
             --shadow-glow-purple: 0 0 18px rgba(192, 132, 252, 0.7);
             --shadow-glow-green: 0 0 18px rgba(52, 211, 153, 0.7);
-            --shadow-glow-pink: 0 0 18px rgba(244, 114, 182, 0.7);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; line-height: 1.5; font-weight: 500; letter-spacing: 0.3px; }
         button { cursor: pointer; border: none; background: none; font-family: var(--font-body); color: inherit; transition: var(--transition); font-weight: 600; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .hidden { display: none !important; }
+
+        /* Canvas de fondo binario */
+        #binary-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.6; }
 
         #splash-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; flex-direction: column; overflow: hidden; transition: opacity 0.8s, visibility 0.8s; }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -59,8 +60,8 @@
         .btn-success { background: linear-gradient(135deg, var(--accent-green), #059669); color: #fff; padding: 0.8rem 2rem; border-radius: var(--radius-xl); font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 20px rgba(52,211,153,0.5); }
         .btn-success:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(52,211,153,0.8); }
 
-        #app-container { display: flex; flex-direction: column; min-height: 100vh; }
-        #main-header { height: 68px; background: rgba(10,15,30,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+        #app-container { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+        #main-header { height: 68px; background: rgba(7,12,26,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
         .header-left { display: flex; align-items: center; gap: 1rem; }
         .header-logo { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.4rem; text-shadow: 0 0 10px var(--accent-cyan); }
         .header-right { display: flex; align-items: center; gap: 1rem; }
@@ -70,14 +71,14 @@
 
         #sidebar { position: fixed; top: 68px; left: 0; width: 280px; height: calc(100vh - 68px); background: var(--bg-primary); border-right: 1px solid var(--border-color); z-index: 999; overflow-y: auto; display: flex; flex-direction: column; transition: transform 0.3s; }
         #sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 998; }
-        .sidebar-profile { padding: 2rem 1.2rem; text-align: center; border-bottom: 1px solid var(--border-color); background: linear-gradient(180deg, #0e1629, var(--bg-primary)); }
+        .sidebar-profile { padding: 2rem 1.2rem; text-align: center; border-bottom: 1px solid var(--border-color); background: linear-gradient(180deg, #0a1025, var(--bg-primary)); }
         .avatar-display { font-size: 3rem; filter: drop-shadow(0 0 8px var(--accent-cyan)); }
         .username { font-weight: 700; font-size: 1.3rem; margin-top: 0.3rem; color: var(--accent-cyan); }
         .user-title { font-size: 0.8rem; color: var(--accent-pink); text-transform: uppercase; letter-spacing: 1px; }
         .nav-item { display: flex; align-items: center; gap: 0.8rem; width: 100%; padding: 0.85rem 1.5rem; font-size: 0.95rem; color: var(--text-secondary); border-left: 3px solid transparent; text-align: left; font-weight: 600; transition: var(--transition); }
         .nav-item:hover, .nav-item.active { background: var(--bg-secondary); color: var(--accent-cyan); border-left-color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); }
         .nav-item .nav-icon { font-size: 1.2rem; width: 24px; text-align: center; }
-        .submenu { background: rgba(17,24,39,0.8); backdrop-filter: blur(4px); }
+        .submenu { background: rgba(14,19,38,0.8); backdrop-filter: blur(4px); }
         .submenu .nav-item { padding-left: 3rem; font-size: 0.9rem; }
         .submenu.hidden { display: none; }
 
@@ -86,7 +87,7 @@
         .content-section.active { display: block; }
         @keyframes fadeIn { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
         .section-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 15px var(--accent-cyan); }
-        .mission-card { background: linear-gradient(145deg, #131b2e 0%, #1e2a45 50%, #131b2e 100%); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .mission-card { background: linear-gradient(145deg, #101728 0%, #1a2540 50%, #101728 100%); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
         .btn-mission { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink)); color: #fff; padding: 0.9rem 2rem; border-radius: var(--radius-xl); font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 25px rgba(0,245,255,0.5); margin-top: 1rem; animation: glowPulse 2s infinite; }
         @keyframes glowPulse { 0%,100%{box-shadow: 0 0 25px rgba(0,245,255,0.5);} 50%{box-shadow: 0 0 40px rgba(0,245,255,0.8);} }
         .btn-mission:hover { transform: scale(1.03); animation: none; box-shadow: 0 0 50px rgba(0,245,255,0.9); }
@@ -104,7 +105,7 @@
         .game-container { background: var(--bg-tertiary); border-radius: var(--radius-md); padding: 1.5rem; margin: 1rem 0; border: 1px solid var(--border-color); box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
         .game-option { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 0.8rem 1.2rem; margin: 0.3rem; display: inline-block; cursor: pointer; font-weight: 600; transition: all 0.2s; user-select: none; }
         .game-option:hover { border-color: var(--accent-cyan); transform: translateY(-2px); box-shadow: var(--shadow-glow-cyan); }
-        .game-option.selected { border-color: var(--accent-pink); background: #2a1a30; box-shadow: var(--shadow-glow-pink); }
+        .game-option.selected { border-color: var(--accent-pink); background: #2a1a30; box-shadow: 0 0 15px var(--accent-pink); }
         .game-option.correct { border-color: var(--accent-green) !important; background: #0a2a1a !important; color: var(--accent-green) !important; }
         .game-option.incorrect { border-color: var(--accent-red) !important; background: #2a0a0a !important; color: var(--accent-red) !important; }
 
@@ -124,6 +125,9 @@
     </style>
 </head>
 <body>
+    <!-- Canvas para los 0s y 1s flotantes -->
+    <canvas id="binary-canvas"></canvas>
+
     <div id="splash-screen">
         <div class="splash-content">
             <div class="splash-logo-icon">🎮</div>
@@ -194,6 +198,57 @@
     <div id="toast-container"></div>
 
     <script>
+        // ========== FONDO DE 0s Y 1s FLOTANTES ==========
+        (function initBinaryBackground() {
+            const canvas = document.getElementById('binary-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            const particles = [];
+            const PARTICLE_COUNT = 200;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    value: Math.random() > 0.5 ? '0' : '1',
+                    opacity: Math.random() * 0.3 + 0.1,
+                    size: Math.random() * 10 + 8
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    ctx.font = `${p.size}px 'Orbitron'`;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                    ctx.fillText(p.value, p.x, p.y);
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+                    // Variar opacidad suavemente
+                    p.opacity += (Math.random() - 0.5) * 0.01;
+                    p.opacity = Math.max(0.05, Math.min(0.4, p.opacity));
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // ========== LÓGICA DEL JUEGO ==========
         (function() {
             const LESSONS = [
                 { id: 'tema1', name: 'Fundamentos', icon: '📖' },
@@ -405,8 +460,7 @@
                 }
             }
 
-            // ========== MISIONES MEJORADAS ==========
-
+            // ========== MISIONES ==========
             function initFundamentosGame(areaId) {
                 const area = document.getElementById(areaId);
                 const afirmaciones = [
@@ -597,7 +651,10 @@
 
             function initSimplificacionGame(areaId) {
                 const area = document.getElementById(areaId);
-                const pasos = [{ expr: "F = A·B + A·B'", solucion: 'A', explicacion: 'Factor común A: A·(B + B\') = A·1 = A' }, { expr: 'F = A + A·B', solucion: 'A', explicacion: 'Ley de absorción: A + A·B = A' }];
+                const pasos = [
+                    { expr: "F = A·B + A·B'", solucion: 'A', explicacion: 'Factor común A: A·(B + B\') = A·1 = A' },
+                    { expr: 'F = A + A·B', solucion: 'A', explicacion: 'Ley de absorción: A + A·B = A' }
+                ];
                 let current = 0, aciertos = 0;
                 function mostrar() {
                     if (current >= pasos.length) {
@@ -627,7 +684,7 @@
                             const fb = document.getElementById('sfb-' + areaId);
                             if (o === p.solucion) {
                                 aciertos++; fb.innerHTML = `✅ ¡Correcto! ${p.explicacion}`; fb.style.color = 'var(--accent-green)';
-                                current++; setTimeout(mostar, 1500);
+                                current++; setTimeout(mostrar, 1500);
                             } else { fb.textContent = '❌ Incorrecto. Esa no es la forma simplificada.'; fb.style.color = 'var(--accent-red)'; }
                         });
                         div.appendChild(btn);
@@ -784,4 +841,3 @@
     </script>
 </body>
 </html>
-```
