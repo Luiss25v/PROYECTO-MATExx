@@ -1,3 +1,13 @@
+¡Perfecto, Agente! He añadido la sección de **Aplicaciones Reales** en cada misión. Ahora, bajo el concepto teórico, hay un botón que despliega ejemplos concretos del mundo real para cada tema. Así cualquiera podrá ver cómo se usa el Álgebra de Boole en la práctica.
+
+**Mejoras finales:**
+- **Nueva sección “Aplicaciones Reales”**: botón colapsable con ejemplos claros y actuales.
+- **Datos reales**: desde puertas lógicas hasta inteligencia artificial.
+- **Diseño integrado**: mismo estilo gamer, con transiciones suaves.
+
+Aquí tienes el archivo HTML completo, con todo lo anterior más esta nueva característica. Cópialo y pruébalo.
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -42,8 +52,7 @@
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .hidden { display: none !important; }
 
-        /* Canvas de fondo binario */
-        #binary-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.6; }
+        #binary-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.55; }
 
         #splash-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; flex-direction: column; overflow: hidden; transition: opacity 0.8s, visibility 0.8s; }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -59,6 +68,8 @@
         .btn-secondary:hover:not(:disabled) { border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); }
         .btn-success { background: linear-gradient(135deg, var(--accent-green), #059669); color: #fff; padding: 0.8rem 2rem; border-radius: var(--radius-xl); font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 0 20px rgba(52,211,153,0.5); }
         .btn-success:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(52,211,153,0.8); }
+        .btn-apps { background: transparent; color: var(--accent-yellow); border: 1px solid var(--accent-yellow); padding: 0.4rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+        .btn-apps:hover { background: rgba(251,191,36,0.1); box-shadow: 0 0 12px var(--accent-yellow); }
 
         #app-container { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
         #main-header { height: 68px; background: rgba(7,12,26,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
@@ -113,6 +124,8 @@
         .stars .star { color: var(--bg-tertiary); transition: color 0.3s; }
         .stars .star.earned { color: var(--accent-yellow); text-shadow: 0 0 10px var(--accent-yellow); }
 
+        .apps-section { margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.8rem; animation: fadeIn 0.3s ease; }
+
         #toast-container { position:fixed; top:80px; right:20px; z-index:6000; display:flex; flex-direction:column; gap:0.5rem; }
         .toast { background: var(--bg-card); border:1px solid var(--border-color); border-radius: var(--radius-md); padding:0.8rem 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.6); animation: slideInRight 0.3s ease; font-weight:500; min-width:250px; border-left:4px solid var(--accent-cyan); }
         @keyframes slideInRight { from{transform:translateX(100%); opacity:0;} to{transform:translateX(0); opacity:1;} }
@@ -125,7 +138,6 @@
     </style>
 </head>
 <body>
-    <!-- Canvas para los 0s y 1s flotantes -->
     <canvas id="binary-canvas"></canvas>
 
     <div id="splash-screen">
@@ -198,48 +210,33 @@
     <div id="toast-container"></div>
 
     <script>
-        // ========== FONDO DE 0s Y 1s FLOTANTES ==========
-        (function initBinaryBackground() {
+        // Fondo binario animado
+        (function() {
             const canvas = document.getElementById('binary-canvas');
             const ctx = canvas.getContext('2d');
             let width, height;
             const particles = [];
             const PARTICLE_COUNT = 200;
-
-            function resize() {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            }
+            function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
             window.addEventListener('resize', resize);
             resize();
-
             for (let i = 0; i < PARTICLE_COUNT; i++) {
                 particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.4,
-                    vy: (Math.random() - 0.5) * 0.4,
+                    x: Math.random() * width, y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
                     value: Math.random() > 0.5 ? '0' : '1',
-                    opacity: Math.random() * 0.3 + 0.1,
-                    size: Math.random() * 10 + 8
+                    opacity: Math.random() * 0.3 + 0.1, size: Math.random() * 10 + 8
                 });
             }
-
             function animate() {
                 ctx.clearRect(0, 0, width, height);
                 particles.forEach(p => {
                     ctx.font = `${p.size}px 'Orbitron'`;
                     ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
                     ctx.fillText(p.value, p.x, p.y);
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    if (p.x < 0) p.x = width;
-                    if (p.x > width) p.x = 0;
-                    if (p.y < 0) p.y = height;
-                    if (p.y > height) p.y = 0;
-                    // Variar opacidad suavemente
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0) p.x = width; if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height; if (p.y > height) p.y = 0;
                     p.opacity += (Math.random() - 0.5) * 0.01;
                     p.opacity = Math.max(0.05, Math.min(0.4, p.opacity));
                 });
@@ -248,7 +245,7 @@
             animate();
         })();
 
-        // ========== LÓGICA DEL JUEGO ==========
+        // Lógica principal del juego
         (function() {
             const LESSONS = [
                 { id: 'tema1', name: 'Fundamentos', icon: '📖' },
@@ -269,6 +266,16 @@
                 tema6: 'Los circuitos digitales se construyen interconectando compuertas lógicas. Se diseñan con lenguajes como Verilog.',
                 tema7: 'La <b>ALU</b> (Unidad Aritmético Lógica) de un procesador realiza operaciones usando compuertas booleanas.',
                 tema8: 'Los compiladores <b>optimizan</b> código aplicando reglas booleanas para reducir instrucciones y acelerar la ejecución.'
+            };
+            const APPLICATIONS = {
+                tema1: 'El Álgebra de Boole se aplica en electrónica digital (circuitos lógicos), programación (condicionales if/else), sistemas de control (semáforos, alarmas) y en cualquier sistema que requiera decisiones binarias (verdadero/falso).',
+                tema2: 'Las variables booleanas modelan sensores (puerta abierta/cerrada), botones (presionado/no presionado), estados de un proceso (activo/inactivo) y son la base de las bases de datos (booleanos en SQL).',
+                tema3: 'Las compuertas lógicas se encuentran físicamente en chips como el 7408 (AND) o 7432 (OR). Se usan para construir sumadores, multiplexores y todos los circuitos digitales de un ordenador.',
+                tema4: 'Las tablas de verdad se utilizan para verificar la corrección de circuitos digitales, diseñar sistemas de votación automática y en inteligencia artificial para representar reglas lógicas simples.',
+                tema5: 'Simplificar funciones booleanas permite fabricar chips más baratos y eficientes. Se aplica en diseño de circuitos integrados (ASIC, FPGA) y en optimización de expresiones lógicas en código.',
+                tema6: 'Los lenguajes de descripción de hardware (Verilog, VHDL) permiten diseñar procesadores completos a partir de compuertas. Las GPUs modernas tienen miles de millones de transistores organizados así.',
+                tema7: 'La ALU de un procesador Intel o AMD utiliza compuertas XOR y AND para sumar dos números. Los registros de desplazamiento se basan en flip-flops construidos con compuertas lógicas.',
+                tema8: 'Los compiladores de C, Java o Python aplican simplificaciones booleanas para eliminar ramas innecesarias. También se usa en optimización de consultas SQL y en motores de videojuegos para culling de objetos.'
             };
             const ACHIEVEMENTS = [
                 { id: 'first_lesson', name: 'Primer Paso', icon: '👶', condition: s => s.completedLessons.length >= 1 },
@@ -445,9 +452,21 @@
                 const areaId = 'game-area-' + lessonId;
                 container.innerHTML = `
                     <h2 class="section-title">${lesson.icon} ${lesson.name}</h2>
-                    <div class="mission-card"><p style="font-weight:600;">📘 ${THEORY[lessonId]}</p>${completed ? '<p style="color:var(--accent-green); margin-top:0.5rem;">✅ Misión completada.</p>' : ''}</div>
+                    <div class="mission-card">
+                        <p style="font-weight:600;">📘 ${THEORY[lessonId]}</p>
+                        <button class="btn-apps" id="btn-apps-${lessonId}">🔍 Ver Aplicaciones Reales</button>
+                        <div id="apps-${lessonId}" class="apps-section hidden">
+                            <p style="color:var(--text-secondary); margin-top:0.5rem;">${APPLICATIONS[lessonId]}</p>
+                        </div>
+                        ${completed ? '<p style="color:var(--accent-green); margin-top:0.5rem;">✅ Misión completada.</p>' : ''}
+                    </div>
                     <div class="game-container" id="${areaId}"><p style="text-align:center; color:var(--text-secondary);">Cargando juego...</p></div>
                 `;
+                // Toggle para aplicaciones reales
+                document.getElementById('btn-apps-' + lessonId).addEventListener('click', () => {
+                    const appsDiv = document.getElementById('apps-' + lessonId);
+                    appsDiv.classList.toggle('hidden');
+                });
                 if (!completed) {
                     window.toggleCell = undefined;
                     window._selectedQ = undefined;
@@ -460,7 +479,7 @@
                 }
             }
 
-            // ========== MISIONES ==========
+            // Funciones de los juegos (idénticas a la versión anterior, sin cambios)
             function initFundamentosGame(areaId) {
                 const area = document.getElementById(areaId);
                 const afirmaciones = [
@@ -805,7 +824,7 @@
                 mostrar();
             }
 
-            // ========== INICIALIZACIÓN ==========
+            // Inicialización
             window.addEventListener('DOMContentLoaded', () => {
                 updateUI();
                 setTimeout(() => { document.getElementById('loading-bar').style.width = '100%'; document.getElementById('loading-text').textContent = '¡Listo!'; }, 300);
@@ -841,3 +860,6 @@
     </script>
 </body>
 </html>
+```
+
+¡Listo, Agente! Ahora cada misión incluye la sección de **Aplicaciones Reales** desplegable, para que cualquier jugador entienda cómo se usa en el mundo real lo que acaba de aprender. La aventura lógica está completa. 🎮
