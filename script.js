@@ -1,8 +1,3 @@
-// ============================================================
-// BOOLE ARCADE - LÓGICA COMPLETA (JUEGOS INTERACTIVOS)
-// Álgebra de Boole: Aventura Lógica
-// ============================================================
-
 (function() {
     'use strict';
 
@@ -38,7 +33,7 @@
         { id: 'coins100', name: 'Ahorrador', icon: '🪙', condition: s => s.coins >= 100 }
     ];
 
-    // -------------------------- ESTADO DEL JUEGO --------------------------
+    // -------------------------- ESTADO --------------------------
     let gameState = {
         xp: 0,
         level: 1,
@@ -57,15 +52,22 @@
         document.getElementById('level-number').textContent = gameState.level;
         document.getElementById('coins-amount').textContent = gameState.coins;
         document.getElementById('streak-count').textContent = gameState.streak;
-        const avatars = { default: '🧑‍💻', avatar1: '👨‍🔧', avatar2: '🤖', avatar3: '🧙' };
-        document.getElementById('avatar-display').textContent = avatars[gameState.activeAvatar] || '🧑‍💻';
-        document.getElementById('sidebar-rank').textContent = gameState.level >= 10 ? 'Maestro Digital' : gameState.level >= 5 ? 'Ingeniero Lógico' : 'Novato Binario';
 
-        // Actualizar candados del menú
+        const avatars = {
+            default: '🧑‍💻',
+            avatar1: '👨‍🔧',
+            avatar2: '🤖',
+            avatar3: '🧙'
+        };
+        document.getElementById('avatar-display').textContent = avatars[gameState.activeAvatar] || '🧑‍💻';
+        document.getElementById('sidebar-rank').textContent = gameState.level >= 10 ?
+            'Maestro Digital' : gameState.level >= 5 ? 'Ingeniero Lógico' : 'Novato Binario';
+
+        // Actualizar candados
         LESSONS.forEach((l, idx) => {
             const lockEl = document.getElementById('lock-' + l.id);
             if (lockEl) {
-                const isUnlocked = idx === 0 || gameState.completedLessons.includes(LESSONS[idx-1].id);
+                const isUnlocked = idx === 0 || gameState.completedLessons.includes(LESSONS[idx - 1].id);
                 lockEl.textContent = isUnlocked ? '🔓' : '🔒';
             }
         });
@@ -90,7 +92,49 @@
     function isLessonUnlocked(lessonId) {
         const idx = LESSONS.findIndex(l => l.id === lessonId);
         if (idx === 0) return true;
-        return gameState.completedLessons.includes(LESSONS[idx-1].id);
+        return gameState.completedLessons.includes(LESSONS[idx - 1].id);
+    }
+
+    function addXP(amount) {
+        gameState.xp += amount;
+        checkLevelUp();
+        updateUI();
+    }
+
+    function addCoins(amount) {
+        gameState.coins += amount;
+        updateUI();
+    }
+
+    function checkLevelUp() {
+        while (gameState.xp >= gameState.level * 100 && gameState.level < 50) {
+            gameState.xp -= gameState.level * 100;
+            gameState.level++;
+            showToast('🎉 ¡Subiste al nivel ' + gameState.level + '!');
+        }
+    }
+
+    function completeLesson(lessonId) {
+        if (!gameState.completedLessons.includes(lessonId)) {
+            gameState.completedLessons.push(lessonId);
+            addXP(50);
+            addCoins(15);
+            gameState.totalStudyTime += 5;
+            showToast('✅ Misión completada +50 XP');
+            checkAchievements();
+        }
+    }
+
+    function checkAchievements() {
+        ACHIEVEMENTS.forEach(a => {
+            if (!gameState.achievements.includes(a.id) && a.condition(gameState)) {
+                gameState.achievements.push(a.id);
+                showToast('🏅 Logro: ' + a.name);
+                addXP(20);
+                addCoins(10);
+            }
+        });
+        updateUI();
     }
 
     // -------------------------- NAVEGACIÓN --------------------------
@@ -115,7 +159,6 @@
             else if (sectionId === 'logros') renderLogros();
             else if (sectionId === 'tienda') renderTienda();
         } else {
-            // Es un tema: cargar su juego
             let sec = document.getElementById('section-' + sectionId);
             if (!sec) {
                 sec = document.createElement('section');
@@ -127,7 +170,7 @@
             renderLessonGame(sectionId, sec);
         }
 
-        // Actualizar clase activa en el menú
+        // Actualizar menú activo
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         const activeNav = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
         if (activeNav) activeNav.classList.add('active');
@@ -143,9 +186,9 @@
         if (!section) return;
 
         const nextLesson = LESSONS.find(l => !gameState.completedLessons.includes(l.id));
-        const missionText = nextLesson
-            ? `Misión: ${nextLesson.icon} ${nextLesson.name}`
-            : '¡Todas las misiones completadas!';
+        const missionText = nextLesson ?
+            `Misión: ${nextLesson.icon} ${nextLesson.name}` :
+            '¡Todas las misiones completadas!';
 
         section.innerHTML = `
             <h2 class="section-title" style="font-size:2rem;">⚡ Centro de Mando</h2>
@@ -154,9 +197,9 @@
                 <p style="color:var(--text-secondary); margin:0.8rem 0;">
                     Supera los minijuegos para desbloquear nuevos temas y ganar recompensas.
                 </p>
-                ${nextLesson
-                    ? '<button class="btn-mission" id="btn-start-mission">▶ INICIAR MISIÓN</button>'
-                    : '<p style="color:var(--accent-green);">¡Felicidades! Has completado el entrenamiento.</p>'}
+                ${nextLesson ?
+                    '<button class="btn-mission" id="btn-start-mission">▶ INICIAR MISIÓN</button>' :
+                    '<p style="color:var(--accent-green);">¡Felicidades! Has completado el entrenamiento.</p>'}
             </div>
             <h3 style="font-family:var(--font-display); color:var(--accent-cyan); margin-bottom:0.8rem;">🗺️ Progreso</h3>
             <div class="progress-grid" id="progress-nodes"></div>
@@ -243,41 +286,6 @@
         });
     }
 
-    // -------------------------- SISTEMA DE PROGRESO --------------------------
-    function addXP(amount) { gameState.xp += amount; checkLevelUp(); updateUI(); }
-    function addCoins(amount) { gameState.coins += amount; updateUI(); }
-
-    function checkLevelUp() {
-        while (gameState.xp >= gameState.level * 100 && gameState.level < 50) {
-            gameState.xp -= gameState.level * 100;
-            gameState.level++;
-            showToast('🎉 ¡Subiste al nivel ' + gameState.level + '!');
-        }
-    }
-
-    function completeLesson(lessonId) {
-        if (!gameState.completedLessons.includes(lessonId)) {
-            gameState.completedLessons.push(lessonId);
-            addXP(50);
-            addCoins(15);
-            gameState.totalStudyTime += 5;
-            showToast('✅ Misión completada +50 XP');
-            checkAchievements();
-        }
-    }
-
-    function checkAchievements() {
-        ACHIEVEMENTS.forEach(a => {
-            if (!gameState.achievements.includes(a.id) && a.condition(gameState)) {
-                gameState.achievements.push(a.id);
-                showToast('🏅 Logro: ' + a.name);
-                addXP(20);
-                addCoins(10);
-            }
-        });
-        updateUI();
-    }
-
     // -------------------------- CARGA DE JUEGOS --------------------------
     function renderLessonGame(lessonId, container) {
         const lesson = LESSONS.find(l => l.id === lessonId);
@@ -296,7 +304,7 @@
         `;
 
         if (!completed) {
-            // Limpiar posibles variables globales residuales
+            // Limpiar variables globales
             window.toggleCell = undefined;
             window._selectedQ = undefined;
 
@@ -313,9 +321,9 @@
         }
     }
 
-    // -------------------------- JUEGOS --------------------------
+    // ==================== JUEGOS ====================
 
-    // Juego 1: Fundamentos - Clasificar afirmaciones
+    // Juego 1: Fundamentos - Clasificar verdadero o falso
     function initFundamentosGame(areaId) {
         const area = document.getElementById(areaId);
         const afirmaciones = [
@@ -326,20 +334,22 @@
             { texto: 'El valor 0 representa "verdadero".', correcto: 0 }
         ];
 
-        area.innerHTML = `<p style="margin-bottom:1rem;">Arrastra cada afirmación a <b>1 (Verdadero)</b> o <b>0 (Falso)</b>:</p>
-        <div style="display:flex; gap:2rem; flex-wrap:wrap;">
-            <div style="flex:1; min-width:200px;">
-                <h4 style="color:var(--accent-green);">✅ 1 (Verdadero)</h4>
-                <div id="drop-1-${areaId}" class="game-container" style="min-height:100px; border:2px dashed var(--accent-green);"></div>
+        area.innerHTML = `
+            <p style="margin-bottom:1rem;">Arrastra cada afirmación a <b>1 (Verdadero)</b> o <b>0 (Falso)</b>:</p>
+            <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+                <div style="flex:1; min-width:200px;">
+                    <h4 style="color:var(--accent-green);">✅ 1 (Verdadero)</h4>
+                    <div id="drop-1-${areaId}" class="game-container" style="min-height:100px; border:2px dashed var(--accent-green);"></div>
+                </div>
+                <div style="flex:1; min-width:200px;">
+                    <h4 style="color:var(--accent-red);">❌ 0 (Falso)</h4>
+                    <div id="drop-0-${areaId}" class="game-container" style="min-height:100px; border:2px dashed var(--accent-red);"></div>
+                </div>
             </div>
-            <div style="flex:1; min-width:200px;">
-                <h4 style="color:var(--accent-red);">❌ 0 (Falso)</h4>
-                <div id="drop-0-${areaId}" class="game-container" style="min-height:100px; border:2px dashed var(--accent-red);"></div>
-            </div>
-        </div>
-        <div id="options-pool-${areaId}" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem;"></div>
-        <button id="btn-check-${areaId}" class="btn-primary" style="margin-top:1rem;">Verificar</button>
-        <p id="feedback-${areaId}" style="margin-top:0.5rem; font-weight:600;"></p>`;
+            <div id="options-pool-${areaId}" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem;"></div>
+            <button id="btn-check-${areaId}" class="btn-primary" style="margin-top:1rem;">Verificar</button>
+            <p id="feedback-${areaId}" style="margin-top:0.5rem; font-weight:600;"></p>
+        `;
 
         const pool = document.getElementById('options-pool-' + areaId);
         afirmaciones.forEach((a, i) => {
@@ -402,14 +412,15 @@
                 return;
             }
             const f = funciones[current];
-            area.innerHTML = `<p>Para <b>${f.expr}</b> (${f.desc}), ¿qué valores hacen F=1?</p>
-            <div style="display:flex; gap:1rem; margin:1rem 0;">
-                <label>A: <input type="number" id="input-a-${areaId}" min="0" max="1" value="0" style="width:60px; padding:0.4rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color);"></label>
-                <label>B: <input type="number" id="input-b-${areaId}" min="0" max="1" value="0" style="width:60px; padding:0.4rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color);"></label>
-            </div>
-            <button id="btn-verify-${areaId}" class="btn-primary">Verificar</button>
-            <p id="var-feedback-${areaId}" style="margin-top:0.5rem;"></p>`;
-
+            area.innerHTML = `
+                <p>Para <b>${f.expr}</b> (${f.desc}), ¿qué valores hacen F=1?</p>
+                <div style="display:flex; gap:1rem; margin:1rem 0;">
+                    <label>A: <input type="number" id="input-a-${areaId}" min="0" max="1" value="0" style="width:60px; padding:0.4rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color);"></label>
+                    <label>B: <input type="number" id="input-b-${areaId}" min="0" max="1" value="0" style="width:60px; padding:0.4rem; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color);"></label>
+                </div>
+                <button id="btn-verify-${areaId}" class="btn-primary">Verificar</button>
+                <p id="var-feedback-${areaId}" style="margin-top:0.5rem;"></p>
+            `;
             document.getElementById('btn-verify-' + areaId).addEventListener('click', () => {
                 const a = parseInt(document.getElementById('input-a-' + areaId).value);
                 const b = parseInt(document.getElementById('input-b-' + areaId).value);
@@ -447,10 +458,12 @@
                 return;
             }
             const g = gates[idx];
-            area.innerHTML = `<p>Tabla de verdad: <b>${g.tabla}</b></p><p>Selecciona la compuerta correcta:</p>
-            <div id="gate-options-${areaId}" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
-            <p id="gate-feedback-${areaId}" style="margin-top:0.5rem;"></p>`;
-
+            area.innerHTML = `
+                <p>Tabla de verdad: <b>${g.tabla}</b></p>
+                <p>Selecciona la compuerta correcta:</p>
+                <div id="gate-options-${areaId}" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+                <p id="gate-feedback-${areaId}" style="margin-top:0.5rem;"></p>
+            `;
             const div = document.getElementById('gate-options-' + areaId);
             ['AND', 'OR', 'NOT', 'XOR', 'NAND'].forEach(o => {
                 const btn = document.createElement('button');
@@ -484,19 +497,20 @@
         let respuestas = new Array(4).fill(null);
 
         function mostrar() {
-            area.innerHTML = `<p>Completa la tabla de verdad para <b>A XOR B</b> (haz clic en 0 o 1):</p>
-            <table style="width:100%; text-align:center; border-collapse:collapse;">
-                <tr style="background:var(--bg-tertiary);"><th>A</th><th>B</th><th>F</th></tr>
-                ${tabla.map((t,i) => `<tr>
-                    <td>${t.A}</td><td>${t.B}</td>
-                    <td id="cell-${i}-${areaId}" style="cursor:pointer; background:${respuestas[i]!==null ? (respuestas[i]===t.F?'#1a3a2a':'#3a1a1a') : 'var(--bg-secondary)'};">
-                        ${respuestas[i]!==null ? respuestas[i] : '?'}
-                    </td>
-                </tr>`).join('')}
-            </table>
-            <button id="btn-check-tabla-${areaId}" class="btn-primary" style="margin-top:1rem;">Verificar</button>
-            <p id="tabla-feedback-${areaId}" style="margin-top:0.5rem;"></p>`;
-
+            area.innerHTML = `
+                <p>Completa la tabla de verdad para <b>A XOR B</b> (haz clic en 0 o 1):</p>
+                <table style="width:100%; text-align:center; border-collapse:collapse;">
+                    <tr style="background:var(--bg-tertiary);"><th>A</th><th>B</th><th>F</th></tr>
+                    ${tabla.map((t, i) => `<tr>
+                        <td>${t.A}</td><td>${t.B}</td>
+                        <td id="cell-${i}-${areaId}" style="cursor:pointer; background:${respuestas[i] !== null ? (respuestas[i] === t.F ? '#1a3a2a' : '#3a1a1a') : 'var(--bg-secondary)'};">
+                            ${respuestas[i] !== null ? respuestas[i] : '?'}
+                        </td>
+                    </tr>`).join('')}
+                </table>
+                <button id="btn-check-tabla-${areaId}" class="btn-primary" style="margin-top:1rem;">Verificar</button>
+                <p id="tabla-feedback-${areaId}" style="margin-top:0.5rem;"></p>
+            `;
             tabla.forEach((t, i) => {
                 const cell = document.getElementById(`cell-${i}-${areaId}`);
                 if (cell) {
@@ -506,9 +520,8 @@
                     });
                 }
             });
-
             document.getElementById('btn-check-tabla-' + areaId).addEventListener('click', () => {
-                const ok = tabla.every((t,i) => respuestas[i] === t.F);
+                const ok = tabla.every((t, i) => respuestas[i] === t.F);
                 const fb = document.getElementById('tabla-feedback-' + areaId);
                 if (ok) {
                     fb.textContent = '¡Tabla correcta!';
@@ -541,11 +554,12 @@
                 return;
             }
             const p = pasos[current];
-            area.innerHTML = `<p>Simplifica: <b>${p.expr}</b></p>
-            <p>Elige el resultado simplificado:</p>
-            <div id="simp-options-${areaId}" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
-            <p id="simp-feedback-${areaId}" style="margin-top:0.5rem;"></p>`;
-
+            area.innerHTML = `
+                <p>Simplifica: <b>${p.expr}</b></p>
+                <p>Elige el resultado simplificado:</p>
+                <div id="simp-options-${areaId}" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+                <p id="simp-feedback-${areaId}" style="margin-top:0.5rem;"></p>
+            `;
             const div = document.getElementById('simp-options-' + areaId);
             ['A', 'B', 'A·B', 'A+B'].forEach(o => {
                 const btn = document.createElement('button');
@@ -573,14 +587,15 @@
     // Juego 6: Hardware - Relacionar compuertas con transistores
     function initHardwareGame(areaId) {
         const area = document.getElementById(areaId);
-        area.innerHTML = `<p>Relaciona cada compuerta con su implementación en transistores:</p>
-        <div style="display:flex; gap:2rem;">
-            <div id="hw-questions-${areaId}" style="flex:1;"></div>
-            <div id="hw-answers-${areaId}" style="flex:1;"></div>
-        </div>
-        <button id="btn-check-hw-${areaId}" class="btn-primary" style="margin-top:1rem;">Verificar</button>
-        <p id="hw-feedback-${areaId}" style="margin-top:1rem;"></p>`;
-
+        area.innerHTML = `
+            <p>Relaciona cada compuerta con su implementación en transistores:</p>
+            <div style="display:flex; gap:2rem;">
+                <div id="hw-questions-${areaId}" style="flex:1;"></div>
+                <div id="hw-answers-${areaId}" style="flex:1;"></div>
+            </div>
+            <button id="btn-check-hw-${areaId}" class="btn-primary" style="margin-top:1rem;">Verificar</button>
+            <p id="hw-feedback-${areaId}" style="margin-top:1rem;"></p>
+        `;
         const pares = [
             { q: 'AND', a: 'Transistores en serie' },
             { q: 'OR', a: 'Transistores en paralelo' },
@@ -591,7 +606,6 @@
 
         const qDiv = document.getElementById('hw-questions-' + areaId);
         const aDiv = document.getElementById('hw-answers-' + areaId);
-
         pares.forEach(p => {
             const qEl = document.createElement('div');
             qEl.className = 'game-option';
@@ -603,7 +617,6 @@
             });
             qDiv.appendChild(qEl);
         });
-
         ['Transistores en serie', 'Transistores en paralelo', 'Un solo transistor inversor'].forEach(a => {
             const aEl = document.createElement('div');
             aEl.className = 'game-option';
@@ -618,7 +631,6 @@
             });
             aDiv.appendChild(aEl);
         });
-
         document.getElementById('btn-check-hw-' + areaId).addEventListener('click', () => {
             const correct = pares.every(p => seleccion[p.q] === p.a);
             const fb = document.getElementById('hw-feedback-' + areaId);
@@ -638,12 +650,12 @@
     function initProcesadoresGame(areaId) {
         const area = document.getElementById(areaId);
         const pasos = ['Obtener instrucción', 'Decodificar', 'Ejecutar en ALU', 'Escribir resultado'];
-
-        area.innerHTML = `<p>Ordena los pasos de ejecución de una instrucción en la CPU:</p>
-        <div id="sortable-list-${areaId}" style="display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0;"></div>
-        <button id="btn-check-cpu-${areaId}" class="btn-primary">Verificar</button>
-        <p id="cpu-feedback-${areaId}" style="margin-top:0.5rem;"></p>`;
-
+        area.innerHTML = `
+            <p>Ordena los pasos de ejecución de una instrucción en la CPU:</p>
+            <div id="sortable-list-${areaId}" style="display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0;"></div>
+            <button id="btn-check-cpu-${areaId}" class="btn-primary">Verificar</button>
+            <p id="cpu-feedback-${areaId}" style="margin-top:0.5rem;"></p>
+        `;
         const list = document.getElementById('sortable-list-' + areaId);
         const shuffled = [...pasos].sort(() => Math.random() - 0.5);
         shuffled.forEach(p => {
@@ -655,7 +667,6 @@
             item.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', p));
             list.appendChild(item);
         });
-
         list.addEventListener('dragover', e => e.preventDefault());
         list.addEventListener('drop', e => {
             e.preventDefault();
@@ -666,14 +677,10 @@
                 const draggedEl = children.find(c => c.dataset.paso === draggedPaso);
                 const targetIdx = children.indexOf(target);
                 const draggedIdx = children.indexOf(draggedEl);
-                if (draggedIdx < targetIdx) {
-                    list.insertBefore(draggedEl, target.nextSibling);
-                } else {
-                    list.insertBefore(draggedEl, target);
-                }
+                if (draggedIdx < targetIdx) list.insertBefore(draggedEl, target.nextSibling);
+                else list.insertBefore(draggedEl, target);
             }
         });
-
         document.getElementById('btn-check-cpu-' + areaId).addEventListener('click', () => {
             const currentOrder = [...list.children].map(c => c.dataset.paso);
             const correct = JSON.stringify(currentOrder) === JSON.stringify(pasos);
@@ -690,7 +697,7 @@
         });
     }
 
-    // Juego 8: Optimización de Código - Elegir código más eficiente
+    // Juego 8: Optimización - Elegir código más eficiente
     function initOptimizacionGame(areaId) {
         const area = document.getElementById(areaId);
         const casos = [
@@ -707,13 +714,14 @@
                 return;
             }
             const c = casos[current];
-            area.innerHTML = `<p>¿Cuál es la versión más optimizada?</p>
-            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-                <div class="game-option" id="opt-a-${areaId}" style="cursor:pointer;">${c.a}</div>
-                <div class="game-option" id="opt-b-${areaId}" style="cursor:pointer;">${c.b}</div>
-            </div>
-            <p id="opt-feedback-${areaId}" style="margin-top:0.5rem;"></p>`;
-
+            area.innerHTML = `
+                <p>¿Cuál es la versión más optimizada?</p>
+                <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                    <div class="game-option" id="opt-a-${areaId}" style="cursor:pointer;">${c.a}</div>
+                    <div class="game-option" id="opt-b-${areaId}" style="cursor:pointer;">${c.b}</div>
+                </div>
+                <p id="opt-feedback-${areaId}" style="margin-top:0.5rem;"></p>
+            `;
             document.getElementById('opt-a-' + areaId).addEventListener('click', () => verificar('a'));
             document.getElementById('opt-b-' + areaId).addEventListener('click', () => verificar('b'));
 
@@ -734,11 +742,11 @@
         mostrar();
     }
 
-    // -------------------------- INICIALIZACIÓN --------------------------
+    // ==================== INICIALIZACIÓN ====================
     window.addEventListener('DOMContentLoaded', () => {
         updateUI();
 
-        // Splash
+        // Splash screen
         setTimeout(() => {
             document.getElementById('loading-bar').style.width = '100%';
             document.getElementById('loading-text').textContent = '¡Listo!';
@@ -784,7 +792,7 @@
             document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
         });
 
-        // Tecla Escape para cerrar modales (si quedara alguno)
+        // Tecla Escape
         window.addEventListener('keydown', e => {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden'));
