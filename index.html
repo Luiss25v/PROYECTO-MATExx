@@ -53,6 +53,7 @@
             font-family: var(--font-body); color: inherit;
             transition: var(--transition); font-weight: 600;
         }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .hidden { display: none !important; }
         #splash-screen {
             position: fixed; inset: 0;
@@ -86,7 +87,7 @@
             padding: 0.7rem 1.5rem; border-radius: var(--radius-md);
             border: 1px solid var(--border-color); font-weight: 600;
         }
-        .btn-secondary:hover { border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); }
+        .btn-secondary:hover:not(:disabled) { border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); }
         .btn-success {
             background: linear-gradient(135deg, var(--accent-green), #059669);
             color: #fff; padding: 0.9rem 2.2rem; border-radius: var(--radius-xl);
@@ -120,6 +121,7 @@
             border: 1px solid var(--border-color);
         }
         .icon-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); }
+        .icon-btn svg { width: 20px; height: 20px; fill: currentColor; }
         #sidebar {
             position: fixed; top: 68px; left: 0; width: 270px;
             height: calc(100vh - 68px); background: var(--bg-primary);
@@ -170,7 +172,8 @@
         }
         .progress-node.completed { border-color: var(--accent-green); box-shadow: var(--shadow-glow-green); }
         .progress-node.current { border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); animation: pulseNode 2s infinite; }
-        .progress-node.locked { opacity: 0.5; cursor: not-allowed; }
+        .progress-node.locked { opacity: 0.5; cursor: not-allowed; position: relative; }
+        .progress-node.locked::after { content: '🔒'; font-size: 1.2rem; position: absolute; top: 5px; right: 5px; }
         @keyframes pulseNode { 0%,100%{box-shadow:0 0 8px rgba(0,240,255,0.5);} 50%{box-shadow:0 0 20px rgba(0,240,255,0.9);} }
         .stats-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
         .stat-card {
@@ -232,7 +235,7 @@
         <div class="splash-content">
             <div class="splash-logo-icon">⊿</div>
             <h1 class="splash-title">BooleanQuest</h1>
-            <p class="splash-subtitle" style="color:var(--text-secondary);">DOMINA EL ÁLGEBRA DE BOOLE</p>
+            <p style="color:var(--text-secondary); font-family: var(--font-display); letter-spacing: 2px;">DOMINA EL ÁLGEBRA DE BOOLE</p>
             <div class="loading-bar-container"><div id="loading-bar" class="loading-bar"></div></div>
             <p id="loading-text" style="color:var(--text-muted);">Inicializando sistemas...</p>
             <button id="btn-enter" class="btn-primary hidden">ACCEDER AL SISTEMA</button>
@@ -246,7 +249,9 @@
                 <span class="header-logo">⊿ BooleanQuest</span>
             </div>
             <div class="header-right">
-                <button id="btn-fullscreen" class="icon-btn" title="Pantalla completa">⛶</button>
+                <button id="btn-fullscreen" class="icon-btn" title="Pantalla completa">
+                    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
                 <div class="stat-badge">🔥 <span id="streak-count">1</span></div>
                 <div class="stat-badge">⚡ <span id="xp-current">0</span> XP</div>
                 <div class="stat-badge">🏆 Nv.<span id="level-number">1</span></div>
@@ -355,7 +360,6 @@
 
     <script>
         (function() {
-            // ========== DATOS ==========
             const LESSONS = [
                 { id: 'tema1', name: 'Fundamentos', icon: '📖' },
                 { id: 'tema2', name: 'Variables Booleanas', icon: '🔢' },
@@ -446,7 +450,6 @@
                 { id: 'level10', name: 'Nivel 10', icon: '🔟', condition: s => s.level >= 10 },
                 { id: 'coins100', name: 'Ahorrador', icon: '🪙', condition: s => s.coins >= 100 },
             ];
-            // Estado fresco por sesión
             let gameState = {
                 xp: 0, level: 1, coins: 0, streak: 1,
                 completedLessons: [], quizzesPassed: 0,
@@ -456,7 +459,15 @@
                 notifications: []
             };
 
-            // ========== UI HELPERS ==========
+            // Utilidades
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
             function updateUI() {
                 document.getElementById('xp-current').textContent = gameState.xp;
                 document.getElementById('level-number').textContent = gameState.level;
@@ -465,7 +476,6 @@
                 const avatars = { default: '🧑‍💻', avatar1: '👨‍🔧', avatar2: '🤖', avatar3: '🧙' };
                 document.getElementById('avatar-display').textContent = avatars[gameState.activeAvatar] || '🧑‍💻';
                 document.getElementById('sidebar-rank').textContent = gameState.level >= 10 ? 'Maestro Digital' : gameState.level >= 5 ? 'Ingeniero Lógico' : 'Novato Binario';
-                // Actualizar candados
                 LESSONS.forEach((l, idx) => {
                     const lockEl = document.getElementById('lock-' + l.id);
                     if (lockEl) {
@@ -496,9 +506,8 @@
                 return gameState.completedLessons.includes(LESSONS[idx-1].id);
             }
 
-            // ========== NAVEGACIÓN ==========
+            // Navegación
             function navigateTo(sectionId, tab = 'teoria') {
-                // Verificar si el tema está bloqueado
                 if (LESSONS.some(l => l.id === sectionId) && !isLessonUnlocked(sectionId)) {
                     showToast('🔒 Debes completar el tema anterior primero.');
                     return;
@@ -548,8 +557,7 @@
                         });
                         section.querySelector('#btn-go-quiz').addEventListener('click', () => navigateTo(sectionId, 'quiz'));
                         section.querySelector('#btn-next').addEventListener('click', () => {
-                            const idx = LESSONS.findIndex(l => l.id === sectionId);
-                            if (canGoNext) navigateTo(LESSONS[idx+1].id, 'teoria');
+                            if (canGoNext) navigateTo(LESSONS[nextIdx].id, 'teoria');
                         });
                     } else if (tab === 'quiz') {
                         section.innerHTML = `
@@ -570,7 +578,7 @@
                 document.getElementById('sidebar-overlay').classList.add('hidden');
             }
 
-            // ========== CENTRO DE MANDO ==========
+            // Centro de Mando
             function renderInicio() {
                 const section = document.getElementById('section-inicio');
                 if (!section) return;
@@ -647,7 +655,7 @@
                 }));
             }
 
-            // ========== SISTEMA DE RECOMPENSAS ==========
+            // Sistema de recompensas
             function addXP(amount) { gameState.xp += amount; checkLevelUp(); updateUI(); }
             function addCoins(amount) { gameState.coins += amount; updateUI(); }
             function checkLevelUp() {
@@ -694,12 +702,13 @@
                 updateUI();
             }
 
-            // ========== QUIZ (SIN TEMPORIZADOR, CON REINTENTOS) ==========
+            // Quiz (sin temporizador, con reintentos y preguntas aleatorias)
             let quizData = null, currentQuizLesson = null;
             function startQuiz(lessonId) {
                 currentQuizLesson = lessonId;
+                const questions = QUIZ_QUESTIONS[lessonId].map(q => ({...q})); // copia
                 quizData = {
-                    questions: [...QUIZ_QUESTIONS[lessonId]],
+                    questions: shuffleArray(questions),
                     currentIndex: 0,
                     score: 0,
                     answered: false
@@ -712,7 +721,7 @@
             function showQuestion() {
                 if (quizData.currentIndex >= quizData.questions.length) { finishQuiz(); return; }
                 const q = quizData.questions[quizData.currentIndex];
-                document.getElementById('quiz-question-text').textContent = q.q;
+                document.getElementById('quiz-question-text').textContent = `Pregunta ${quizData.currentIndex+1}/${quizData.questions.length}: ${q.q}`;
                 const opts = document.getElementById('quiz-options');
                 opts.innerHTML = '';
                 q.options.forEach((opt, i) => {
@@ -750,7 +759,7 @@
             function nextQuestion() { quizData.currentIndex++; showQuestion(); }
             function finishQuiz() {
                 const total = quizData.questions.length;
-                const passed = quizData.score >= 3; // 3 de 5 para aprobar
+                const passed = quizData.score >= 3;
                 const questionEl = document.getElementById('quiz-question-text');
                 const optsEl = document.getElementById('quiz-options');
                 optsEl.innerHTML = '';
@@ -762,7 +771,6 @@
                     document.getElementById('quiz-result').textContent = `Puntuación: ${quizData.score}/${total}`;
                     document.getElementById('quiz-result').style.color = 'var(--accent-green)';
                     completeQuiz(currentQuizLesson);
-                    // Cerrar modal tras 2 segundos
                     setTimeout(() => {
                         document.getElementById('modal-quiz').classList.add('hidden');
                         navigateTo(currentQuizLesson, 'teoria');
@@ -775,12 +783,9 @@
                     document.getElementById('btn-retry-quiz').classList.remove('hidden');
                 }
             }
-            function retryQuiz() {
-                if (!currentQuizLesson) return;
-                startQuiz(currentQuizLesson);
-            }
+            function retryQuiz() { if (currentQuizLesson) startQuiz(currentQuizLesson); }
 
-            // ========== DESAFÍOS ==========
+            // Desafíos
             function startChallenge(id) {
                 const challenges = {
                     1: { title:'Identifica la Compuerta', q:'Tabla: 00→0, 01→1, 10→1, 11→1', answer:'OR', inputType:'select', options:['AND','OR','XOR','NAND'] },
@@ -814,10 +819,9 @@
                 }
             }
 
-            // ========== INICIALIZACIÓN ==========
+            // Inicialización
             window.addEventListener('DOMContentLoaded', () => {
                 updateUI();
-                // Splash
                 setTimeout(() => {
                     document.getElementById('loading-bar').style.width = '100%';
                     document.getElementById('loading-text').textContent = 'Sistema listo';
@@ -828,7 +832,6 @@
                     document.getElementById('app-container').classList.remove('hidden');
                     navigateTo('inicio');
                 });
-                // Sidebar
                 document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
                     document.getElementById('sidebar').classList.toggle('open');
                     document.getElementById('sidebar-overlay').classList.toggle('hidden');
@@ -837,7 +840,6 @@
                     document.getElementById('sidebar').classList.remove('open');
                     document.getElementById('sidebar-overlay').classList.add('hidden');
                 });
-                // Navegación
                 document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const section = e.currentTarget.dataset.section;
@@ -851,11 +853,9 @@
                         document.getElementById(btn.dataset.toggle).classList.toggle('hidden');
                     });
                 });
-                // Pantalla completa
                 document.getElementById('btn-fullscreen').addEventListener('click', () => {
                     document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
                 });
-                // Modales
                 document.getElementById('btn-close-quiz').addEventListener('click', () => document.getElementById('modal-quiz').classList.add('hidden'));
                 document.getElementById('btn-close-challenge').addEventListener('click', () => document.getElementById('modal-challenge').classList.add('hidden'));
                 document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
