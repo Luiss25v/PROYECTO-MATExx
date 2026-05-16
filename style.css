@@ -1,5 +1,5 @@
 /* ============================================================
-   BOOLE ARCADE - TEMÁTICA GAMER VIBRANTE
+   BOOLE ARCADE - TEMÁTICA GAMER VIBRANTE (ADAPTADA)
    Álgebra de Boole: Videojuego de Aprendizaje
    ============================================================ */
 
@@ -578,7 +578,7 @@ button:disabled {
     box-shadow: var(--shadow-glow-cyan);
 }
 
-/* -------------------- JUEGOS -------------------- */
+/* -------------------- JUEGOS (ADAPTADO A IDs ÚNICOS) -------------------- */
 .game-container {
     background: var(--bg-tertiary);
     border-radius: var(--radius-md);
@@ -610,49 +610,69 @@ button:disabled {
     background: #2a1a30;
     box-shadow: var(--shadow-glow-pink);
 }
-#drop-1,
-#drop-0 {
+
+/* Zonas de arrastre (ahora con IDs dinámicos: drop-1-*, drop-0-*) */
+[id^="drop-1-"],
+[id^="drop-0-"] {
     min-height: 100px;
     border: 2px dashed var(--border-color);
     border-radius: var(--radius-md);
     padding: 1rem;
     transition: border-color 0.2s, background 0.2s;
 }
-#drop-1 {
+[id^="drop-1-"] {
     border-color: var(--accent-green);
 }
-#drop-0 {
+[id^="drop-0-"] {
     border-color: var(--accent-red);
 }
-#drop-1.dragover {
+[id^="drop-1-"].dragover {
     border-color: var(--accent-green);
     background: rgba(52, 211, 153, 0.1);
     box-shadow: var(--shadow-glow-green);
 }
-#drop-0.dragover {
+[id^="drop-0-"].dragover {
     border-color: var(--accent-red);
     background: rgba(248, 113, 113, 0.1);
     box-shadow: var(--shadow-glow-red);
 }
 
-/* Tablas en juegos */
-#game-area table {
+/* Tablas dentro de juegos */
+.game-container table {
     width: 100%;
     border-collapse: collapse;
     border-radius: var(--radius-sm);
     overflow: hidden;
 }
-#game-area th,
-#game-area td {
+.game-container th,
+.game-container td {
     padding: 0.7rem;
     text-align: center;
     border: 1px solid var(--border-color);
     font-size: 1rem;
 }
-#game-area th {
+.game-container th {
     background: var(--bg-tertiary);
     color: var(--accent-cyan);
     font-family: var(--font-display);
+}
+
+/* Inputs de juegos (Variables, etc.) */
+.game-container input[type="number"] {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem;
+    border-radius: var(--radius-sm);
+    width: 60px;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.game-container input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 8px var(--accent-cyan);
 }
 
 /* -------------------- WHATSAPP -------------------- */
